@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DATABASE_URL=${DATABASE_URL}
+    container_name: aues-dashboard-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "${APP_PORT:-5055}:3000"
+    env_file:
+      - .env
+
+networks:
+  aues-network:
+    driver: bridge

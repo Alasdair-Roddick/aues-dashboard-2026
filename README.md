@@ -54,6 +54,109 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
+### Docker Setup (Alternative)
+
+For a containerized setup with Docker:
+
+#### Prerequisites
+
+- Docker
+- Docker Compose
+
+#### Quick Start with Docker
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd aues-dashboard-2026
+```
+
+2. Copy and configure environment variables:
+```bash
+cp .env.example .env
+```
+
+Edit `.env` if needed (defaults are configured for Docker Compose).
+
+3. Build and start the containers:
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start a PostgreSQL database container
+- Build and start the Next.js application container
+- Automatically run database migrations
+- Expose the application on [http://localhost:3000](http://localhost:3000)
+
+4. View logs:
+```bash
+docker-compose logs -f
+```
+
+5. Stop the containers:
+```bash
+docker-compose down
+```
+
+6. Stop and remove all data:
+```bash
+docker-compose down -v
+```
+
+#### Docker Commands Reference
+
+```bash
+# Build the Docker image
+docker-compose build
+
+# Start services in detached mode
+docker-compose up -d
+
+# View running containers
+docker-compose ps
+
+# View logs for a specific service
+docker-compose logs -f app
+docker-compose logs -f db
+
+# Execute commands in running container
+docker-compose exec app npm run db:migrate
+docker-compose exec app sh
+
+# Restart a service
+docker-compose restart app
+
+# Rebuild and restart
+docker-compose up -d --build
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (deletes database data)
+docker-compose down -v
+```
+
+#### Docker Environment Variables
+
+The following environment variables can be configured in `.env`:
+
+- `DATABASE_URL` - Neon PostgreSQL connection string (required)
+- `APP_PORT` - Application port (default: `5055`)
+- `NODE_ENV` - Environment mode (`development` or `production`)
+
+**Note:** This project uses Neon PostgreSQL (serverless). The Docker setup does NOT include a local PostgreSQL container.
+
+#### Production Deployment with Docker
+
+For production deployment:
+
+1. Update `.env` with your Neon database credentials
+2. Set `NODE_ENV=production`
+3. Use a reverse proxy (nginx, Traefik) for HTTPS
+4. Configure proper health checks and restart policies
+5. Database backups are handled by Neon
+
 ## Contributing
 
 We welcome contributions to the AUES Dashboard! Please follow these guidelines to ensure a smooth collaboration process.
@@ -495,6 +598,159 @@ If you have questions or need help:
 - Open an issue for bug reports or feature requests
 - Check existing issues before creating new ones
 - Review the documentation for Next.js, Drizzle ORM, and shadcn/ui
+
+---
+
+## LLM Usage Rules
+
+This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude, or GitHub Copilot for **frontend development only**. All LLM-assisted code must follow strict guidelines.
+
+### ✅ LLMs ARE ALLOWED FOR:
+
+#### Frontend Development
+- Creating React components with TypeScript
+- Implementing UI layouts and responsive designs
+- Using shadcn/ui components
+- Writing TailwindCSS styles (following [STYLE_GUIDE.md](STYLE_GUIDE.md))
+- Client-side form validation
+- Frontend state management (useState, useReducer, custom hooks)
+- Implementing user interactions and animations
+- Accessibility improvements (ARIA labels, keyboard navigation)
+
+#### Documentation
+- Writing or updating README files
+- Creating component documentation
+- Writing code comments
+- Improving user-facing documentation
+
+### ❌ LLMs ARE STRICTLY FORBIDDEN FROM:
+
+#### Database Operations (CRITICAL)
+- **NEVER** write SQL queries
+- **NEVER** modify database schema (`app/db/schema.ts`)
+- **NEVER** create or modify database migrations
+- **NEVER** use Drizzle ORM methods (select, insert, update, delete)
+- **NEVER** touch any files in `app/db/` directory
+- **NEVER** generate migration files in `drizzle/`
+
+#### Backend Logic
+- **NEVER** create API routes or endpoints
+- **NEVER** write server-side data fetching logic
+- **NEVER** implement authentication/authorization logic
+- **NEVER** handle server actions that mutate data
+- **NEVER** access or modify environment variables for database
+
+#### Data Mutations
+- **NEVER** perform INSERT, UPDATE, DELETE operations
+- **NEVER** modify persistent data
+- **NEVER** create database transaction logic
+
+### Required Compliance
+
+All LLM-generated code MUST:
+
+1. **Follow the Style Guide** - Read and adhere to [STYLE_GUIDE.md](STYLE_GUIDE.md)
+2. **Use shadcn/ui Components** - No custom implementations of standard components
+3. **TypeScript Types** - Properly type all props, state, and functions
+4. **Accessibility** - Include ARIA labels, semantic HTML, keyboard support
+5. **Responsive Design** - Mobile-first approach with proper breakpoints
+6. **Code Review** - All LLM code must be reviewed by a human before committing
+
+### Verification Checklist
+
+Before committing LLM-generated code, verify:
+
+- [ ] No database operations or queries
+- [ ] No modifications to `app/db/` files
+- [ ] No Drizzle ORM usage
+- [ ] Follows [STYLE_GUIDE.md](STYLE_GUIDE.md) completely
+- [ ] Uses only shadcn/ui components
+- [ ] Properly typed with TypeScript
+- [ ] Includes accessibility features
+- [ ] Tested on mobile and desktop
+- [ ] No hardcoded colors (uses design tokens)
+- [ ] No server-side logic
+
+### Example Boundaries
+
+```tsx
+// ✅ ALLOWED - Frontend component with client-side logic
+export function MemberCard({ name, email }: MemberCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  return (
+    <Card>
+      <CardHeader onClick={() => setIsExpanded(!isExpanded)}>
+        <CardTitle>{name}</CardTitle>
+        <CardDescription>{email}</CardDescription>
+      </CardHeader>
+      {isExpanded && (
+        <CardContent>
+          {/* Additional details */}
+        </CardContent>
+      )}
+    </Card>
+  )
+}
+
+// ❌ FORBIDDEN - Database query
+export async function getMembers() {
+  const members = await db.select().from(users)
+  return members
+}
+
+// ❌ FORBIDDEN - Database mutation
+export async function updateMember(id: string, data: UserData) {
+  await db.update(users).set(data).where(eq(users.id, id))
+}
+
+// ✅ ALLOWED - Client-side validation
+export function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+// ❌ FORBIDDEN - Server action with database
+"use server"
+export async function createMember(formData: FormData) {
+  await db.insert(users).values({ name: formData.get('name') })
+}
+```
+
+### Consequences of Violations
+
+Pull requests containing LLM-generated code that violates these rules will be:
+- ❌ **Immediately rejected**
+- ❌ **Required to rewrite from scratch**
+- ❌ **Flagged for review of contributor's understanding**
+
+### When in Doubt
+
+If you're using an LLM and encounter any of these scenarios:
+
+1. **LLM suggests database code** → ⚠️ STOP and flag for human review
+2. **Task requires data persistence** → ⚠️ Do NOT use LLM
+3. **Unsure if it's frontend-only** → ⚠️ Ask a maintainer first
+4. **LLM modifies schema files** → ⚠️ Revert immediately
+
+### Recommended LLM Workflow
+
+1. **Read [STYLE_GUIDE.md](STYLE_GUIDE.md)** before starting
+2. **Provide style guide to LLM** in your prompts
+3. **Review all generated code** line by line
+4. **Test thoroughly** before committing
+5. **Run linting and type checks**
+6. **Verify no database operations**
+7. **Human review required** before PR submission
+
+### Reporting Violations
+
+If you see LLM-generated code that violates these rules:
+1. Comment on the PR with specific violations
+2. Reference this section of the README
+3. Request immediate revision
+4. Do not merge until fixed
+
+---
 
 ## Learn More
 
