@@ -17,6 +17,11 @@ services:
       - "${APP_PORT:-5055}:3000"
     env_file:
       - .env
+    volumes:
+      - uploads:/app/public/uploads
+
+volumes:
+  uploads:
 
 networks:
   aues-network:
