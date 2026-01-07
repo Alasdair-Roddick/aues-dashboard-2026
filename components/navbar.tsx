@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { User, LogOut } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -14,7 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function Navbar() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user && (session.user as any).role === "Admin";
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
 
   return (
     <nav className="border-b">
@@ -42,13 +50,15 @@ export function Navbar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/admin" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                  Admin
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+            {isAdmin && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/admin" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                    Admin
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -57,7 +67,7 @@ export function Navbar() {
             <User className="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
