@@ -54,16 +54,17 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(bytes);
         await writeFile(filepath, buffer);
 
-        // Store URL in database
-        const imageUrl = `/uploads/avatars/${filename}`;
+        // Store URL in database (use API route for serving)
+        const imageUrl = `/api/uploads/avatars/${filename}`;
         await db
             .update(users)
             .set({ image: imageUrl, updatedAt: new Date() })
             .where(eq(users.id, session.user.id));
 
         // Delete old image if it exists and is in our uploads folder
-        if (currentUser?.image && currentUser.image.startsWith("/uploads/avatars/")) {
-            const oldFilePath = path.join(process.cwd(), "public", currentUser.image);
+        if (currentUser?.image && (currentUser.image.startsWith("/uploads/avatars/") || currentUser.image.startsWith("/api/uploads/avatars/"))) {
+            const oldFilename = currentUser.image.split("/").pop();
+            const oldFilePath = path.join(process.cwd(), "public", "uploads", "avatars", oldFilename!);
             try {
                 await unlink(oldFilePath);
             } catch {
