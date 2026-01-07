@@ -16,8 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, X, Check, Camera } from "lucide-react";
 import { toast } from "sonner";
+import { useUser } from "@/app/context/UserContext";
 
 export function ProfileSection() {
+    const { refreshUser } = useUser();
     const [user, setUser] = useState<CurrentUser>(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -57,6 +59,7 @@ export function ProfileSection() {
 
             if (result.success) {
                 setUser(prev => prev ? { ...prev, image: result.url } : null);
+                await refreshUser();
                 toast.success("Profile picture updated");
             } else {
                 toast.error("Upload failed", { description: result.error });

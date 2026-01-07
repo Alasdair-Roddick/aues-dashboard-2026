@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Invalid file type. Use JPEG, PNG, WebP, or GIF." }, { status: 400 });
         }
 
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024;
+        // Validate file size (max 15MB)
+        const maxSize = 15 * 1024 * 1024;
         if (file.size > maxSize) {
-            return NextResponse.json({ error: "File too large. Max 5MB." }, { status: 400 });
+            return NextResponse.json({ error: "File too large. Max 15MB." }, { status: 400 });
         }
 
         // Get current user's image to delete later

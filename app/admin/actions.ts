@@ -12,6 +12,7 @@ export async function getAllUsersAction() {
     return allUsers.map((u) => ({
       id: u.id,
       name: u.name,
+      image: u.image,
       role: u.role as "Admin" | "General" | "Temporary",
       isActive: u.isActive,
       createdAt: u.createdAt,
