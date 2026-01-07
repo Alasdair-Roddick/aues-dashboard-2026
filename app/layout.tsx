@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           {session && <Navbar />}
           {children}
+          <Toaster richColors position="top-right" />
         </SessionProvider>
       </body>
     </html>
