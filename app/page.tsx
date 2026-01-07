@@ -1,11 +1,13 @@
-import Image from "next/image";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { DashboardContent } from "./components/DashboardContent";
 
-export default function Home() {
-  return (
-    <div className="w-full h-screen flex">
-      <main className="m-auto">
-        <h1>Welcome to the Home Page</h1>
-      </main>
-    </div>
-  );
+export default async function Home() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  return <DashboardContent />;
 }

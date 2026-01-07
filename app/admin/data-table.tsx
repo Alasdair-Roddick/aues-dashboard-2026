@@ -63,6 +63,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export type User = {
   id: string
   name: string
+  image: string | null
   role: "Admin" | "General" | "Temporary"
   isActive: boolean
   createdAt: Date
@@ -334,9 +335,11 @@ export const columns: ColumnDef<User>[] = [
     },
     cell: ({ row }) => {
       const name = row.getValue("name") as string
+      const image = row.original.image
       return (
         <div className="flex items-center gap-2">
           <Avatar>
+            <AvatarImage src={image ?? undefined} alt={name} className="object-cover" />
             <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           

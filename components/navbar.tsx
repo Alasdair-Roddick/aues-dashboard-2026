@@ -4,7 +4,6 @@ import Link from "next/link"
 import { User, LogOut } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -18,24 +17,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getCurrentUser, type CurrentUser } from "@/lib/getUser"
+import { useUser } from "@/app/context/UserContext"
 
 export function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
   const isAdmin = session?.user && (session.user as any).role === "Admin";
-  const [user, setUser] = useState<CurrentUser>(null);
+  const { user } = useUser();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
   };
-
-      useEffect(() => {
-          getCurrentUser().then((data) => {
-              setUser(data);
-              
-          });
-      }, []);
 
   
 
@@ -80,7 +72,7 @@ export function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger className="h-10 w-10 rounded-full border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User Avatar"} />
+              <AvatarImage className="object-cover" src={user?.image ?? undefined} alt={user?.name ?? "User Avatar"} />
               <AvatarFallback>
 
                 {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
