@@ -1,0 +1,13 @@
+# Uploaded files - ignored from git
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.webp
+*.bmp
+*.tiff
+*.ico
+*.avif
+*.heic
+!.gitkeep
