@@ -13,6 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import type { AdapterAccountType } from "next-auth/adapters";
+import { email } from 'zod';
 
 
 
@@ -21,6 +22,8 @@ import type { AdapterAccountType } from "next-auth/adapters";
 export const users = pgTable("users", {
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull().unique(), // username for login
+    lastName: text("lastName"),
+    phoneNumber: text("phoneNumber"),
     password: text("password").notNull(), // hashed password for credentials login
     role: text("role").$type<'General' | 'Admin' | 'Temporary'>().notNull().default('General'),
     isActive: boolean("is_active").notNull().default(true),

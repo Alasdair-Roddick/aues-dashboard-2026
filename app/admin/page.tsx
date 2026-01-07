@@ -1,5 +1,11 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { AdminContent } from "./components/AdminContent";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin - AUES Dashboard"
+}
 
 export default async function AdminPage() {
   const session = await auth();
@@ -10,21 +16,19 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="grid gap-4">
-        <div className="border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-2">Welcome, Administrator</h2>
-          <p className="text-muted-foreground">
-            This page is only accessible to users with the Admin role.
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto p-6 max-w-7xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+            Admin Panel
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Manage users and their access to the dashboard
           </p>
         </div>
-        <div className="border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-2">Admin Tools</h2>
-          <p className="text-muted-foreground">
-            Admin functionality will be added here.
-          </p>
-        </div>
+
+        <AdminContent />
       </div>
     </div>
   );
