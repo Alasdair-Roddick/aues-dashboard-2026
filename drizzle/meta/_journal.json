@@ -29,6 +29,13 @@
       "when": 1767779067785,
       "tag": "0003_curly_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767939275832,
+      "tag": "0004_strong_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

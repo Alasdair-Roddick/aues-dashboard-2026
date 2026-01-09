@@ -10,12 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Shield, LogOut } from "lucide-react"
+import { User, Shield, LogOut, DollarSign } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./components/profile"
 import { SecuritySection } from "./components/security"
+import { FinancialSection } from "./components/financial"
 
-type Tab = "profile" | "security"
+type Tab = "profile" | "security" | "financial"
 
 export default function ProfilePage() {
 
@@ -29,6 +30,9 @@ export default function ProfilePage() {
         ),
         security: (
             <SecuritySection />
+        ),
+        financial: (
+            <FinancialSection />
         ),
     }
 
@@ -57,6 +61,14 @@ export default function ProfilePage() {
                         >
                             <Shield className="h-4 w-4 mr-2" />
                             Security
+                        </Button>
+                        <Button 
+                            variant={activeTab === "financial" ? "secondary" : "ghost"} 
+                            className="w-full justify-start"
+                            onClick={() => setActiveTab("financial")}
+                        >
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Financial
                         </Button>
                         <Button 
                             variant="ghost" 

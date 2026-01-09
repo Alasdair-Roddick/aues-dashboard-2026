@@ -25,6 +25,14 @@ export const users = pgTable("users", {
     lastName: text("lastName"),
     phoneNumber: text("phoneNumber"),
     password: text("password").notNull(), // hashed password for credentials login
+
+    // Bank details
+
+    bankName: text("bankName"),
+    BSB: text("BSB"),
+    accountNumber: text("accountNumber"),
+    accountName: text("accountName"),
+
     role: text("role").$type<'General' | 'Admin' | 'Temporary'>().notNull().default('General'),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),

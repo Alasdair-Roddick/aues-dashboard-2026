@@ -25,6 +25,10 @@ export async function getCurrentUser() {
             createdAt: users.createdAt,
             updatedAt: users.updatedAt,
             image: users.image,
+            bankName: users.bankName,
+            BSB: users.BSB,
+            accountNumber: users.accountNumber,
+            accountName: users.accountName,
         })
         .from(users)
         .where(eq(users.id, session.user.id))
@@ -39,9 +43,13 @@ export async function updateCurrentUser(data: {
     lastName?: string;
     email?: string;
     phoneNumber?: string;
+    bankName?: string;
+    BSB?: string;
+    accountNumber?: string;
+    accountName?: string;
 }) {
     const session = await auth();
-    
+
     if (!session?.user?.id) {
         return { success: false, error: "Not authenticated" };
     }
@@ -53,6 +61,10 @@ export async function updateCurrentUser(data: {
                 lastName: data.lastName,
                 email: data.email,
                 phoneNumber: data.phoneNumber,
+                bankName: data.bankName,
+                BSB: data.BSB,
+                accountNumber: data.accountNumber,
+                accountName: data.accountName,
                 updatedAt: new Date(),
             })
             .where(eq(users.id, session.user.id));
