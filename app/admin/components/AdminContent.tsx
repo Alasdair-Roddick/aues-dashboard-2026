@@ -1,28 +1,21 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { AddUserForm } from "./addUser";
-import { DataTable, User } from "../data-table";
-import { getAllUsersAction } from "../actions";
+import { DataTable } from "../data-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserStore } from "@/app/store/userStore";
 
 export function AdminContent() {
-  const [data, setData] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUsers = useCallback(async () => {
-    const users = await getAllUsersAction();
-    setData(users);
-    setLoading(false);
-  }, []);
+  const { users, usersLoading, fetchUsers } = useUserStore();
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const adminCount = data.filter(u => u.role === 'Admin').length;
-  const generalCount = data.filter(u => u.role === 'General').length;
-  const temporaryCount = data.filter(u => u.role === 'Temporary').length;
+  const adminCount = users.filter(u => u.role === 'Admin').length;
+  const generalCount = users.filter(u => u.role === 'General').length;
+  const temporaryCount = users.filter(u => u.role === 'Temporary').length;
 
   return (
     <>
@@ -33,10 +26,10 @@ export function AdminContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-              {loading ? (
+              {usersLoading ? (
                 <Skeleton className="h-9 w-12 mt-2" />
               ) : (
-                <p className="text-3xl font-bold mt-2">{data.length}</p>
+                <p className="text-3xl font-bold mt-2">{users.length}</p>
               )}
             </div>
             <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
@@ -52,7 +45,7 @@ export function AdminContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Admins</p>
-              {loading ? (
+              {usersLoading ? (
                 <Skeleton className="h-9 w-12 mt-2" />
               ) : (
                 <p className="text-3xl font-bold mt-2 text-purple-600">{adminCount}</p>
@@ -71,7 +64,7 @@ export function AdminContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">General</p>
-              {loading ? (
+              {usersLoading ? (
                 <Skeleton className="h-9 w-12 mt-2" />
               ) : (
                 <p className="text-3xl font-bold mt-2 text-blue-600">{generalCount}</p>
@@ -90,7 +83,7 @@ export function AdminContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Temporary</p>
-              {loading ? (
+              {usersLoading ? (
                 <Skeleton className="h-9 w-12 mt-2" />
               ) : (
                 <p className="text-3xl font-bold mt-2 text-amber-600">{temporaryCount}</p>
@@ -110,7 +103,7 @@ export function AdminContent() {
         {/* Left Column - Add User Form */}
         <div className="lg:col-span-1">
           <div className="sticky top-6">
-            <AddUserForm onSuccess={fetchUsers} />
+            <AddUserForm />
           </div>
         </div>
 
@@ -123,13 +116,13 @@ export function AdminContent() {
                 View and manage all user accounts
               </p>
             </div>
-            {loading ? (
+            {usersLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-64 w-full" />
               </div>
             ) : (
-              <DataTable data={data} onRefresh={fetchUsers} />
+              <DataTable data={users} />
             )}
           </div>
         </div>

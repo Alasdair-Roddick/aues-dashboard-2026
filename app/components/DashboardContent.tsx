@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getCurrentUser, type CurrentUser } from "@/lib/getUser";
+import { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -23,23 +22,24 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { useUserStore } from "@/app/store/userStore";
 
 export function DashboardContent() {
-  const [user, setUser] = useState<CurrentUser>(null);
-  const [loading, setLoading] = useState(true);
+  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUserLoading = useUserStore((state) => state.currentUserLoading);
+  const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
 
   useEffect(() => {
-    getCurrentUser().then((data) => {
-      setUser(data);
-      setLoading(false);
-    });
-  }, []);
+    if (!currentUser && !currentUserLoading) {
+      fetchCurrentUser();
+    }
+  }, [currentUser, currentUserLoading, fetchCurrentUser]);
 
   const currentHour = new Date().getHours();
   const greeting =
     currentHour < 12 ? "Good morning" : currentHour < 18 ? "Good afternoon" : "Good evening";
 
-  if (loading) {
+  if (currentUserLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="container mx-auto p-6 max-w-7xl">
@@ -68,23 +68,23 @@ export function DashboardContent() {
           <div className="flex items-center gap-4">
             <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-800 shadow-lg">
               <AvatarImage
-                src={user?.image ?? undefined}
-                alt={user?.name ?? "User"}
+                src={currentUser?.image ?? undefined}
+                alt={currentUser?.name ?? "User"}
                 className="object-cover"
               />
               <AvatarFallback className="text-2xl font-semibold bg-primary/10 text-primary">
-                {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                {currentUser?.name?.charAt(0).toUpperCase() ?? "U"}
               </AvatarFallback>
             </Avatar>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                {greeting}, {user?.name ?? "User"}
+                {greeting}, {currentUser?.name ?? "User"}
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-muted-foreground">Welcome to your dashboard</p>
-                {user?.role && (
-                  <Badge variant={user.role === "Admin" ? "default" : "secondary"}>
-                    {user.role}
+                {currentUser?.role && (
+                  <Badge variant={currentUser.role === "Admin" ? "default" : "secondary"}>
+                    {currentUser.role}
                   </Badge>
                 )}
               </div>
@@ -194,7 +194,7 @@ export function DashboardContent() {
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>Common tasks and navigation</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 flex flex-col">
               <Link href="/members">
                 <Button variant="outline" className="w-full justify-between">
                   View Members
@@ -207,7 +207,7 @@ export function DashboardContent() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              {user?.role === "Admin" && (
+              {currentUser?.role === "Admin" && (
                 <Link href="/admin">
                   <Button variant="outline" className="w-full justify-between">
                     Admin Panel

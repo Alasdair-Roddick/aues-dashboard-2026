@@ -26,16 +26,16 @@ import {
 import { Separator } from "@/components/ui/separator"
 
 import { addUserAction } from "../actions"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { UserPlus, User, Shield, Key } from "lucide-react"
+import { useUserStore } from "@/app/store/userStore"
 
-interface AddUserFormProps {
-    onSuccess?: () => void;
-}
-
-export function AddUserForm({ onSuccess }: AddUserFormProps) {
+export function AddUserForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedRole, setSelectedRole] = useState("General");
+    const formRef = useRef<HTMLFormElement>(null);
+    const addUser = useUserStore((state) => state.addUser);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -49,10 +49,23 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
 
             if (result.success) {
                 toast.success("User added successfully", {
-                    description: `${username} has been added with default password: ${username}2025`
+                    description: `${username} has been added with default password: ${username}2026`
                 });
-                e.currentTarget.reset();
-                onSuccess?.();
+
+                // Add user to Zustand store immediately
+                addUser({
+                    id: crypto.randomUUID(), // Temporary ID, will be updated on next fetch
+                    name: username,
+                    image: null,
+                    role: formData.get("role") as "Admin" | "General" | "Temporary",
+                    isActive: true,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                });
+
+                // Reset form using ref
+                formRef.current?.reset();
+                setSelectedRole("General");
             } else {
                 toast.error("Failed to add user", {
                     description: result.error
@@ -79,7 +92,7 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
             </CardDescription>
           </CardHeader>
           <Separator />
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <CardContent className="pt-6 space-y-6">
               <Field>
                 <FieldLabel htmlFor="username" className="flex items-center gap-2">
@@ -103,7 +116,7 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
                   Role
                 </FieldLabel>
                 <FieldContent>
-                  <Select name="role" defaultValue="General" required>
+                  <Select name="role" value={selectedRole} onValueChange={setSelectedRole} required>
                     <SelectTrigger className="mt-1.5">
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
@@ -137,7 +150,7 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Default Password</p>
                     <p className="text-xs text-muted-foreground">
-                      The password will be set to <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">username2025</code>
+                      The password will be set to <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">username2026</code>
                     </p>
                   </div>
                 </div>

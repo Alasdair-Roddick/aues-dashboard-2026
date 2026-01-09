@@ -4,6 +4,7 @@ import Link from "next/link"
 import { User, LogOut } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -17,13 +18,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUser } from "@/app/context/UserContext"
+import { useUserStore } from "@/app/store/userStore"
 
 export function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const isAdmin = session?.user && (session.user as any).role === "Admin";
-  const { user } = useUser();
+  const currentUser = useUserStore((state) => state.currentUser);
+  const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
+
+  // Fetch current user on mount and when session status changes to authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session?.user && !currentUser) {
+      fetchCurrentUser();
+    }
+  }, [status, currentUser, fetchCurrentUser, session?.user]);
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
@@ -72,10 +81,9 @@ export function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger className="h-10 w-10 rounded-full border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center">
             <Avatar className="h-8 w-8">
-              <AvatarImage className="object-cover" src={user?.image ?? undefined} alt={user?.name ?? "User Avatar"} />
+              <AvatarImage className="object-cover" src={currentUser?.image ?? undefined} alt={currentUser?.name ?? "User Avatar"} />
               <AvatarFallback>
-
-                {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+                {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

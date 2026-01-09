@@ -59,6 +59,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Trash2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useUserStore } from "@/app/store/userStore"
 
 export type User = {
   id: string
@@ -70,14 +71,9 @@ export type User = {
   updatedAt: Date
 }
 
-type RefreshContextType = {
-  refresh: () => void
-}
-
-const RefreshContext = React.createContext<RefreshContextType>({ refresh: () => {} })
-
 function UserRowActions({ user }: { user: User }) {
-  const { refresh } = React.useContext(RefreshContext)
+  const updateUser = useUserStore((state) => state.updateUser)
+  const deleteUser = useUserStore((state) => state.deleteUser)
   const [showEditModal, setShowEditModal] = React.useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
@@ -103,8 +99,15 @@ function UserRowActions({ user }: { user: User }) {
         toast.success("User updated", {
           description: `${username} has been updated successfully`
         })
+
+        // Update user in Zustand store immediately
+        updateUser(user.id, {
+          name: username,
+          role,
+          isActive
+        })
+
         setShowEditModal(false)
-        refresh()
       } else {
         toast.error("Failed to update user", {
           description: result.error
@@ -128,7 +131,11 @@ function UserRowActions({ user }: { user: User }) {
         toast.success("User deleted", {
           description: `${user.name} has been removed`
         })
-        refresh()
+
+        // Remove user from Zustand store immediately
+        deleteUser(user.id)
+
+        setShowDeleteDialog(false)
       } else {
         toast.error("Failed to delete user", {
           description: result.error
@@ -411,10 +418,9 @@ export const columns: ColumnDef<User>[] = [
 
 interface DataTableProps {
   data: User[]
-  onRefresh: () => void
 }
 
-export function DataTable({ data, onRefresh }: DataTableProps) {
+export function DataTable({ data }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -481,7 +487,6 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
   }
 
   return (
-    <RefreshContext.Provider value={{ refresh: onRefresh }}>
     <div className="w-full">
       <motion.div
         className="flex items-center py-4 gap-4"
@@ -649,6 +654,5 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
         </div>
       </motion.div>
     </div>
-    </RefreshContext.Provider>
   )
 }

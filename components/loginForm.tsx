@@ -13,11 +13,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { signIn } from "next-auth/react"
+import { useUserStore } from "@/app/store/userStore"
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -38,8 +40,9 @@ export function LoginForm() {
         if (result?.error) {
           setError("Invalid username or password")
         } else if (result?.ok) {
+          // Fetch current user to update Zustand store
+          await fetchCurrentUser()
           router.push("/")
-          router.refresh()
         }
       } catch (err) {
         setError("An unexpected error occurred")

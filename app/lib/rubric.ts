@@ -56,6 +56,8 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
     }
 
     const membersData = response.data.allMemberships as any[];
+    console.log(`Fetched ${membersData.length} members from Rubric.`);
+    console.log(membersData[0]); // Log the first member for inspection
 
     const members: Member[] = membersData.map((data) => {
         // Parse price: remove currency symbols and convert to number
@@ -75,7 +77,8 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
             pricePaid: parsedPrice,
             paymentMethod: data.paymentmethod || data.paymentMethod,
             isValid: data.isvalid === 1,
-            createdAt: new Date(data.created),
+            createdAt: data.created ? new Date(data.created) : new Date(),
+            // createdAt: new Date(data.created),
             updatedAt: new Date(data.updated),
         });
     });
@@ -113,7 +116,7 @@ export const syncMembersWithDatabase = async () => {
         pricePaid: member.pricePaid ?? null,
         paymentMethod: member.paymentMethod ?? null,
         isValid: member.isValid ?? false,
-        createdAt: new Date(),
+        createdAt: member.createdAt ?? new Date(),
         updatedAt: new Date(),
     }));
 

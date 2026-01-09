@@ -33,8 +33,8 @@ export async function addUserAction(formData: FormData) {
       return { success: false, error: "Username and role are required" };
     }
 
-    // Automatically set password to username2025
-    const password = `${username}2025`;
+    // Automatically set password to username2026
+    const password = `${username}2026`;
 
     await addUser(username, password, role);
     return { success: true };

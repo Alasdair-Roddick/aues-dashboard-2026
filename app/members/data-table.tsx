@@ -47,6 +47,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+import { syncMembers } from "./actions"
+
 export type Member = {
   id: number
   fullname: string
@@ -450,6 +452,7 @@ export function DataTable({ data }: DataTableProps) {
           />
         </div>
         <DropdownMenu>
+          <Button onClick={() => syncMembers()}>Sync</Button>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
