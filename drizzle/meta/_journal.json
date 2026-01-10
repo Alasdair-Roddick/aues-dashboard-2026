@@ -43,6 +43,13 @@
       "when": 1768001923914,
       "tag": "0005_thankful_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768005213788,
+      "tag": "0006_flimsy_bloodstrike",
+      "breakpoints": true
     }
   ]
 }

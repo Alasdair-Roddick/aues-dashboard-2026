@@ -35,8 +35,8 @@ export const users = pgTable("users", {
 
     role: text("role").$type<'General' | 'Admin' | 'Temporary'>().notNull().default('General'),
     isActive: boolean("is_active").notNull().default(true),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
 
 
     accountSetupComplete: boolean("accountSetupComplete").notNull().default(false),
@@ -127,15 +127,15 @@ export const members = pgTable("members", {
   pricePaid: numeric("price_paid", { precision: 8, scale: 2 }),
   paymentMethod: varchar("payment_method", { length: 50 }),
   isValid: boolean("is_valid").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membershipResponses = pgTable("membership_responses", {
   id: serial("id").primaryKey(),
   memberId: integer("member_id").references(() => members.id).notNull(),
   responses: jsonb("responses"), // full Firebase form block
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membersRelations = relations(members, ({ many }) => ({
@@ -157,7 +157,7 @@ export const membershipPayments = pgTable("membership_payments", {
   method: varchar("method", { length: 50 }),
   status: varchar("status", { length: 50 }).default("pending"),
   transactionId: varchar("transaction_id", { length: 100 }),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membershipPaymentsRelations = relations(membershipPayments, ({ one }) => ({
