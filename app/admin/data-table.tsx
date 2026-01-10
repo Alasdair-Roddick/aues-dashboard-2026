@@ -65,7 +65,7 @@ export type User = {
   id: string
   name: string
   image: string | null
-  role: "Admin" | "General" | "Temporary"
+  role: "Admin" | "General" | "Temporary" | "Treasurer"
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -86,6 +86,12 @@ function UserRowActions({ user }: { user: User }) {
   const [isActive, setIsActive] = React.useState(user.isActive)
 
   const handleUpdate = async () => {
+    // Validate password if provided
+    if (password && password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
     setIsUpdating(true)
     try {
       const result = await updateUserAction(user.id, {
@@ -217,7 +223,7 @@ function UserRowActions({ user }: { user: User }) {
                 placeholder="Leave blank to keep current"
               />
               <p className="text-xs text-muted-foreground">
-                Only enter a password if you want to change it
+                Must be at least 8 characters. Leave blank to keep current password.
               </p>
             </div>
 
@@ -231,6 +237,7 @@ function UserRowActions({ user }: { user: User }) {
                   <SelectItem value="General">General</SelectItem>
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Temporary">Temporary</SelectItem>
+                  <SelectItem value="Treasurer">Treasurer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -373,6 +380,7 @@ export const columns: ColumnDef<User>[] = [
       const roleColors = {
         Admin: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
         General: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+        Treasurer: "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300",
         Temporary: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
       }
       return (

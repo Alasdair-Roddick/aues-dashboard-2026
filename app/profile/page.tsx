@@ -10,14 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Shield, LogOut, DollarSign, Palette } from "lucide-react"
+import { User, Shield, LogOut, DollarSign, Palette, Receipt } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./components/profile"
 import { SecuritySection } from "./components/security"
 import { FinancialSection } from "./components/financial"
 import { AppearanceSection } from "./components/appearance"
+import { ReceiptsSection } from "./components/receipts"
 
-type Tab = "profile" | "security" | "financial" | "appearance"
+type Tab = "profile" | "security" | "financial" | "receipts" | "appearance"
 
 export default function ProfilePage() {
 
@@ -35,32 +36,37 @@ export default function ProfilePage() {
         financial: (
             <FinancialSection />
         ),
+        receipts: (
+            <ReceiptsSection />
+        ),
         appearance: (
             <AppearanceSection />
         ),
     }
 
     return (
-        <div className="flex flex-col min-h-full m-20">
-            <h1 className="text-3xl font-bold">Welcome Back, {user?.name}</h1>
-            <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mt-6">
-                {/* Navigation Sidebar */}
+        <div className="flex flex-col min-h-full p-4 md:p-8 lg:m-20">
+            <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0">Welcome Back, {user?.name}</h1>
+            <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 md:gap-6 mt-4 md:mt-6">
+                {/* Navigation Sidebar - Horizontal scroll on mobile, sidebar on desktop */}
                 <Card className="h-fit">
-                    <CardHeader className="pb-3">
+                    <CardHeader className="pb-3 hidden md:block">
                         <CardTitle className="text-lg">Navigation</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-1 p-3">
-                        <Button 
-                            variant={activeTab === "profile" ? "secondary" : "ghost"} 
-                            className="w-full justify-start"
+                    <CardContent className="p-2 md:p-3">
+                        <div className="flex md:flex-col overflow-x-auto md:overflow-x-visible space-x-1 md:space-x-0 md:space-y-1 pb-2 md:pb-0">
+                        <Button
+                            variant={activeTab === "profile" ? "secondary" : "ghost"}
+                            className="flex-shrink-0 md:w-full justify-start whitespace-nowrap"
                             onClick={() => setActiveTab("profile")}
                         >
                             <User className="h-4 w-4 mr-2" />
-                            My Profile
+                            <span className="hidden md:inline">My Profile</span>
+                            <span className="md:hidden">Profile</span>
                         </Button>
-                        <Button 
-                            variant={activeTab === "security" ? "secondary" : "ghost"} 
-                            className="w-full justify-start"
+                        <Button
+                            variant={activeTab === "security" ? "secondary" : "ghost"}
+                            className="flex-shrink-0 md:w-full justify-start whitespace-nowrap"
                             onClick={() => setActiveTab("security")}
                         >
                             <Shield className="h-4 w-4 mr-2" />
@@ -68,15 +74,23 @@ export default function ProfilePage() {
                         </Button>
                         <Button
                             variant={activeTab === "financial" ? "secondary" : "ghost"}
-                            className="w-full justify-start"
+                            className="flex-shrink-0 md:w-full justify-start whitespace-nowrap"
                             onClick={() => setActiveTab("financial")}
                         >
                             <DollarSign className="h-4 w-4 mr-2" />
                             Financial
                         </Button>
                         <Button
+                            variant={activeTab === "receipts" ? "secondary" : "ghost"}
+                            className="flex-shrink-0 md:w-full justify-start whitespace-nowrap"
+                            onClick={() => setActiveTab("receipts")}
+                        >
+                            <Receipt className="h-4 w-4 mr-2" />
+                            Receipts
+                        </Button>
+                        <Button
                             variant={activeTab === "appearance" ? "secondary" : "ghost"}
-                            className="w-full justify-start"
+                            className="flex-shrink-0 md:w-full justify-start whitespace-nowrap"
                             onClick={() => setActiveTab("appearance")}
                         >
                             <Palette className="h-4 w-4 mr-2" />
@@ -84,12 +98,13 @@ export default function ProfilePage() {
                         </Button>
                         <Button
                             variant="ghost"
-                            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="flex-shrink-0 md:w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 whitespace-nowrap"
                             onClick={() => signOut({ callbackUrl: "/login" })}
                         >
                             <LogOut className="h-4 w-4 mr-2" />
                             Logout
                         </Button>
+                        </div>
                     </CardContent>
                 </Card>
 

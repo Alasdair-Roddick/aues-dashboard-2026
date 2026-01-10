@@ -20,6 +20,7 @@ export async function GET(
             ".png": "image/png",
             ".gif": "image/gif",
             ".webp": "image/webp",
+            ".pdf": "application/pdf",
         };
         
         const contentType = contentTypes[ext] || "application/octet-stream";

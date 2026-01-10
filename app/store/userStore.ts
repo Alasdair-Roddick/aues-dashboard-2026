@@ -6,7 +6,7 @@ export type User = {
   id: string;
   name: string;
   image: string | null;
-  role: "Admin" | "General" | "Temporary";
+  role: "Admin" | "General" | "Temporary" | "Treasurer";
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

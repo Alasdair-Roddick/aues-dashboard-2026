@@ -13,7 +13,7 @@ export async function getAllUsersAction() {
       id: u.id,
       name: u.name,
       image: u.image,
-      role: u.role as "Admin" | "General" | "Temporary",
+      role: u.role as "Admin" | "General" | "Temporary" | "Treasurer",
       isActive: u.isActive,
       createdAt: u.createdAt,
       updatedAt: u.updatedAt,
@@ -28,7 +28,7 @@ export async function getAllUsersAction() {
 export async function addUserAction(formData: FormData) {
   try {
     const username = formData.get("username") as string;
-    const role = formData.get("role") as "Admin" | "General" | "Temporary";
+    const role = formData.get("role") as "Admin" | "General" | "Temporary" | "Treasurer";
 
     if (!username || !role) {
       return { success: false, error: "Username and role are required" };
@@ -53,7 +53,7 @@ export async function updateUserAction(
   data: {
     name?: string;
     password?: string;
-    role?: "Admin" | "General" | "Temporary";
+    role?: "Admin" | "General" | "Temporary" | "Treasurer";
     isActive?: boolean;
   }
 ) {

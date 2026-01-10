@@ -54,10 +54,10 @@ export function AddUserForm() {
 
                 // Add user to Zustand store immediately
                 addUser({
-                    id: crypto.randomUUID(), // Temporary ID, will be updated on next fetch
+                    id: `temp-${Date.now()}-${Math.random()}`, // Temporary ID, will be updated on next fetch
                     name: username,
                     image: null,
-                    role: formData.get("role") as "Admin" | "General" | "Temporary",
+                    role: formData.get("role") as "Admin" | "General" | "Temporary" | "Treasurer",
                     isActive: true,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -130,6 +130,12 @@ export function AddUserForm() {
                       <SelectItem value="Admin">
                         <span className="flex items-center gap-2">
                           Admin
+                          <span className="text-xs text-muted-foreground">— Full access</span>
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="Treasurer">
+                        <span className="flex items-center gap-2">
+                          Treasurer
                           <span className="text-xs text-muted-foreground">— Full access</span>
                         </span>
                       </SelectItem>
