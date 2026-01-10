@@ -1,27 +1,25 @@
-import { getAllMembers } from "../lib/memberships/memberships"
-import { Metadata } from "next"
-import { DataTable } from "./data-table"
+"use client";
 
-export const metadata: Metadata = {
-    title: "Members - AUES Dashboard"
-}
+import { useEffect, useRef } from "react";
+import { DataTable } from "./data-table";
+import { useMembersStore } from "@/app/store/membersStore";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function MembersPage() {
-    const members = await getAllMembers()
+export default function MembersPage() {
+    const members = useMembersStore((state) => state.members);
+    const membersLoading = useMembersStore((state) => state.membersLoading);
+    const fetchMembers = useMembersStore((state) => state.fetchMembers);
+    const hasFetched = useRef(false);
 
-    const data = members.map((member) => ({
-        id: member.id,
-        fullname: member.fullname,
-        email: member.email,
-        phonenumber: member.phonenumber,
-        membershipId: member.membershipId,
-        membershipType: member.membershipType,
-        pricePaid: member.pricePaid,
-        paymentMethod: member.paymentMethod,
-        isValid: member.isValid,
-        createdAt: member.createdAt,
-        updatedAt: member.updatedAt,
-    }))
+    useEffect(() => {
+        if (!hasFetched.current) {
+            hasFetched.current = true;
+            if (members.length === 0 && !membersLoading) {
+                fetchMembers();
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
@@ -33,7 +31,14 @@ export default async function MembersPage() {
                     </p>
                 </div>
             </div>
-            <DataTable data={data} />
+            {membersLoading && members.length === 0 ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-96 w-full" />
+                </div>
+            ) : (
+                <DataTable data={members} />
+            )}
         </div>
-    )
+    );
 }

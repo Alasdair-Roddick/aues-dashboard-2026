@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -20,24 +20,57 @@ import {
   ArrowRight,
   BarChart3,
   Clock,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
+import { useMembersStore } from "@/app/store/membersStore";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { motion } from "framer-motion";
+import { MemberChart } from "./MemberChart";
+import { parseDate } from "@/app/utils/dateFormatter";
 
-export function DashboardContent() {
+interface DashboardContentProps {
+  accountSetupComplete: boolean;
+}
+
+export function DashboardContent({ accountSetupComplete }: DashboardContentProps) {
   const currentUser = useUserStore((state) => state.currentUser);
   const currentUserLoading = useUserStore((state) => state.currentUserLoading);
   const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
+  
+  const members = useMembersStore((state) => state.members);
+  const membersLoading = useMembersStore((state) => state.membersLoading);
+  const fetchMembers = useMembersStore((state) => state.fetchMembers);
+  const growthRate = useMembersStore((state) => state.growthRate);
+  
+  console.log("Current User in DashboardContent:", currentUser);
+  console.log("Account Setup Complete:", accountSetupComplete);
+  
+
 
   useEffect(() => {
     if (!currentUser && !currentUserLoading) {
       fetchCurrentUser();
     }
-  }, [currentUser, currentUserLoading, fetchCurrentUser]);
+    if (members.length === 0 && !membersLoading) {
+      fetchMembers();
+    }
+  }, [currentUser, currentUserLoading, fetchCurrentUser, members.length, membersLoading, fetchMembers]);
 
   const currentHour = new Date().getHours();
   const greeting =
     currentHour < 12 ? "Good morning" : currentHour < 18 ? "Good afternoon" : "Good evening";
+
+  const monthlyMembers = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return members.filter((m) => {
+      const createdAt = parseDate(m.createdAt);
+      if (!createdAt) return false;
+      return createdAt >= startOfMonth;
+    }).length;
+  }, [members]);
 
   if (currentUserLoading) {
     return (
@@ -62,7 +95,27 @@ export function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+
       <div className="container mx-auto p-6 max-w-7xl">
+              {!accountSetupComplete && (
+              <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              >
+        <Alert variant="destructive" className="mb-6 border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950/20 shadow-sm">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
+          <AlertTitle className="text-red-900 dark:text-red-100 font-semibold">Account Setup Incomplete</AlertTitle>
+          <AlertDescription className="text-red-800 dark:text-red-200">
+            Please complete your account setup in your profile to access all dashboard features.
+            <Link href="/profile" className="inline-flex items-center gap-1 ml-1 font-medium underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-100 transition-colors">
+              Go to Profile
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </AlertDescription>
+        </Alert>
+        </motion.div>
+      )}
         {/* Header with User Info */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
@@ -92,7 +145,7 @@ export function DashboardContent() {
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
-            {new Date().toLocaleDateString("en-US", {
+            {new Date().toLocaleDateString("en-AU", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -111,7 +164,9 @@ export function DashboardContent() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
+              <div className="text-2xl font-bold">
+                {membersLoading ? <Skeleton className="h-8 w-12" /> : members.length}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Charts coming soon
               </p>
@@ -121,14 +176,16 @@ export function DashboardContent() {
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Active This Month
+                New This Month
               </CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
+              <div className="text-2xl font-bold">
+                {membersLoading ? <Skeleton className="h-8 w-12" /> : monthlyMembers}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Charts coming soon
+                Members joined this month
               </p>
             </CardContent>
           </Card>
@@ -141,9 +198,11 @@ export function DashboardContent() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
+              <div className={`text-2xl font-bold ${growthRate() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {membersLoading ? <Skeleton className="h-8 w-12" /> : `${growthRate() >= 0 ? '+' : ''}${growthRate()}%`}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Charts coming soon
+                vs last month
               </p>
             </CardContent>
           </Card>
@@ -172,19 +231,13 @@ export function DashboardContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Member Analytics</CardTitle>
-                  <CardDescription>Membership trends over time</CardDescription>
+                  <CardDescription>New members over the last 6 months</CardDescription>
                 </div>
                 <BarChart3 className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-lg bg-muted/30">
-                <div className="text-center text-muted-foreground">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="font-medium">Chart.js Integration Coming Soon</p>
-                  <p className="text-sm">Analytics and visualizations will appear here</p>
-                </div>
-              </div>
+              <MemberChart />
             </CardContent>
           </Card>
 

@@ -29,10 +29,10 @@ export function Navbar() {
 
   // Fetch current user on mount and when session status changes to authenticated
   useEffect(() => {
-    if (status === "authenticated" && session?.user && !currentUser) {
+    if (status === "authenticated" && session?.user) {
       fetchCurrentUser();
     }
-  }, [status, currentUser, fetchCurrentUser, session?.user]);
+  }, [status, fetchCurrentUser, session?.user]);
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });

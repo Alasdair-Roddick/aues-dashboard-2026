@@ -12,6 +12,12 @@ export type User = {
   updatedAt: Date;
 };
 
+
+/**
+ * * Type definition for the user store, managing both all users and the current user.
+ * 
+ */
+
 type UserStore = {
   // All users (for admin panel)
   users: User[];
@@ -30,6 +36,13 @@ type UserStore = {
   fetchCurrentUser: () => Promise<void>;
   updateCurrentUser: (updates: Partial<NonNullable<CurrentUser>>) => void;
 };
+
+
+/**
+ * * Zustand store for managing user data, including fetching, adding, updating, and deleting users.
+ * @returns A Zustand store with user management functionalities.
+ * 
+ */
 
 export const useUserStore = create<UserStore>((set, get) => ({
   users: [],

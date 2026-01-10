@@ -48,6 +48,9 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { syncMembers } from "./actions"
+import { toAustralianDateTime } from "@/app/utils/dateFormatter"
+import { useMembersStore } from "@/app/store/membersStore"
+import { Loader2 } from "lucide-react"
 
 export type Member = {
   id: number
@@ -178,17 +181,13 @@ function MemberRowActions({ member }: { member: Member }) {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Created At</p>
                 <p className="text-sm font-semibold">
-                  {member.createdAt
-                    ? new Date(member.createdAt).toLocaleString()
-                    : "N/A"}
+                  {member.createdAt ? toAustralianDateTime(member.createdAt) : "N/A"}
                 </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Updated At</p>
                 <p className="text-sm font-semibold">
-                  {member.updatedAt
-                    ? new Date(member.updatedAt).toLocaleString()
-                    : "N/A"}
+                  {member.updatedAt ? toAustralianDateTime(member.updatedAt) : "N/A"}
                 </p>
               </div>
             </motion.div>
@@ -350,6 +349,10 @@ export function DataTable({ data }: DataTableProps) {
   const [filterField, setFilterField] = React.useState<"fullname" | "email" | "phonenumber" | "all">("all")
   const [filterValue, setFilterValue] = React.useState("")
   const [globalFilter, setGlobalFilter] = React.useState("")
+  const [isSyncing, setIsSyncing] = React.useState(false)
+
+  const fetchMembers = useMembersStore((state) => state.fetchMembers)
+  const membersLoading = useMembersStore((state) => state.membersLoading)
 
   const table = useReactTable({
     data,
@@ -413,8 +416,38 @@ export function DataTable({ data }: DataTableProps) {
     }
   }
 
+  const handleSync = async () => {
+    setIsSyncing(true)
+    try {
+      const result = await syncMembers()
+      if (result.success) {
+        // Refresh members from the store
+        await fetchMembers()
+      }
+    } catch (error) {
+      console.error("Sync failed:", error)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {(isSyncing || membersLoading) && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg"
+        >
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm font-medium text-muted-foreground">
+              {isSyncing ? "Syncing members..." : "Loading..."}
+            </p>
+          </div>
+        </motion.div>
+      )}
       <motion.div
         className="flex items-center py-4 gap-4"
         initial={{ opacity: 0, y: -10 }}
@@ -452,7 +485,20 @@ export function DataTable({ data }: DataTableProps) {
           />
         </div>
         <DropdownMenu>
-          <Button onClick={() => syncMembers()}>Sync</Button>
+          <Button
+            onClick={handleSync}
+            disabled={isSyncing || membersLoading}
+            className="relative"
+          >
+            {isSyncing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              "Sync"
+            )}
+          </Button>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />

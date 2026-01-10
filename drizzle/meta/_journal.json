@@ -36,6 +36,34 @@
       "when": 1767939275832,
       "tag": "0004_strong_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1768001923914,
+      "tag": "0005_thankful_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768005213788,
+      "tag": "0006_flimsy_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1768006156850,
+      "tag": "0007_even_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1768007240582,
+      "tag": "0008_nice_the_captain",
+      "breakpoints": true
     }
   ]
 }

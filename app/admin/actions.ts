@@ -2,7 +2,7 @@
 
 import { addUser } from "./lib/addUser";
 import { db } from "@/app/db";
-import { users } from "@/app/db/schema";
+import { users, members } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { saltAndHashPassword } from "@/app/utils/password";
 
@@ -23,6 +23,7 @@ export async function getAllUsersAction() {
     return [];
   }
 }
+
 
 export async function addUserAction(formData: FormData) {
   try {
@@ -100,5 +101,27 @@ export async function deleteUserAction(userId: string) {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete user"
     };
+  }
+}
+
+export async function getAllMembersAction() {
+  try {
+    const allMembers = await db.select().from(members);
+    return allMembers.map((m) => ({
+      id: m.id,
+      fullname: m.fullname,
+      email: m.email,
+      phonenumber: m.phonenumber,
+      membershipId: m.membershipId,
+      membershipType: m.membershipType,
+      pricePaid: m.pricePaid,
+      paymentMethod: m.paymentMethod,
+      isValid: m.isValid,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+    }));
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    return [];
   }
 }

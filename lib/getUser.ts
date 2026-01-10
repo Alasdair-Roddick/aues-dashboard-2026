@@ -6,6 +6,12 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { saltAndHashPassword, verifyPassword } from "@/app/utils/password";
 
+
+/**
+ * 
+ * @returns The current authenticated user's details or null if not authenticated
+ */
+
 export async function getCurrentUser() {
     const session = await auth();
     

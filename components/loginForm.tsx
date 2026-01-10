@@ -42,6 +42,7 @@ export function LoginForm() {
         } else if (result?.ok) {
           // Fetch current user to update Zustand store
           await fetchCurrentUser()
+          router.refresh()
           router.push("/")
         }
       } catch (err) {

@@ -35,13 +35,37 @@ export const users = pgTable("users", {
 
     role: text("role").$type<'General' | 'Admin' | 'Temporary'>().notNull().default('General'),
     isActive: boolean("is_active").notNull().default(true),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+
+
+    accountSetupComplete: boolean("accountSetupComplete").notNull().default(false),
     // NextAuth adapter requires these fields even if unused
     email: text("email").unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
 });
+
+
+export const userCustomisations = pgTable("user_customizations", {
+    userId: uuid("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+      // Light mode colors
+      lightPrimaryColor: text("lightPrimaryColor").notNull().default("#2563eb"),
+      lightSecondaryColor: text("lightSecondaryColor").notNull().default("#10b981"),
+      // Dark mode colors
+      darkPrimaryColor: text("darkPrimaryColor").notNull().default("#3b82f6"),
+      darkSecondaryColor: text("darkSecondaryColor").notNull().default("#22c55e"),
+      // Theme preference
+      theme: text("theme").$type<"light" | "dark" | "system">().notNull().default("system"),
+  },
+  (userCustomizations) => [
+    primaryKey({
+      columns: [userCustomizations.userId],
+    }),
+  ]
+);
 
 export const accounts = pgTable("accounts", {
     userId: uuid("userId")
@@ -124,15 +148,15 @@ export const members = pgTable("members", {
   pricePaid: numeric("price_paid", { precision: 8, scale: 2 }),
   paymentMethod: varchar("payment_method", { length: 50 }),
   isValid: boolean("is_valid").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membershipResponses = pgTable("membership_responses", {
   id: serial("id").primaryKey(),
   memberId: integer("member_id").references(() => members.id).notNull(),
   responses: jsonb("responses"), // full Firebase form block
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membersRelations = relations(members, ({ many }) => ({
@@ -154,7 +178,7 @@ export const membershipPayments = pgTable("membership_payments", {
   method: varchar("method", { length: 50 }),
   status: varchar("status", { length: 50 }).default("pending"),
   transactionId: varchar("transaction_id", { length: 100 }),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
 
 export const membershipPaymentsRelations = relations(membershipPayments, ({ one }) => ({
