@@ -33,7 +33,7 @@ export const users = pgTable("users", {
     accountNumber: text("accountNumber"),
     accountName: text("accountName"),
 
-    role: text("role").$type<'General' | 'Admin' | 'Temporary'>().notNull().default('General'),
+    role: text("role").$type<'General' | 'Admin' | 'Treasurer' | 'Temporary'>().notNull().default('General'),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
@@ -185,5 +185,48 @@ export const membershipPaymentsRelations = relations(membershipPayments, ({ one 
   member: one(members, {
     fields: [membershipPayments.memberId],
     references: [members.id],
+  }),
+}));
+
+// Receipt Reimbursement System
+export const receiptReimbursements = pgTable("receipt_reimbursements", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  // Receipt details
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  receiptImageUrl: text("receipt_image_url").notNull(),
+
+  // Approval details
+  requiresPriorApproval: boolean("requires_prior_approval").notNull().default(false),
+  approvedByUserId: uuid("approved_by_user_id").references(() => users.id),
+
+  // Status tracking
+  status: text("status").$type<'Pending' | 'Fulfilled' | 'Rejected'>().notNull().default('Pending'),
+
+  // Treasurer notes
+  treasurerNotes: text("treasurer_notes"),
+  processedByUserId: uuid("processed_by_user_id").references(() => users.id),
+  processedAt: timestamp("processed_at", { withTimezone: true, mode: "date" }),
+
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+});
+
+export const receiptReimbursementsRelations = relations(receiptReimbursements, ({ one }) => ({
+  user: one(users, {
+    fields: [receiptReimbursements.userId],
+    references: [users.id],
+  }),
+  approvedBy: one(users, {
+    fields: [receiptReimbursements.approvedByUserId],
+    references: [users.id],
+  }),
+  processedBy: one(users, {
+    fields: [receiptReimbursements.processedByUserId],
+    references: [users.id],
   }),
 }));

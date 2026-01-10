@@ -1,40 +1,32 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { AdminContent } from "./components/AdminContent";
+import { ReceiptContent } from "./components/ReceiptContent";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin - AUES Dashboard"
+  title: "Receipts - AUES Dashboard"
 }
 
-export default async function AdminPage() {
+export default async function ReceiptsPage() {
   const session = await auth();
 
-  const userRole = (session?.user as any)?.role;
-
-  // Debug: Log the user's role
-  console.log("Admin page access check - User role:", userRole);
-
-  // Check if user is authenticated and has Admin or Treasurer role
-  if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
-    console.log("Access denied - redirecting to home");
-    redirect("/");
+  if (!session?.user) {
+    redirect("/login");
   }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-        {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-4xl font-bold tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-            Admin Panel
+            Receipt Reimbursements
           </h1>
           <p className="text-sm md:text-base text-muted-foreground mt-2">
-            Manage users and their access to the dashboard
+            Submit and track your reimbursement requests
           </p>
         </div>
 
-        <AdminContent />
+        <ReceiptContent />
       </div>
     </div>
   );

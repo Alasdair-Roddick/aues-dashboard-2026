@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -43,20 +43,21 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   const membersLoading = useMembersStore((state) => state.membersLoading);
   const fetchMembers = useMembersStore((state) => state.fetchMembers);
   const growthRate = useMembersStore((state) => state.growthRate);
-  
-  console.log("Current User in DashboardContent:", currentUser);
-  console.log("Account Setup Complete:", accountSetupComplete);
-  
 
+  const hasFetchedUser = useRef(false);
+  const hasFetchedMembers = useRef(false);
 
   useEffect(() => {
-    if (!currentUser && !currentUserLoading) {
+    if (!hasFetchedUser.current && !currentUser && !currentUserLoading) {
+      hasFetchedUser.current = true;
       fetchCurrentUser();
     }
-    if (members.length === 0 && !membersLoading) {
+    if (!hasFetchedMembers.current && members.length === 0 && !membersLoading) {
+      hasFetchedMembers.current = true;
       fetchMembers();
     }
-  }, [currentUser, currentUserLoading, fetchCurrentUser, members.length, membersLoading, fetchMembers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currentHour = new Date().getHours();
   const greeting =
@@ -75,7 +76,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   if (currentUserLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-        <div className="container mx-auto p-6 max-w-7xl">
+        <div className="container mx-auto p-4 md:p-6 max-w-7xl">
           <div className="flex items-center gap-4 mb-8">
             <Skeleton className="h-16 w-16 rounded-full" />
             <div className="space-y-2">
@@ -96,7 +97,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
 
-      <div className="container mx-auto p-6 max-w-7xl">
+      <div className="container mx-auto p-4 md:p-6 max-w-7xl">
               {!accountSetupComplete && (
               <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -119,7 +120,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
         {/* Header with User Info */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-800 shadow-lg">
+            <Avatar className="h-16 w-16 md:h-32 md:w-32 border-4 border-white dark:border-slate-800 shadow-lg">
               <AvatarImage
                 src={currentUser?.image ?? undefined}
                 alt={currentUser?.name ?? "User"}
@@ -130,7 +131,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">
                 {greeting}, {currentUser?.name ?? "User"}
               </h1>
               <div className="flex items-center gap-2 mt-1">

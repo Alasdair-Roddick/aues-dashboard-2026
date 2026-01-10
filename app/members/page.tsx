@@ -22,11 +22,11 @@ export default function MembersPage() {
     }, []);
 
     return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-4 md:pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Members</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Members</h2>
+                    <p className="text-sm md:text-base text-muted-foreground">
                         View and manage all club members and their memberships.
                     </p>
                 </div>
