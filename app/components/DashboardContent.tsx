@@ -20,14 +20,25 @@ import {
   ArrowRight,
   BarChart3,
   Clock,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { motion } from "framer-motion";
 
-export function DashboardContent() {
+interface DashboardContentProps {
+  accountSetupComplete: boolean;
+}
+
+export function DashboardContent({ accountSetupComplete }: DashboardContentProps) {
   const currentUser = useUserStore((state) => state.currentUser);
   const currentUserLoading = useUserStore((state) => state.currentUserLoading);
   const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
+  console.log("Current User in DashboardContent:", currentUser);
+  console.log("Account Setup Complete:", accountSetupComplete);
+  
+
 
   useEffect(() => {
     if (!currentUser && !currentUserLoading) {
@@ -62,7 +73,27 @@ export function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+
       <div className="container mx-auto p-6 max-w-7xl">
+              {!accountSetupComplete && (
+              <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              >
+        <Alert variant="destructive" className="mb-6 border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950/20 shadow-sm">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
+          <AlertTitle className="text-red-900 dark:text-red-100 font-semibold">Account Setup Incomplete</AlertTitle>
+          <AlertDescription className="text-red-800 dark:text-red-200">
+            Please complete your account setup in your profile to access all dashboard features.
+            <Link href="/profile" className="inline-flex items-center gap-1 ml-1 font-medium underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-100 transition-colors">
+              Go to Profile
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </AlertDescription>
+        </Alert>
+        </motion.div>
+      )}
         {/* Header with User Info */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">

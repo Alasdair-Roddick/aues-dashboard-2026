@@ -36,6 +36,13 @@
       "when": 1767939275832,
       "tag": "0004_strong_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1768001923914,
+      "tag": "0005_thankful_strong_guy",
+      "breakpoints": true
     }
   ]
 }

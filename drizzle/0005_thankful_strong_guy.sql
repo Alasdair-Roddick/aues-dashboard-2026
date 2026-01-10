@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "accountSetupComplete" boolean DEFAULT false NOT NULL;

@@ -37,6 +37,9 @@ export const users = pgTable("users", {
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+
+    accountSetupComplete: boolean("accountSetupComplete").notNull().default(false),
     // NextAuth adapter requires these fields even if unused
     email: text("email").unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
