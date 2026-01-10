@@ -10,13 +10,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Shield, LogOut, DollarSign } from "lucide-react"
+import { User, Shield, LogOut, DollarSign, Palette } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./components/profile"
 import { SecuritySection } from "./components/security"
 import { FinancialSection } from "./components/financial"
+import { AppearanceSection } from "./components/appearance"
 
-type Tab = "profile" | "security" | "financial"
+type Tab = "profile" | "security" | "financial" | "appearance"
 
 export default function ProfilePage() {
 
@@ -33,6 +34,9 @@ export default function ProfilePage() {
         ),
         financial: (
             <FinancialSection />
+        ),
+        appearance: (
+            <AppearanceSection />
         ),
     }
 
@@ -62,16 +66,24 @@ export default function ProfilePage() {
                             <Shield className="h-4 w-4 mr-2" />
                             Security
                         </Button>
-                        <Button 
-                            variant={activeTab === "financial" ? "secondary" : "ghost"} 
+                        <Button
+                            variant={activeTab === "financial" ? "secondary" : "ghost"}
                             className="w-full justify-start"
                             onClick={() => setActiveTab("financial")}
                         >
                             <DollarSign className="h-4 w-4 mr-2" />
                             Financial
                         </Button>
-                        <Button 
-                            variant="ghost" 
+                        <Button
+                            variant={activeTab === "appearance" ? "secondary" : "ghost"}
+                            className="w-full justify-start"
+                            onClick={() => setActiveTab("appearance")}
+                        >
+                            <Palette className="h-4 w-4 mr-2" />
+                            Appearance
+                        </Button>
+                        <Button
+                            variant="ghost"
                             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                             onClick={() => signOut({ callbackUrl: "/login" })}
                         >

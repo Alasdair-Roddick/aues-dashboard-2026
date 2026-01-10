@@ -31,6 +31,18 @@ export function MemberChart() {
     console.log("Chart labels:", labels);
     console.log("Chart counts:", counts);
 
+    // Get the computed primary color value
+    const tempDiv = document.createElement('div');
+    tempDiv.style.color = `hsl(var(--primary))`;
+    document.body.appendChild(tempDiv);
+    const computedColor = getComputedStyle(tempDiv).color;
+    document.body.removeChild(tempDiv);
+
+    // Convert RGB to RGBA with alpha channel
+    const primaryColorWithAlpha = (alpha: number) => {
+      return computedColor.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+    };
+
     chartRef.current = new Chart(ctx, {
       type: "line",
       data: {
@@ -43,18 +55,18 @@ export function MemberChart() {
             backgroundColor: (context) => {
               const ctx = context.chart.ctx;
               const gradient = ctx.createLinearGradient(0, 0, 0, 256);
-              gradient.addColorStop(0, "rgba(59, 130, 246, 0.3)");
-              gradient.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+              gradient.addColorStop(0, primaryColorWithAlpha(0.3));
+              gradient.addColorStop(1, primaryColorWithAlpha(0));
               return gradient;
             },
-            borderColor: "rgb(59, 130, 246)",
+            borderColor: computedColor,
             borderWidth: 3,
             pointRadius: 5,
             pointHoverRadius: 7,
-            pointBackgroundColor: "rgb(59, 130, 246)",
+            pointBackgroundColor: computedColor,
             pointBorderColor: "#fff",
             pointBorderWidth: 2,
-            pointHoverBackgroundColor: "rgb(59, 130, 246)",
+            pointHoverBackgroundColor: computedColor,
             pointHoverBorderColor: "#fff",
             pointHoverBorderWidth: 3,
             tension: 0.4,

@@ -46,6 +46,27 @@ export const users = pgTable("users", {
     image: text("image"),
 });
 
+
+export const userCustomisations = pgTable("user_customizations", {
+    userId: uuid("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+      // Light mode colors
+      lightPrimaryColor: text("lightPrimaryColor").notNull().default("#2563eb"),
+      lightSecondaryColor: text("lightSecondaryColor").notNull().default("#10b981"),
+      // Dark mode colors
+      darkPrimaryColor: text("darkPrimaryColor").notNull().default("#3b82f6"),
+      darkSecondaryColor: text("darkSecondaryColor").notNull().default("#22c55e"),
+      // Theme preference
+      theme: text("theme").$type<"light" | "dark" | "system">().notNull().default("system"),
+  },
+  (userCustomizations) => [
+    primaryKey({
+      columns: [userCustomizations.userId],
+    }),
+  ]
+);
+
 export const accounts = pgTable("accounts", {
     userId: uuid("userId")
       .notNull()
