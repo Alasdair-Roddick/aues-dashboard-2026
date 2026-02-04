@@ -8,6 +8,7 @@ import { signInSchema } from "@/app/lib/zod";
 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    trustHost: true,
     adapter: DrizzleAdapter(db, {
         usersTable: users,
         accountsTable: accounts,

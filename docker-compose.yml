@@ -12,6 +12,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5055
+      - AUTH_TRUST_HOST=true
+      - AUTH_URL=${AUTH_URL:-http://localhost:5055}
     ports:
       - "5055:5055"
     env_file:
