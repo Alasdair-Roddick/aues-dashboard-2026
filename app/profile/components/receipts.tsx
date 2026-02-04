@@ -36,17 +36,20 @@ export function ReceiptsSection() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadReceipts();
-  }, []);
+    let isActive = true;
 
-  const loadReceipts = async () => {
-    setIsLoading(true);
-    const result = await getUserReceipts();
-    if (result.success && result.data) {
-      setReceipts(result.data as ReceiptData[]);
-    }
-    setIsLoading(false);
-  };
+    getUserReceipts().then((result) => {
+      if (!isActive) return;
+      if (result.success && result.data) {
+        setReceipts(result.data as ReceiptData[]);
+      }
+      setIsLoading(false);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

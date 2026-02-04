@@ -2,9 +2,16 @@
 
 import { db } from "@/app/db";
 import { receiptReimbursements, users } from "@/app/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+
+type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
+
+function getSessionRole(user: unknown): UserRole | null {
+  const role = (user as { role?: UserRole } | undefined)?.role;
+  return role ?? null;
+}
 
 export async function createReceiptReimbursement(data: {
   amount: string;
@@ -79,7 +86,7 @@ export async function getAllReceipts() {
     return { success: false, error: "Unauthorized" };
   }
 
-  const userRole = (session.user as any).role;
+  const userRole = getSessionRole(session.user);
   if (userRole !== "Treasurer" && userRole !== "Admin") {
     return { success: false, error: "Unauthorized - Treasurer or Admin role required" };
   }
@@ -128,7 +135,7 @@ export async function updateReceiptStatus(
     return { success: false, error: "Unauthorized" };
   }
 
-  const userRole = (session.user as any).role;
+  const userRole = getSessionRole(session.user);
   if (userRole !== "Treasurer" && userRole !== "Admin") {
     return { success: false, error: "Unauthorized - Treasurer or Admin role required" };
   }
@@ -155,6 +162,12 @@ export async function updateReceiptStatus(
 
 export async function getAdminUsers() {
   try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const admins = await db
       .select({
         id: users.id,

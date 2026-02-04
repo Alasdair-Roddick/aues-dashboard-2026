@@ -9,6 +9,7 @@ import {
   numeric,
   integer,
   jsonb,
+  index,
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
@@ -227,6 +228,128 @@ export const receiptReimbursementsRelations = relations(receiptReimbursements, (
   }),
   processedBy: one(users, {
     fields: [receiptReimbursements.processedByUserId],
+    references: [users.id],
+  }),
+}));
+
+// Squarespace Orders Table
+export const squarespaceOrders = pgTable("squarespace_orders", {
+  id: text("id").primaryKey(), // Squarespace internal order ID
+  orderNumber: text("order_number"), // Customer-facing order number (e.g., 1001234)
+  customerEmail: text("customer_email").notNull(),
+  customerName: text("customer_name").notNull(),
+  fulfillmentStatus: text("fulfillment_status").$type<'PENDING' | 'PACKED' | 'FULFILLED'>().notNull().default('PENDING'),
+
+  // Shipping
+  shippingStatus: text("shipping_status").$type<'PENDING' | 'SHIPPED'>().notNull().default('PENDING'),
+  shippingTrackingNumber: text("shipping_tracking_number"),
+  shippingCarrier: text("shipping_carrier").default('auspost'),
+  shippedAt: timestamp("shipped_at", { withTimezone: true, mode: "date" }),
+
+  createdOn: timestamp("created_on", { withTimezone: true, mode: "date" }).notNull(),
+  syncedAt: timestamp("synced_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+}, (table) => ({
+  statusCreatedIdx: index("sq_orders_status_created_idx").on(table.fulfillmentStatus, table.createdOn),
+  orderNumberIdx: index("sq_orders_order_number_idx").on(table.orderNumber),
+  customerEmailIdx: index("sq_orders_customer_email_idx").on(table.customerEmail),
+  customerNameIdx: index("sq_orders_customer_name_idx").on(table.customerName),
+  syncedAtIdx: index("sq_orders_synced_at_idx").on(table.syncedAt),
+}));
+
+// Squarespace Order Items Table
+export const squarespaceOrderItems = pgTable("squarespace_order_items", {
+  id: serial("id").primaryKey(),
+  orderId: text("order_id").notNull().references(() => squarespaceOrders.id, { onDelete: "cascade" }),
+  productName: text("product_name").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  size: text("size"),
+  imageUrl: text("image_url"),
+}, (table) => ({
+  orderIdIdx: index("sq_order_items_order_id_idx").on(table.orderId),
+  productNameIdx: index("sq_order_items_product_name_idx").on(table.productName),
+  sizeIdx: index("sq_order_items_size_idx").on(table.size),
+}));
+
+export const squarespaceOrdersRelations = relations(squarespaceOrders, ({ many }) => ({
+  items: many(squarespaceOrderItems),
+}));
+
+export const squarespaceOrderItemsRelations = relations(squarespaceOrderItems, ({ one }) => ({
+  order: one(squarespaceOrders, {
+    fields: [squarespaceOrderItems.orderId],
+    references: [squarespaceOrders.id],
+  }),
+}));
+
+// Site Settings Table (singleton - only one row)
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+
+  // QPay/Rubric API settings (encrypted)
+  qpayUrl: text("qpay_url"),
+  qpayEmail: text("qpay_email"),
+  qpaySessionId: text("qpay_session_id"),
+
+  // Squarespace API settings (encrypted)
+  squarespaceApiKey: text("squarespace_api_key"),
+  squarespaceApiUrl: text("squarespace_api_url"),
+  squarespaceApiVersion: text("squarespace_api_version"),
+
+  // Pub Crawl settings (encrypted)
+  pubcrawlShirtKeyword: text("pubcrawl_shirt_keyword"),
+
+  // Sync metadata (not encrypted)
+  lastSquarespaceOrderDate: timestamp("last_squarespace_order_date", { withTimezone: true, mode: "date" }),
+
+  // Timestamps
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+});
+
+// Activity Log Action Types
+export type ActivityActionType =
+  | 'USER_CREATED'
+  | 'USER_UPDATED'
+  | 'USER_DELETED'
+  | 'USER_ROLE_CHANGED'
+  | 'SETTINGS_UPDATED'
+  | 'ORDER_SYNCED'
+  | 'ORDER_STATUS_UPDATED'
+  | 'ORDER_PACKED'
+  | 'ORDER_FULFILLED'
+  | 'RECEIPT_SUBMITTED'
+  | 'RECEIPT_APPROVED'
+  | 'RECEIPT_REJECTED'
+  | 'RECEIPT_FULFILLED'
+  | 'MEMBER_SYNCED'
+  | 'LOGIN'
+  | 'LOGOUT';
+
+// Activity Log Table - tracks all user actions
+export const activityLog = pgTable("activity_log", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  // Who performed the action
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  userName: text("user_name"), // Store name in case user is deleted
+
+  // What action was performed
+  action: text("action").$type<ActivityActionType>().notNull(),
+
+  // What entity was affected (optional)
+  entityType: text("entity_type"), // 'user', 'order', 'receipt', 'settings', etc.
+  entityId: text("entity_id"), // ID of the affected entity
+
+  // Additional details about the action (JSON)
+  details: jsonb("details"), // e.g., { oldStatus: 'PENDING', newStatus: 'PACKED' }
+
+  // When it happened
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+});
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+  user: one(users, {
+    fields: [activityLog.userId],
     references: [users.id],
   }),
 }));

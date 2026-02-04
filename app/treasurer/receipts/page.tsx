@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function TreasurerReceiptsPage() {
   const session = await auth();
 
-  const userRole = (session?.user as any)?.role;
+  const userRole = (session?.user as { role?: string } | undefined)?.role ?? null;
   if (!session?.user || (userRole !== "Treasurer" && userRole !== "Admin")) {
     redirect("/");
   }

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { useTheme } from "next-themes";
 import { Monitor, Moon, Sun, Sparkles, Check, Palette as PaletteIcon } from "lucide-react";
 import { getUserCustomizations, updateUserCustomizations } from "@/app/actions/customizations";
@@ -30,55 +30,77 @@ const PRESET_COLORS = [
   { name: "Indigo", color: "#4f46e5" },
 ];
 
+type ThemeMode = "light" | "dark" | "system";
+const THEME_MODES: Array<{
+  mode: ThemeMode;
+  Icon: typeof Sun;
+  label: string;
+  desc: string;
+}> = [
+  { mode: "light", Icon: Sun, label: "Light", desc: "Bright & clear" },
+  { mode: "dark", Icon: Moon, label: "Dark", desc: "Easy on eyes" },
+  { mode: "system", Icon: Monitor, label: "System", desc: "Auto switch" },
+];
+
 export function AppearanceSection() {
   const { data: session } = useSession();
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const isHydrated = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [localTheme, setLocalTheme] = useState<"light" | "dark" | "system">("system");
   const [lightColor, setLightColor] = useState("#2563eb");
   const [darkColor, setDarkColor] = useState("#3b82f6");
+  const selectedTheme: ThemeMode =
+    theme === "light" || theme === "dark" || theme === "system"
+      ? theme
+      : "system";
 
   useEffect(() => {
-    setMounted(true);
-    if (session?.user?.id) {
-      getUserCustomizations(session.user.id).then((data) => {
-        if (data) {
+    let isActive = true;
+
+    const loadCustomizations = async () => {
+      if (session?.user?.id) {
+        const data = await getUserCustomizations(session.user.id);
+        if (data && isActive) {
           setLightColor(data.lightPrimaryColor);
           setDarkColor(data.darkPrimaryColor);
           if (data.theme) {
-            setLocalTheme(data.theme);
+            setTheme(data.theme);
           }
         }
+      }
+
+      if (isActive) {
         setLoading(false);
-      });
-    } else {
-      setLoading(false);
-    }
-  }, [session?.user?.id]);
+      }
+    };
 
-  useEffect(() => {
-    if (mounted && theme) {
-      setLocalTheme(theme as "light" | "dark" | "system");
-    }
-  }, [theme, mounted]);
+    void loadCustomizations();
+    return () => {
+      isActive = false;
+    };
+  }, [session?.user?.id, setTheme]);
 
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
-    setLocalTheme(newTheme);
+  const handleThemeChange = (newTheme: ThemeMode) => {
     setTheme(newTheme);
   };
 
   const handleSave = () => {
-    if (!session?.user?.id) return;
+    const sessionUserId = session?.user?.id;
+    if (!sessionUserId) return;
+
     startTransition(async () => {
       const result = await updateUserCustomizations(
-        session.user.id,
+        sessionUserId,
         lightColor,
         lightColor,
         darkColor,
         darkColor,
-        localTheme
+        selectedTheme
       );
       if (result.success) {
         toast.success("Theme saved! Refreshing...");
@@ -101,7 +123,7 @@ export function AppearanceSection() {
     toast.success("Preset applied!");
   };
 
-  if (!mounted || loading) {
+  if (!isHydrated || loading) {
     return (
       <div className="space-y-6">
         <Card><CardHeader><Skeleton className="h-6 w-32" /><Skeleton className="h-4 w-64 mt-2" /></CardHeader><CardContent className="space-y-6"><Skeleton className="h-24 w-full" /><Skeleton className="h-48 w-full" /></CardContent></Card>
@@ -109,7 +131,7 @@ export function AppearanceSection() {
     );
   }
 
-  const isCurrentMode = (mode: string) => localTheme === mode;
+  const isCurrentMode = (mode: ThemeMode) => selectedTheme === mode;
   const activeColor = resolvedTheme === "dark" ? darkColor : lightColor;
   const activePalette = generateColorPalette(activeColor);
 
@@ -122,12 +144,8 @@ export function AppearanceSection() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
-            {[
-              { mode: "light", Icon: Sun, label: "Light", desc: "Bright & clear" },
-              { mode: "dark", Icon: Moon, label: "Dark", desc: "Easy on eyes" },
-              { mode: "system", Icon: Monitor, label: "System", desc: "Auto switch" }
-            ].map(({ mode, Icon, label, desc }) => (
-              <button key={mode} onClick={() => handleThemeChange(mode as any)} className={`group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all hover:shadow-md ${isCurrentMode(mode) ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"}`}>
+            {THEME_MODES.map(({ mode, Icon, label, desc }) => (
+              <button key={mode} onClick={() => handleThemeChange(mode)} className={`group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all hover:shadow-md ${isCurrentMode(mode) ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"}`}>
                 {isCurrentMode(mode) && <div className="absolute top-2 right-2"><div className="bg-primary rounded-full p-1"><Check className="h-3 w-3 text-primary-foreground" /></div></div>}
                 <Icon className={`h-8 w-8 ${isCurrentMode(mode) ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
                 <div className="text-center"><p className="font-semibold text-sm">{label}</p><p className="text-xs text-muted-foreground mt-0.5">{desc}</p></div>

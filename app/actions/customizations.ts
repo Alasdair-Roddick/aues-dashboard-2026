@@ -3,9 +3,25 @@
 import { db } from "@/app/db";
 import { userCustomisations } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
+import { auth } from "@/auth";
+
+type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
+
+function getSessionRole(user: unknown): UserRole | null {
+  const role = (user as { role?: UserRole } | undefined)?.role;
+  return role ?? null;
+}
 
 export async function getUserCustomizations(userId: string) {
   try {
+    const session = await auth();
+    const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+    const userRole = getSessionRole(session?.user);
+
+    if (!session?.user || (!sessionUserId || (userRole !== "Admin" && sessionUserId !== userId))) {
+      return null;
+    }
+
     const customizations = await db
       .select()
       .from(userCustomisations)
@@ -38,6 +54,14 @@ export async function updateUserCustomizations(
   theme: "light" | "dark" | "system"
 ) {
   try {
+    const session = await auth();
+    const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+    const userRole = getSessionRole(session?.user);
+
+    if (!session?.user || (!sessionUserId || (userRole !== "Admin" && sessionUserId !== userId))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     await db
       .insert(userCustomisations)
       .values({

@@ -6,7 +6,7 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isOnLoginPage = nextUrl.pathname === "/login";
   const isOnAdminPage = nextUrl.pathname.startsWith("/admin");
-  const userRole = req.auth?.user ? (req.auth.user as any).role : null;
+  const userRole = (req.auth?.user as { role?: string } | undefined)?.role ?? null;
 
   // If not logged in and not on login page, redirect to login
   if (!isLoggedIn && !isOnLoginPage) {

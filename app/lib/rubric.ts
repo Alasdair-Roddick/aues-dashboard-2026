@@ -1,17 +1,49 @@
 import 'dotenv/config';
 import axios from 'axios';
-import { members, membershipPayments, membershipResponses } from '../db/schema';
+import { members, membershipPayments, membershipResponses, siteSettings } from '../db/schema';
 import { db } from '../db/index';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
+import { decrypt } from './encryption';
 
+// Cache for settings to avoid repeated DB calls
+let settingsCache: {
+  qpayUrl: string | null;
+  qpayEmail: string | null;
+  qpaySessionId: string | null;
+} | null = null;
+let settingsCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-const RUBRIC_API_URL =
-  process.env.RUBRIC_API_URL ||
-  "https://appserver.getqpay.com:9090/AppServerSwapnil/getSocietyPortalMembershipList"
-const RUBRIC_SESSION_ID =
-  process.env.RUBRIC_SESSION_ID || "societyid_6899_2ce61a07-26be-4a8c-a763-7df615dfd5e7"
-const RUBRIC_EMAIL = process.env.RUBRIC_EMAIL || "club@aues.com.au"
+async function getRubricSettings() {
+  // Check cache
+  if (settingsCache && Date.now() - settingsCacheTime < CACHE_TTL) {
+    return settingsCache;
+  }
+
+  try {
+    const settings = await db.select().from(siteSettings).limit(1);
+
+    if (settings.length > 0 && settings[0].qpayUrl) {
+      settingsCache = {
+        qpayUrl: settings[0].qpayUrl ? decrypt(settings[0].qpayUrl) : null,
+        qpayEmail: settings[0].qpayEmail ? decrypt(settings[0].qpayEmail) : null,
+        qpaySessionId: settings[0].qpaySessionId ? decrypt(settings[0].qpaySessionId) : null,
+      };
+      settingsCacheTime = Date.now();
+      return settingsCache;
+    }
+  } catch (error) {
+    console.error("Failed to fetch settings from database:", error);
+  }
+
+  // Fall back to environment variables
+  return {
+    qpayUrl: process.env.RUBRIC_API_URL || null,
+    qpayEmail: process.env.RUBRIC_EMAIL || null,
+    qpaySessionId: process.env.RUBRIC_SESSION_ID || null,
+  };
+}
 
 export const MemberSchema = z.object({
     id: z.number(),
@@ -29,13 +61,34 @@ export const MemberSchema = z.object({
 
 export type Member = z.infer<typeof MemberSchema>;
 
+type RubricMembership = {
+    membershipid: number | string;
+    fullname: string;
+    email: string;
+    phonenumber?: string | null;
+    membershiptype?: string | null;
+    pricepaid?: string | number | null;
+    paymentmethod?: string | null;
+    paymentMethod?: string | null;
+    isvalid?: number | boolean | null;
+    created?: string | number | Date | null;
+    updated?: string | number | Date | null;
+    responses?: unknown;
+};
+
 export const fetchMembersFromRubric = async (): Promise<Member[]> => {
+    const settings = await getRubricSettings();
+
+    if (!settings.qpayUrl || !settings.qpaySessionId || !settings.qpayEmail) {
+        throw new Error("QPay/Rubric API settings are not configured. Please configure them in Admin > Settings.");
+    }
+
     const response = await axios.post(
-        RUBRIC_API_URL,
+        settings.qpayUrl,
         new URLSearchParams({
             details: JSON.stringify({
-                sessionid: RUBRIC_SESSION_ID,
-                email: RUBRIC_EMAIL,
+                sessionid: settings.qpaySessionId,
+                email: settings.qpayEmail,
             }),
         }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
@@ -55,7 +108,7 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
         throw new Error(`Expected allMemberships array from Rubric API, got: ${typeof response.data.allMemberships}`);
     }
 
-    const membersData = response.data.allMemberships as any[];
+    const membersData = response.data.allMemberships as RubricMembership[];
     console.log(`Fetched ${membersData.length} members from Rubric.`);
     console.log(membersData[0]); // Log the first member for inspection
 
@@ -78,8 +131,7 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
             paymentMethod: data.paymentmethod || data.paymentMethod,
             isValid: data.isvalid === 1,
             createdAt: data.created ? new Date(data.created) : new Date(),
-            // createdAt: new Date(data.created),
-            updatedAt: new Date(data.updated),
+            updatedAt: data.updated ? new Date(data.updated) : new Date(),
         });
     });
 
@@ -218,12 +270,18 @@ export const syncMembershipPayments = async () => {
 
 // Sync membership responses for members
 export const syncMembershipResponses = async () => {
+    const settings = await getRubricSettings();
+
+    if (!settings.qpayUrl || !settings.qpaySessionId || !settings.qpayEmail) {
+        throw new Error("QPay/Rubric API settings are not configured. Please configure them in Admin > Settings.");
+    }
+
     const response = await axios.post(
-        RUBRIC_API_URL,
+        settings.qpayUrl,
         new URLSearchParams({
             details: JSON.stringify({
-                sessionid: RUBRIC_SESSION_ID,
-                email: RUBRIC_EMAIL,
+                sessionid: settings.qpaySessionId,
+                email: settings.qpayEmail,
             }),
         }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
@@ -233,7 +291,7 @@ export const syncMembershipResponses = async () => {
         throw new Error(`Expected allMemberships array from Rubric API`);
     }
 
-    const membersData = response.data.allMemberships as any[];
+    const membersData = response.data.allMemberships as RubricMembership[];
     console.log(`Syncing responses for ${membersData.length} members...`);
 
     // Get all existing members to map email to ID
@@ -263,7 +321,7 @@ export const syncMembershipResponses = async () => {
             return {
                 memberId: dbMemberId,
                 responses: data.responses,
-                createdAt: new Date(data.created),
+                createdAt: data.created ? new Date(data.created) : new Date(),
             };
         });
 
@@ -316,4 +374,3 @@ if (require.main === module) {
         }
     })();
 }
-

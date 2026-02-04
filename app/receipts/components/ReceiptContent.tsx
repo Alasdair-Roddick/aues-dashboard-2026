@@ -297,7 +297,7 @@ export function ReceiptContent() {
                     onChange={(e) => setFormData({ ...formData, approvedByUserId: e.target.value })}
                     required={formData.requiresPriorApproval}
                   >
-                    <option value="">Select an admin</option>
+                    <option value="">Select an Executive Team member</option>
                     {admins.map((admin) => (
                       <option key={admin.id} value={admin.id}>
                         {admin.name}

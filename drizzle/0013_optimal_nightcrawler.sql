@@ -1,0 +1,1 @@
+ALTER TABLE "site_settings" ADD COLUMN "last_squarespace_order_date" timestamp with time zone;

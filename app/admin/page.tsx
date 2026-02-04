@@ -9,15 +9,10 @@ export const metadata: Metadata = {
 
 export default async function AdminPage() {
   const session = await auth();
+  const userRole = (session?.user as { role?: string } | undefined)?.role ?? null;
 
-  const userRole = (session?.user as any)?.role;
-
-  // Debug: Log the user's role
-  console.log("Admin page access check - User role:", userRole);
-
-  // Check if user is authenticated and has Admin or Treasurer role
-  if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
-    console.log("Access denied - redirecting to home");
+  // Only Admin can access user management
+  if (!session?.user || userRole !== "Admin") {
     redirect("/");
   }
 
@@ -34,7 +29,7 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <AdminContent />
+        <AdminContent userRole={userRole} />
       </div>
     </div>
   );

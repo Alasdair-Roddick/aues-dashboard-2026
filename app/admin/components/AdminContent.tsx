@@ -5,8 +5,13 @@ import { AddUserForm } from "./addUser";
 import { DataTable } from "../data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserStore } from "@/app/store/userStore";
+import { SettingsModal } from "./SettingsModal";
 
-export function AdminContent() {
+interface AdminContentProps {
+  userRole: string;
+}
+
+export function AdminContent({ userRole }: AdminContentProps) {
   const { users, usersLoading, fetchUsers } = useUserStore();
 
   useEffect(() => {
@@ -19,6 +24,13 @@ export function AdminContent() {
 
   return (
     <>
+      {/* Settings Button - Only visible for Admins */}
+      {userRole === "Admin" && (
+        <div className="flex justify-end mb-4">
+          <SettingsModal />
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {/* Total Users Card */}

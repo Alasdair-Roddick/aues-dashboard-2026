@@ -29,7 +29,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    refreshUser();
+    let isActive = true;
+
+    const loadUser = async () => {
+      const data = await getCurrentUser();
+      if (!isActive) return;
+      setUser(data);
+      setLoading(false);
+    };
+
+    void loadUser();
+    return () => {
+      isActive = false;
+    };
   }, [refreshUser]);
 
   return (

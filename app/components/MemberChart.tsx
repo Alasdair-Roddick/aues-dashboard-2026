@@ -111,7 +111,7 @@ export function MemberChart() {
               color: "#6b7280",
               font: {
                 size: 11,
-                weight: "500",
+                weight: 500,
               },
             },
           },
@@ -119,7 +119,6 @@ export function MemberChart() {
             beginAtZero: true,
             grid: {
               color: "rgba(107, 114, 128, 0.1)",
-              drawBorder: false,
             },
             border: {
               display: false,
@@ -129,7 +128,7 @@ export function MemberChart() {
               stepSize: 1,
               font: {
                 size: 11,
-                weight: "500",
+                weight: 500,
               },
               padding: 8,
             },

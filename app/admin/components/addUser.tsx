@@ -11,7 +11,6 @@ import {
 import {
   Field,
   FieldContent,
-  FieldDescription,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -48,20 +47,18 @@ export function AddUserForm() {
             const result = await addUserAction(formData);
 
             if (result.success) {
+                const temporaryPassword = result.temporaryPassword;
+                const createdUser = result.user;
+
                 toast.success("User added successfully", {
-                    description: `${username} has been added with default password: ${username}2026`
+                    description: temporaryPassword
+                      ? `${username} added. Temporary password: ${temporaryPassword}`
+                      : `${username} has been added`
                 });
 
-                // Add user to Zustand store immediately
-                addUser({
-                    id: `temp-${Date.now()}-${Math.random()}`, // Temporary ID, will be updated on next fetch
-                    name: username,
-                    image: null,
-                    role: formData.get("role") as "Admin" | "General" | "Temporary" | "Treasurer",
-                    isActive: true,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                });
+                if (createdUser) {
+                  addUser(createdUser);
+                }
 
                 // Reset form using ref
                 formRef.current?.reset();
@@ -154,9 +151,9 @@ export function AddUserForm() {
                 <div className="flex items-start gap-3">
                   <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Default Password</p>
+                    <p className="text-sm font-medium">Temporary Password</p>
                     <p className="text-xs text-muted-foreground">
-                      The password will be set to <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">username2026</code>
+                      A secure temporary password is generated and shown once after user creation.
                     </p>
                   </div>
                 </div>

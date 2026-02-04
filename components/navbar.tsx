@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { User, LogOut, Receipt, ChevronDown, Shield, Wallet, Menu, X } from "lucide-react"
+import { User, LogOut, ChevronDown, Shield, Wallet, Menu, X } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -19,10 +19,10 @@ export function Navbar() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const userRole = session?.user ? (session.user as any).role : null;
+  const userRole = (session?.user as { role?: string } | undefined)?.role ?? null;
   const isAdmin = userRole === "Admin";
   const isTreasurer = userRole === "Treasurer";
-  const hasAdminAccess = isAdmin || isTreasurer;
+  const hasManagementAccess = isAdmin || isTreasurer;
   const currentUser = useUserStore((state) => state.currentUser);
   const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
 
@@ -77,17 +77,19 @@ export function Navbar() {
               </Link>
             ))}
 
-            {hasAdminAccess && (
+            {hasManagementAccess && (
               <DropdownMenu>
                 <DropdownMenuTrigger className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none">
                   Management
                   <ChevronDown className="ml-1 h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => router.push('/admin')}>
-                    <Shield className="mr-2 h-4 w-4" />
-                    <span>Admin Panel</span>
-                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => router.push('/admin')}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => router.push('/treasurer/receipts')}>
                     <Wallet className="mr-2 h-4 w-4" />
                     <span>Treasurer</span>
@@ -134,17 +136,19 @@ export function Navbar() {
               </Link>
             ))}
 
-            {hasAdminAccess && (
+            {hasManagementAccess && (
               <>
                 <div className="px-4 py-2 text-sm font-medium text-muted-foreground">Management</div>
-                <Link
-                  href="/admin"
-                  onClick={closeMobileMenu}
-                  className="block px-8 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  <Shield className="inline-block mr-2 h-4 w-4" />
-                  Admin Panel
-                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={closeMobileMenu}
+                    className="block px-8 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <Shield className="inline-block mr-2 h-4 w-4" />
+                    Admin Panel
+                  </Link>
+                )}
                 <Link
                   href="/treasurer/receipts"
                   onClick={closeMobileMenu}
