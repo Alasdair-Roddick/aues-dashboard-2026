@@ -25,6 +25,10 @@ export default function ProfilePage() {
     const { data: session } = useSession();
     const user = session?.user;
     const [activeTab, setActiveTab] = useState<Tab>("profile")
+    const logoutCallbackUrl =
+        typeof window !== "undefined"
+            ? `${window.location.origin}/login`
+            : "/login";
 
     const tabContent = {
         profile: (
@@ -99,7 +103,7 @@ export default function ProfilePage() {
                         <Button
                             variant="ghost"
                             className="flex-shrink-0 md:w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 whitespace-nowrap"
-                            onClick={() => signOut({ callbackUrl: "/login" })}
+                            onClick={() => signOut({ callbackUrl: logoutCallbackUrl })}
                         >
                             <LogOut className="h-4 w-4 mr-2" />
                             Logout
