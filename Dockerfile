@@ -11,13 +11,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-
-# copy only source (dockerignore will help here)
 COPY . .
-
-# Next build imports auth/db modules, so ensure DATABASE_URL is non-empty at build time.
-ARG DATABASE_URL=postgresql://neondb_owner:npg_5so1VHufYDrq@ep-winter-bread-a7ovf521-pooler.ap-southeast-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-ENV DATABASE_URL=${DATABASE_URL}
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
