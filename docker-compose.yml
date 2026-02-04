@@ -11,8 +11,9 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - PORT=5055
     ports:
-      - "${APP_PORT:-5055}:3000"
+      - "5055:5055"
     env_file:
       - .env.local
     volumes:
