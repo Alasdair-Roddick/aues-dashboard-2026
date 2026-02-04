@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Next.js Application
   app:
@@ -7,16 +5,16 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - DATABASE_URL=${DATABASE_URL}
+        # Build only needs a non-empty DATABASE_URL to satisfy server module initialization.
+        DATABASE_URL: ${DATABASE_URL:-postgresql://build:build@localhost:5432/build}
     container_name: aues-dashboard-app
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
     ports:
       - "${APP_PORT:-5055}:3000"
     env_file:
-      - .env
+      - .env.local
     volumes:
       - uploads:/app/public/uploads
 
