@@ -92,7 +92,7 @@ Example:
 
 ```env
 DATABASE_URL=postgresql://neondb_owner:password@ep-xxxx.neon.tech/neondb?sslmode=require
-AUTH_URL=https://dashboard.aues.org.au
+AUTH_URL=https://dashboard.aues.com.au
 ```
 
 ---
