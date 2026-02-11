@@ -18,6 +18,7 @@ export type SiteSettingsData = {
   qpayUrl: string | null;
   qpayEmail: string | null;
   qpaySessionId: string | null;
+  qpayMembershipName: string | null;
   squarespaceApiKey: string | null;
   squarespaceApiUrl: string | null;
   squarespaceApiVersion: string | null;
@@ -47,6 +48,7 @@ export async function getSiteSettings(): Promise<SiteSettingsData | null> {
       qpayUrl: s.qpayUrl ? decrypt(s.qpayUrl) : null,
       qpayEmail: s.qpayEmail ? decrypt(s.qpayEmail) : null,
       qpaySessionId: s.qpaySessionId ? decrypt(s.qpaySessionId) : null,
+      qpayMembershipName: s.qpayMembershipName ? decrypt(s.qpayMembershipName) : null,
       squarespaceApiKey: s.squarespaceApiKey ? decrypt(s.squarespaceApiKey) : null,
       squarespaceApiUrl: s.squarespaceApiUrl ? decrypt(s.squarespaceApiUrl) : null,
       squarespaceApiVersion: s.squarespaceApiVersion ? decrypt(s.squarespaceApiVersion) : null,
@@ -75,6 +77,7 @@ export async function updateSiteSettings(
       qpayUrl: data.qpayUrl ? encrypt(data.qpayUrl) : null,
       qpayEmail: data.qpayEmail ? encrypt(data.qpayEmail) : null,
       qpaySessionId: data.qpaySessionId ? encrypt(data.qpaySessionId) : null,
+      qpayMembershipName: data.qpayMembershipName ? encrypt(data.qpayMembershipName) : null,
       squarespaceApiKey: data.squarespaceApiKey ? encrypt(data.squarespaceApiKey) : null,
       squarespaceApiUrl: data.squarespaceApiUrl ? encrypt(data.squarespaceApiUrl) : null,
       squarespaceApiVersion: data.squarespaceApiVersion
@@ -129,6 +132,7 @@ export async function getDecryptedSettings(): Promise<SiteSettingsData | null> {
       qpayUrl: s.qpayUrl ? decrypt(s.qpayUrl) : null,
       qpayEmail: s.qpayEmail ? decrypt(s.qpayEmail) : null,
       qpaySessionId: s.qpaySessionId ? decrypt(s.qpaySessionId) : null,
+      qpayMembershipName: s.qpayMembershipName ? decrypt(s.qpayMembershipName) : null,
       squarespaceApiKey: s.squarespaceApiKey ? decrypt(s.squarespaceApiKey) : null,
       squarespaceApiUrl: s.squarespaceApiUrl ? decrypt(s.squarespaceApiUrl) : null,
       squarespaceApiVersion: s.squarespaceApiVersion ? decrypt(s.squarespaceApiVersion) : null,

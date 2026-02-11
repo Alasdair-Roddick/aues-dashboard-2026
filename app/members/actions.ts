@@ -1,9 +1,10 @@
 "use server";
 
-import { fullSync } from "@/app/lib/rubric";
+import { fullSync, invalidateRubricSettingsCache } from "@/app/lib/rubric";
 
 export async function syncMembers() {
   try {
+    invalidateRubricSettingsCache();
     await fullSync();
     return { success: true };
   } catch (error) {

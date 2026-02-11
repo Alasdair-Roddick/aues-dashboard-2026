@@ -311,6 +311,7 @@ export const siteSettings = pgTable("site_settings", {
   qpayUrl: text("qpay_url"),
   qpayEmail: text("qpay_email"),
   qpaySessionId: text("qpay_session_id"),
+  qpayMembershipName: text("qpay_membership_name"),
 
   // Squarespace API settings (encrypted)
   squarespaceApiKey: text("squarespace_api_key"),

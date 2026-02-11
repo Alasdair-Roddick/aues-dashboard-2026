@@ -24,6 +24,7 @@ export function SettingsModal() {
     qpayUrl: null,
     qpayEmail: null,
     qpaySessionId: null,
+    qpayMembershipName: null,
     squarespaceApiKey: null,
     squarespaceApiUrl: null,
     squarespaceApiVersion: null,
@@ -146,6 +147,19 @@ export function SettingsModal() {
                     onChange={(e) => handleChange("qpaySessionId", e.target.value)}
                     placeholder="societyid_xxxx_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                   />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="qpayMembershipName">Membership Name Filter</Label>
+                  <Input
+                    id="qpayMembershipName"
+                    type="text"
+                    value={settings.qpayMembershipName || ""}
+                    onChange={(e) => handleChange("qpayMembershipName", e.target.value)}
+                    placeholder="e.g. Standard Membership 2026"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optional. When set, Rubric sync only imports memberships with this exact name.
+                  </p>
                 </div>
               </div>
             </div>

@@ -11,9 +11,15 @@ let settingsCache: {
   qpayUrl: string | null;
   qpayEmail: string | null;
   qpaySessionId: string | null;
+  qpayMembershipName: string | null;
 } | null = null;
 let settingsCacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export function invalidateRubricSettingsCache() {
+  settingsCache = null;
+  settingsCacheTime = 0;
+}
 
 async function getRubricSettings() {
   // Check cache
@@ -24,11 +30,22 @@ async function getRubricSettings() {
   try {
     const settings = await db.select().from(siteSettings).limit(1);
 
-    if (settings.length > 0 && settings[0].qpayUrl) {
+    if (settings.length > 0) {
+      const dbSettings = settings[0];
+
       settingsCache = {
-        qpayUrl: settings[0].qpayUrl ? decrypt(settings[0].qpayUrl) : null,
-        qpayEmail: settings[0].qpayEmail ? decrypt(settings[0].qpayEmail) : null,
-        qpaySessionId: settings[0].qpaySessionId ? decrypt(settings[0].qpaySessionId) : null,
+        qpayUrl: dbSettings.qpayUrl
+          ? decrypt(dbSettings.qpayUrl)
+          : process.env.RUBRIC_API_URL || null,
+        qpayEmail: dbSettings.qpayEmail
+          ? decrypt(dbSettings.qpayEmail)
+          : process.env.RUBRIC_EMAIL || null,
+        qpaySessionId: dbSettings.qpaySessionId
+          ? decrypt(dbSettings.qpaySessionId)
+          : process.env.RUBRIC_SESSION_ID || null,
+        qpayMembershipName: dbSettings.qpayMembershipName
+          ? decrypt(dbSettings.qpayMembershipName)
+          : process.env.RUBRIC_MEMBERSHIP_NAME || null,
       };
       settingsCacheTime = Date.now();
       return settingsCache;
@@ -42,6 +59,7 @@ async function getRubricSettings() {
     qpayUrl: process.env.RUBRIC_API_URL || null,
     qpayEmail: process.env.RUBRIC_EMAIL || null,
     qpaySessionId: process.env.RUBRIC_SESSION_ID || null,
+    qpayMembershipName: process.env.RUBRIC_MEMBERSHIP_NAME || null,
   };
 }
 
@@ -67,6 +85,8 @@ type RubricMembership = {
   email: string;
   phonenumber?: string | null;
   membershiptype?: string | null;
+  membershipname?: string | null;
+  membershipName?: string | null;
   pricepaid?: string | number | null;
   paymentmethod?: string | null;
   paymentMethod?: string | null;
@@ -75,6 +95,32 @@ type RubricMembership = {
   updated?: string | number | Date | null;
   responses?: unknown;
 };
+
+function getRubricMembershipName(data: RubricMembership): string | null {
+  return data.membershiptype ?? data.membershipname ?? data.membershipName ?? null;
+}
+
+function filterByConfiguredMembership(
+  memberships: RubricMembership[],
+  configuredMembershipName: string | null,
+): RubricMembership[] {
+  const normalizedConfiguredName = configuredMembershipName?.trim().toLowerCase();
+
+  if (!normalizedConfiguredName) {
+    return memberships;
+  }
+
+  const filteredMemberships = memberships.filter((membership) => {
+    const rubricMembershipName = getRubricMembershipName(membership)?.trim().toLowerCase();
+    return rubricMembershipName === normalizedConfiguredName;
+  });
+
+  console.log(
+    `Filtered Rubric memberships by "${configuredMembershipName}": ${filteredMemberships.length}/${memberships.length} matched.`,
+  );
+
+  return filteredMemberships;
+}
 
 export const fetchMembersFromRubric = async (): Promise<Member[]> => {
   const settings = await getRubricSettings();
@@ -119,7 +165,8 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
     );
   }
 
-  const membersData = response.data.allMemberships as RubricMembership[];
+  const allMemberships = response.data.allMemberships as RubricMembership[];
+  const membersData = filterByConfiguredMembership(allMemberships, settings.qpayMembershipName);
   console.log(`Fetched ${membersData.length} members from Rubric.`);
   console.log(membersData[0]); // Log the first member for inspection
 
@@ -137,7 +184,7 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
       email: data.email,
       phonenumber: data.phonenumber === "N/A" ? null : data.phonenumber,
       membershipId: data.membershipid?.toString(),
-      membershipType: data.membershiptype,
+      membershipType: getRubricMembershipName(data),
       pricePaid: parsedPrice,
       paymentMethod: data.paymentmethod || data.paymentMethod,
       isValid: data.isvalid === 1,
@@ -298,7 +345,8 @@ export const syncMembershipResponses = async () => {
     throw new Error(`Expected allMemberships array from Rubric API`);
   }
 
-  const membersData = response.data.allMemberships as RubricMembership[];
+  const allMemberships = response.data.allMemberships as RubricMembership[];
+  const membersData = filterByConfiguredMembership(allMemberships, settings.qpayMembershipName);
   console.log(`Syncing responses for ${membersData.length} members...`);
 
   // Get all existing members to map email to ID

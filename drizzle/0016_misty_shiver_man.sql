@@ -1,0 +1,1 @@
+ALTER TABLE "site_settings" ADD COLUMN "qpay_membership_name" text;
