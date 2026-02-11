@@ -19,21 +19,25 @@ This style guide outlines the design standards and patterns for the AUES Dashboa
 ## Design Principles
 
 ### 1. Consistency
+
 - Use shadcn/ui components as the foundation
 - Maintain consistent patterns across all pages
 - Reuse existing components before creating new ones
 
 ### 2. Simplicity
+
 - Clean, minimal interfaces
 - Avoid unnecessary decorations or animations
 - Focus on functionality over aesthetics
 
 ### 3. Clarity
+
 - Clear visual hierarchy
 - Obvious interaction points
 - Descriptive labels and error messages
 
 ### 4. Performance
+
 - Optimize images and assets
 - Minimize JavaScript bundle size
 - Use Next.js Image component for all images
@@ -47,25 +51,12 @@ This style guide outlines the design standards and patterns for the AUES Dashboa
 We use TailwindCSS with CSS variables from shadcn/ui:
 
 ```css
---background: neutral-50
---foreground: neutral-950
---card: neutral-0
---card-foreground: neutral-950
---popover: neutral-0
---popover-foreground: neutral-950
---primary: neutral-900
---primary-foreground: neutral-50
---secondary: neutral-100
---secondary-foreground: neutral-900
---muted: neutral-100
---muted-foreground: neutral-500
---accent: neutral-100
---accent-foreground: neutral-900
---destructive: red-500
---destructive-foreground: neutral-50
---border: neutral-200
---input: neutral-200
---ring: neutral-950
+--background: neutral-50 --foreground: neutral-950 --card: neutral-0 --card-foreground: neutral-950
+  --popover: neutral-0 --popover-foreground: neutral-950 --primary: neutral-900
+  --primary-foreground: neutral-50 --secondary: neutral-100 --secondary-foreground: neutral-900
+  --muted: neutral-100 --muted-foreground: neutral-500 --accent: neutral-100
+  --accent-foreground: neutral-900 --destructive: red-500 --destructive-foreground: neutral-50
+  --border: neutral-200 --input: neutral-200 --ring: neutral-950;
 ```
 
 ### Usage Guidelines
@@ -81,12 +72,14 @@ We use TailwindCSS with CSS variables from shadcn/ui:
 ### Colors to NEVER Use
 
 ❌ Do NOT use arbitrary color values:
+
 - `bg-[#hexcode]`
 - `text-blue-500` (unless part of design system)
 - Custom RGB values
 - Inline style colors
 
 ✅ Always use design tokens:
+
 - `bg-primary`, `bg-secondary`, `bg-accent`
 - `text-foreground`, `text-muted-foreground`
 
@@ -155,13 +148,13 @@ Use TailwindCSS spacing scale (4px base unit):
 ### Layout Patterns
 
 #### Container Width
+
 ```tsx
-<div className="container mx-auto px-4">
-  {/* Content */}
-</div>
+<div className="container mx-auto px-4">{/* Content */}</div>
 ```
 
 #### Card Layout
+
 ```tsx
 <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
   {/* Card content */}
@@ -169,6 +162,7 @@ Use TailwindCSS spacing scale (4px base unit):
 ```
 
 #### Grid System
+
 ```tsx
 // 2-column grid
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -226,36 +220,35 @@ import { Button } from "@/components/ui/button"
 Use shadcn/ui form components:
 
 ```tsx
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 <div className="space-y-2">
   <Label htmlFor="email">Email</Label>
-  <Input
-    id="email"
-    type="email"
-    placeholder="you@example.com"
-  />
-</div>
+  <Input id="email" type="email" placeholder="you@example.com" />
+</div>;
 ```
 
 ### Cards
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 <Card>
   <CardHeader>
     <CardTitle>Card Title</CardTitle>
     <CardDescription>Optional description</CardDescription>
   </CardHeader>
-  <CardContent>
-    {/* Content */}
-  </CardContent>
-  <CardFooter>
-    {/* Footer actions */}
-  </CardFooter>
-</Card>
+  <CardContent>{/* Content */}</CardContent>
+  <CardFooter>{/* Footer actions */}</CardFooter>
+</Card>;
 ```
 
 ### Navigation
@@ -264,7 +257,11 @@ Follow the existing navbar pattern:
 
 ```tsx
 // Use NavigationMenu from shadcn/ui
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu"
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+} from "@/components/ui/navigation-menu";
 
 // Consistent height: h-16
 // Centered content with container
@@ -274,7 +271,14 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuLink } from "@/compon
 ### Tables
 
 ```tsx
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 <Table>
   <TableHeader>
@@ -289,7 +293,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
       <TableCell>john@example.com</TableCell>
     </TableRow>
   </TableBody>
-</Table>
+</Table>;
 ```
 
 ---
@@ -328,13 +332,13 @@ Ensure keyboard navigation support:
 ### Loading States
 
 ```tsx
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 <Button disabled>
   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
   Loading...
-</Button>
+</Button>;
 ```
 
 ### Disabled States
@@ -347,17 +351,12 @@ import { Loader2 } from "lucide-react"
 ### Error States
 
 ```tsx
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 <div className="space-y-2">
-  <Input
-    className="border-destructive"
-    placeholder="Invalid email"
-  />
-  <p className="text-sm text-destructive">
-    Please enter a valid email address
-  </p>
-</div>
+  <Input className="border-destructive" placeholder="Invalid email" />
+  <p className="text-sm text-destructive">Please enter a valid email address</p>
+</div>;
 ```
 
 ---
@@ -379,27 +378,25 @@ xl:  1280px (Desktops)
 ### Responsive Patterns
 
 #### Responsive Grid
+
 ```tsx
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  {/* Items */}
-</div>
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{/* Items */}</div>
 ```
 
 #### Responsive Padding
+
 ```tsx
-<div className="px-4 md:px-6 lg:px-8">
-  {/* Content */}
-</div>
+<div className="px-4 md:px-6 lg:px-8">{/* Content */}</div>
 ```
 
 #### Responsive Text
+
 ```tsx
-<h1 className="text-2xl md:text-3xl lg:text-4xl">
-  Responsive Heading
-</h1>
+<h1 className="text-2xl md:text-3xl lg:text-4xl">Responsive Heading</h1>
 ```
 
 #### Hide/Show Elements
+
 ```tsx
 // Hide on mobile, show on desktop
 <div className="hidden md:block">Desktop only</div>
@@ -539,35 +536,33 @@ When LLMs work on frontend code, they MUST:
 ```tsx
 // ✅ ALLOWED - Frontend component with state
 export function UserProfileCard({ userId }: { userId: string }) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>User Profile</CardTitle>
       </CardHeader>
-      <CardContent>
-        {/* UI logic only */}
-      </CardContent>
+      <CardContent>{/* UI logic only */}</CardContent>
     </Card>
-  )
+  );
 }
 
 // ❌ FORBIDDEN - Database query
 export async function getUserData(userId: string) {
-  const user = await db.select().from(users).where(eq(users.id, userId))
-  return user
+  const user = await db.select().from(users).where(eq(users.id, userId));
+  return user;
 }
 
 // ✅ ALLOWED - Form validation (client-side)
 function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // ❌ FORBIDDEN - Server action with DB mutation
 async function updateUser(formData: FormData) {
-  const email = formData.get('email')
-  await db.update(users).set({ email }).where(eq(users.id, userId))
+  const email = formData.get("email");
+  await db.update(users).set({ email }).where(eq(users.id, userId));
 }
 ```
 

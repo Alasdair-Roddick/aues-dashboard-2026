@@ -1,5 +1,5 @@
-import { db } from '@/app/db';
-import { activityLog, ActivityActionType } from '@/app/db/schema';
+import { db } from "@/app/db";
+import { activityLog, ActivityActionType } from "@/app/db/schema";
 
 interface LogActivityParams {
   userId?: string | null;
@@ -30,48 +30,63 @@ export async function logActivity({
     });
   } catch (error) {
     // Don't throw - activity logging should not break the main operation
-    console.error('Failed to log activity:', error);
+    console.error("Failed to log activity:", error);
   }
 }
 
 // Convenience functions for common actions
 export const ActivityLogger = {
-  userCreated: (performedBy: { id: string; name: string }, newUser: { id: string; name: string; role: string }) =>
+  userCreated: (
+    performedBy: { id: string; name: string },
+    newUser: { id: string; name: string; role: string },
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'USER_CREATED',
-      entityType: 'user',
+      action: "USER_CREATED",
+      entityType: "user",
       entityId: newUser.id,
       details: { newUserName: newUser.name, role: newUser.role },
     }),
 
-  userUpdated: (performedBy: { id: string; name: string }, targetUser: { id: string; name: string }, changes: Record<string, unknown>) =>
+  userUpdated: (
+    performedBy: { id: string; name: string },
+    targetUser: { id: string; name: string },
+    changes: Record<string, unknown>,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'USER_UPDATED',
-      entityType: 'user',
+      action: "USER_UPDATED",
+      entityType: "user",
       entityId: targetUser.id,
       details: { targetUserName: targetUser.name, changes },
     }),
 
-  userDeleted: (performedBy: { id: string; name: string }, deletedUser: { id: string; name: string }) =>
+  userDeleted: (
+    performedBy: { id: string; name: string },
+    deletedUser: { id: string; name: string },
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'USER_DELETED',
-      entityType: 'user',
+      action: "USER_DELETED",
+      entityType: "user",
       entityId: deletedUser.id,
       details: { deletedUserName: deletedUser.name },
     }),
 
-  userRoleChanged: (performedBy: { id: string; name: string }, targetUser: { id: string; name: string }, oldRole: string, newRole: string) =>
+  userRoleChanged: (
+    performedBy: { id: string; name: string },
+    targetUser: { id: string; name: string },
+    oldRole: string,
+    newRole: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'USER_ROLE_CHANGED',
-      entityType: 'user',
+      action: "USER_ROLE_CHANGED",
+      entityType: "user",
       entityId: targetUser.id,
       details: { targetUserName: targetUser.name, oldRole, newRole },
     }),
@@ -80,66 +95,97 @@ export const ActivityLogger = {
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'SETTINGS_UPDATED',
-      entityType: 'settings',
+      action: "SETTINGS_UPDATED",
+      entityType: "settings",
       details: { changedFields },
     }),
 
-  orderSynced: (performedBy: { id: string; name: string }, stats: { added: number; updated: number }) =>
+  orderSynced: (
+    performedBy: { id: string; name: string },
+    stats: { added: number; updated: number },
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'ORDER_SYNCED',
-      entityType: 'order',
+      action: "ORDER_SYNCED",
+      entityType: "order",
       details: stats,
     }),
 
-  orderStatusUpdated: (performedBy: { id: string; name: string }, orderId: string, oldStatus: string, newStatus: string, customerName?: string) =>
+  orderStatusUpdated: (
+    performedBy: { id: string; name: string },
+    orderId: string,
+    oldStatus: string,
+    newStatus: string,
+    customerName?: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: newStatus === 'PACKED' ? 'ORDER_PACKED' : newStatus === 'FULFILLED' ? 'ORDER_FULFILLED' : 'ORDER_STATUS_UPDATED',
-      entityType: 'order',
+      action:
+        newStatus === "PACKED"
+          ? "ORDER_PACKED"
+          : newStatus === "FULFILLED"
+            ? "ORDER_FULFILLED"
+            : "ORDER_STATUS_UPDATED",
+      entityType: "order",
       entityId: orderId,
       details: { oldStatus, newStatus, customerName },
     }),
 
-  receiptSubmitted: (performedBy: { id: string; name: string }, receiptId: string, amount: string) =>
+  receiptSubmitted: (
+    performedBy: { id: string; name: string },
+    receiptId: string,
+    amount: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'RECEIPT_SUBMITTED',
-      entityType: 'receipt',
+      action: "RECEIPT_SUBMITTED",
+      entityType: "receipt",
       entityId: receiptId,
       details: { amount },
     }),
 
-  receiptApproved: (performedBy: { id: string; name: string }, receiptId: string, submittedBy: string) =>
+  receiptApproved: (
+    performedBy: { id: string; name: string },
+    receiptId: string,
+    submittedBy: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'RECEIPT_APPROVED',
-      entityType: 'receipt',
+      action: "RECEIPT_APPROVED",
+      entityType: "receipt",
       entityId: receiptId,
       details: { submittedBy },
     }),
 
-  receiptRejected: (performedBy: { id: string; name: string }, receiptId: string, submittedBy: string, reason?: string) =>
+  receiptRejected: (
+    performedBy: { id: string; name: string },
+    receiptId: string,
+    submittedBy: string,
+    reason?: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'RECEIPT_REJECTED',
-      entityType: 'receipt',
+      action: "RECEIPT_REJECTED",
+      entityType: "receipt",
       entityId: receiptId,
       details: { submittedBy, reason },
     }),
 
-  receiptFulfilled: (performedBy: { id: string; name: string }, receiptId: string, submittedBy: string) =>
+  receiptFulfilled: (
+    performedBy: { id: string; name: string },
+    receiptId: string,
+    submittedBy: string,
+  ) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'RECEIPT_FULFILLED',
-      entityType: 'receipt',
+      action: "RECEIPT_FULFILLED",
+      entityType: "receipt",
       entityId: receiptId,
       details: { submittedBy },
     }),
@@ -148,8 +194,8 @@ export const ActivityLogger = {
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
-      action: 'MEMBER_SYNCED',
-      entityType: 'member',
+      action: "MEMBER_SYNCED",
+      entityType: "member",
       details: stats,
     }),
 
@@ -157,15 +203,15 @@ export const ActivityLogger = {
     logActivity({
       userId: user.id,
       userName: user.name,
-      action: 'LOGIN',
-      entityType: 'session',
+      action: "LOGIN",
+      entityType: "session",
     }),
 
   logout: (user: { id: string; name: string }) =>
     logActivity({
       userId: user.id,
       userName: user.name,
-      action: 'LOGOUT',
-      entityType: 'session',
+      action: "LOGOUT",
+      entityType: "session",
     }),
 };

@@ -18,7 +18,7 @@ export async function getUserCustomizations(userId: string) {
     const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
     const userRole = getSessionRole(session?.user);
 
-    if (!session?.user || (!sessionUserId || (userRole !== "Admin" && sessionUserId !== userId))) {
+    if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
       return null;
     }
 
@@ -51,14 +51,14 @@ export async function updateUserCustomizations(
   lightSecondaryColor: string,
   darkPrimaryColor: string,
   darkSecondaryColor: string,
-  theme: "light" | "dark" | "system"
+  theme: "light" | "dark" | "system",
 ) {
   try {
     const session = await auth();
     const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
     const userRole = getSessionRole(session?.user);
 
-    if (!session?.user || (!sessionUserId || (userRole !== "Admin" && sessionUserId !== userId))) {
+    if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
       return { success: false, error: "Unauthorized" };
     }
 

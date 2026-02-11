@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
@@ -48,16 +42,14 @@ export function AppearanceSection() {
   const isHydrated = useSyncExternalStore(
     () => () => undefined,
     () => true,
-    () => false
+    () => false,
   );
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [lightColor, setLightColor] = useState("#2563eb");
   const [darkColor, setDarkColor] = useState("#3b82f6");
   const selectedTheme: ThemeMode =
-    theme === "light" || theme === "dark" || theme === "system"
-      ? theme
-      : "system";
+    theme === "light" || theme === "dark" || theme === "system" ? theme : "system";
 
   useEffect(() => {
     let isActive = true;
@@ -100,7 +92,7 @@ export function AppearanceSection() {
         lightColor,
         darkColor,
         darkColor,
-        selectedTheme
+        selectedTheme,
       );
       if (result.success) {
         toast.success("Theme saved! Refreshing...");
@@ -126,7 +118,16 @@ export function AppearanceSection() {
   if (!isHydrated || loading) {
     return (
       <div className="space-y-6">
-        <Card><CardHeader><Skeleton className="h-6 w-32" /><Skeleton className="h-4 w-64 mt-2" /></CardHeader><CardContent className="space-y-6"><Skeleton className="h-24 w-full" /><Skeleton className="h-48 w-full" /></CardContent></Card>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-64 mt-2" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -139,16 +140,34 @@ export function AppearanceSection() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5" />Theme Mode</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Theme Mode
+          </CardTitle>
           <CardDescription>Choose how the dashboard appears</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
             {THEME_MODES.map(({ mode, Icon, label, desc }) => (
-              <button key={mode} onClick={() => handleThemeChange(mode)} className={`group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all hover:shadow-md ${isCurrentMode(mode) ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"}`}>
-                {isCurrentMode(mode) && <div className="absolute top-2 right-2"><div className="bg-primary rounded-full p-1"><Check className="h-3 w-3 text-primary-foreground" /></div></div>}
-                <Icon className={`h-8 w-8 ${isCurrentMode(mode) ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-                <div className="text-center"><p className="font-semibold text-sm">{label}</p><p className="text-xs text-muted-foreground mt-0.5">{desc}</p></div>
+              <button
+                key={mode}
+                onClick={() => handleThemeChange(mode)}
+                className={`group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all hover:shadow-md ${isCurrentMode(mode) ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"}`}
+              >
+                {isCurrentMode(mode) && (
+                  <div className="absolute top-2 right-2">
+                    <div className="bg-primary rounded-full p-1">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  </div>
+                )}
+                <Icon
+                  className={`h-8 w-8 ${isCurrentMode(mode) ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}
+                />
+                <div className="text-center">
+                  <p className="font-semibold text-sm">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                </div>
               </button>
             ))}
           </div>
@@ -157,14 +176,31 @@ export function AppearanceSection() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><PaletteIcon className="h-5 w-5" />Brand Color</CardTitle>
-          <CardDescription>Pick one color - we generate a complete Tailwind-style palette</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <PaletteIcon className="h-5 w-5" />
+            Brand Color
+          </CardTitle>
+          <CardDescription>
+            Pick one color - we generate a complete Tailwind-style palette
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
             {[
-              { label: "Light Mode", value: lightColor, onChange: setLightColor, placeholder: "#2563eb", icon: Sun },
-              { label: "Dark Mode", value: darkColor, onChange: setDarkColor, placeholder: "#3b82f6", icon: Moon }
+              {
+                label: "Light Mode",
+                value: lightColor,
+                onChange: setLightColor,
+                placeholder: "#2563eb",
+                icon: Sun,
+              },
+              {
+                label: "Dark Mode",
+                value: darkColor,
+                onChange: setDarkColor,
+                placeholder: "#3b82f6",
+                icon: Moon,
+              },
             ].map((item) => (
               <div key={item.label} className="space-y-3">
                 <Label className="text-sm font-medium flex items-center gap-2">
@@ -234,7 +270,9 @@ export function AppearanceSection() {
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-medium">Generated Palette</Label>
-              <p className="text-xs text-muted-foreground mt-1">Tailwind-style shades (50-950) auto-generated from your color</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Tailwind-style shades (50-950) auto-generated from your color
+              </p>
             </div>
             <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
               <div className="grid grid-cols-11 gap-2">
@@ -245,7 +283,9 @@ export function AppearanceSection() {
                       style={{ backgroundColor: color }}
                       title={`${shade}: ${color}`}
                     />
-                    <p className="text-[10px] text-center text-muted-foreground font-mono font-medium">{shade}</p>
+                    <p className="text-[10px] text-center text-muted-foreground font-mono font-medium">
+                      {shade}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -257,7 +297,9 @@ export function AppearanceSection() {
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-medium">Live Preview</Label>
-              <p className="text-xs text-muted-foreground mt-1">See how your theme colors look in action</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                See how your theme colors look in action
+              </p>
             </div>
             <div className="p-6 bg-muted/30 rounded-xl border border-border/50 space-y-4">
               <div className="flex gap-3 flex-wrap items-center">
@@ -294,7 +336,8 @@ export function AppearanceSection() {
                   Your custom theme in action
                 </p>
                 <p className="text-xs mt-1.5" style={{ color: activePalette[600] }}>
-                  This alert box demonstrates how your color palette creates a cohesive design system
+                  This alert box demonstrates how your color palette creates a cohesive design
+                  system
                 </p>
               </div>
             </div>
@@ -321,12 +364,7 @@ export function AppearanceSection() {
                 </>
               )}
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              disabled={isPending}
-              size="lg"
-            >
+            <Button variant="outline" onClick={handleReset} disabled={isPending} size="lg">
               Reset
             </Button>
           </div>

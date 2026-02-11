@@ -109,7 +109,7 @@ export async function getActivityLogs(params: GetActivityLogsParams = {}): Promi
 // Get activity for a specific entity (e.g., all activity for an order)
 export async function getEntityActivity(
   entityType: string,
-  entityId: string
+  entityId: string,
 ): Promise<ActivityLogEntry[]> {
   try {
     const session = await auth();
@@ -123,12 +123,7 @@ export async function getEntityActivity(
     const logs = await db
       .select()
       .from(activityLog)
-      .where(
-        and(
-          eq(activityLog.entityType, entityType),
-          eq(activityLog.entityId, entityId)
-        )
-      )
+      .where(and(eq(activityLog.entityType, entityType), eq(activityLog.entityId, entityId)))
       .orderBy(desc(activityLog.createdAt));
 
     return logs as ActivityLogEntry[];
@@ -164,7 +159,7 @@ export async function getRecentActivity(limit: number = 10): Promise<ActivityLog
 
 // Get activity for multiple orders with user images
 export async function getOrdersActivityWithUsers(
-  orderIds: string[]
+  orderIds: string[],
 ): Promise<Record<string, ActivityLogEntry[]>> {
   try {
     const session = await auth();
@@ -180,16 +175,11 @@ export async function getOrdersActivityWithUsers(
     const logs = await db
       .select()
       .from(activityLog)
-      .where(
-        and(
-          eq(activityLog.entityType, 'order'),
-          inArray(activityLog.entityId, orderIds)
-        )
-      )
+      .where(and(eq(activityLog.entityType, "order"), inArray(activityLog.entityId, orderIds)))
       .orderBy(desc(activityLog.createdAt));
 
     // Get unique user IDs
-    const userIds = [...new Set(logs.map(l => l.userId).filter(Boolean))] as string[];
+    const userIds = [...new Set(logs.map((l) => l.userId).filter(Boolean))] as string[];
 
     // Fetch user images
     const userImages: Record<string, string | null> = {};
@@ -199,7 +189,7 @@ export async function getOrdersActivityWithUsers(
         .from(users)
         .where(inArray(users.id, userIds));
 
-      usersData.forEach(u => {
+      usersData.forEach((u) => {
         userImages[u.id] = u.image;
       });
     }

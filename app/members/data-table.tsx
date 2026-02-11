@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion";
 
-import * as React from "react"
+import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -14,11 +14,11 @@ import {
   type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -27,8 +27,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -36,7 +36,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,29 +45,29 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
-import { syncMembers } from "./actions"
-import { toAustralianDateTime } from "@/app/utils/dateFormatter"
-import { useMembersStore } from "@/app/store/membersStore"
-import { Loader2 } from "lucide-react"
+import { syncMembers } from "./actions";
+import { toAustralianDateTime } from "@/app/utils/dateFormatter";
+import { useMembersStore } from "@/app/store/membersStore";
+import { Loader2 } from "lucide-react";
 
 export type Member = {
-  id: number
-  fullname: string
-  email: string
-  phonenumber: string | null
-  membershipId: string | null
-  membershipType: string | null
-  pricePaid: string | null
-  paymentMethod: string | null
-  isValid: boolean | null
-  createdAt: Date | null
-  updatedAt: Date | null
-}
+  id: number;
+  fullname: string;
+  email: string;
+  phonenumber: string | null;
+  membershipId: string | null;
+  membershipType: string | null;
+  pricePaid: string | null;
+  paymentMethod: string | null;
+  isValid: boolean | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
 
 function MemberRowActions({ member }: { member: Member }) {
-  const [showDetails, setShowDetails] = React.useState(false)
+  const [showDetails, setShowDetails] = React.useState(false);
 
   return (
     <>
@@ -81,14 +81,14 @@ function MemberRowActions({ member }: { member: Member }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() => member.membershipId && navigator.clipboard.writeText(member.membershipId)}
+            onClick={() =>
+              member.membershipId && navigator.clipboard.writeText(member.membershipId)
+            }
           >
             Copy membership ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setShowDetails(true)}>
-            View details
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowDetails(true)}>View details</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -96,9 +96,7 @@ function MemberRowActions({ member }: { member: Member }) {
         <AlertDialogContent className="max-w-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Member Details</AlertDialogTitle>
-            <AlertDialogDescription>
-              Full information for {member.fullname}
-            </AlertDialogDescription>
+            <AlertDialogDescription>Full information for {member.fullname}</AlertDialogDescription>
           </AlertDialogHeader>
           <motion.div
             className="grid gap-4 py-4"
@@ -141,7 +139,9 @@ function MemberRowActions({ member }: { member: Member }) {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <p className={`text-sm font-semibold capitalize ${member.isValid ? "text-green-600" : "text-red-600"}`}>
+                <p
+                  className={`text-sm font-semibold capitalize ${member.isValid ? "text-green-600" : "text-red-600"}`}
+                >
                   {member.isValid === null ? "Unknown" : member.isValid ? "Valid" : "Invalid"}
                 </p>
               </div>
@@ -198,7 +198,7 @@ function MemberRowActions({ member }: { member: Member }) {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 export const columns: ColumnDef<Member>[] = [
@@ -207,8 +207,7 @@ export const columns: ColumnDef<Member>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -235,7 +234,7 @@ export const columns: ColumnDef<Member>[] = [
           Full Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => <div className="font-medium">{row.getValue("fullname")}</div>,
   },
@@ -250,9 +249,13 @@ export const columns: ColumnDef<Member>[] = [
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
-    cell: ({ row }) => <div className="lowercase max-w-50 truncate" title={row.getValue("email")}>{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="lowercase max-w-50 truncate" title={row.getValue("email")}>
+        {row.getValue("email")}
+      </div>
+    ),
   },
   {
     accessorKey: "phonenumber",
@@ -270,15 +273,11 @@ export const columns: ColumnDef<Member>[] = [
           Membership Type
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const type = row.getValue("membershipType") as string | null
-      return (
-        <div className="capitalize font-medium">
-          {type || "N/A"}
-        </div>
-      )
+      const type = row.getValue("membershipType") as string | null;
+      return <div className="capitalize font-medium">{type || "N/A"}</div>;
     },
   },
   {
@@ -292,20 +291,20 @@ export const columns: ColumnDef<Member>[] = [
           Price Paid
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const pricePaid = row.getValue("pricePaid") as string | null
-      if (!pricePaid) return <div className="text-muted-foreground">N/A</div>
-      const amount = parseFloat(pricePaid)
+      const pricePaid = row.getValue("pricePaid") as string | null;
+      if (!pricePaid) return <div className="text-muted-foreground">N/A</div>;
+      const amount = parseFloat(pricePaid);
       const formatted = new Intl.NumberFormat("en-GB", {
         style: "currency",
         currency: "AUD",
-      }).format(amount)
-      return <div className="font-medium">{formatted}</div>
+      }).format(amount);
+      return <div className="font-medium">{formatted}</div>;
     },
   },
-  
+
   {
     accessorKey: "isValid",
     header: ({ column }) => {
@@ -317,42 +316,44 @@ export const columns: ColumnDef<Member>[] = [
           Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const isValid = row.getValue("isValid") as boolean | null
-      if (isValid === null) return <div className="text-muted-foreground">Unknown</div>
+      const isValid = row.getValue("isValid") as boolean | null;
+      if (isValid === null) return <div className="text-muted-foreground">Unknown</div>;
       return (
         <div className={`capitalize font-medium ${isValid ? "text-green-600" : "text-red-600"}`}>
           {isValid ? "Valid" : "Invalid"}
         </div>
-      )
+      );
     },
   },
-  
+
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => <MemberRowActions member={row.original} />,
   },
-]
+];
 
 interface DataTableProps {
-  data: Member[]
+  data: Member[];
 }
 
 export function DataTable({ data }: DataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [filterField, setFilterField] = React.useState<"fullname" | "email" | "phonenumber" | "all">("all")
-  const [filterValue, setFilterValue] = React.useState("")
-  const [globalFilter, setGlobalFilter] = React.useState("")
-  const [isSyncing, setIsSyncing] = React.useState(false)
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [filterField, setFilterField] = React.useState<
+    "fullname" | "email" | "phonenumber" | "all"
+  >("all");
+  const [filterValue, setFilterValue] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [isSyncing, setIsSyncing] = React.useState(false);
 
-  const fetchMembers = useMembersStore((state) => state.fetchMembers)
-  const membersLoading = useMembersStore((state) => state.membersLoading)
+  const fetchMembers = useMembersStore((state) => state.fetchMembers);
+  const membersLoading = useMembersStore((state) => state.membersLoading);
 
   const table = useReactTable({
     data,
@@ -367,14 +368,16 @@ export function DataTable({ data }: DataTableProps) {
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, _columnId, filterValue) => {
-      const searchValue = String(filterValue).toLowerCase()
-      const fullname = String(row.getValue("fullname") || "").toLowerCase()
-      const email = String(row.getValue("email") || "").toLowerCase()
-      const phonenumber = String(row.getValue("phonenumber") || "").toLowerCase()
+      const searchValue = String(filterValue).toLowerCase();
+      const fullname = String(row.getValue("fullname") || "").toLowerCase();
+      const email = String(row.getValue("email") || "").toLowerCase();
+      const phonenumber = String(row.getValue("phonenumber") || "").toLowerCase();
 
-      return fullname.includes(searchValue) ||
-             email.includes(searchValue) ||
-             phonenumber.includes(searchValue)
+      return (
+        fullname.includes(searchValue) ||
+        email.includes(searchValue) ||
+        phonenumber.includes(searchValue)
+      );
     },
     state: {
       sorting,
@@ -383,53 +386,57 @@ export function DataTable({ data }: DataTableProps) {
       rowSelection,
       globalFilter,
     },
-  })
+  });
 
   const handleFilterChange = (value: string) => {
-    setFilterValue(value)
+    setFilterValue(value);
 
     if (filterField === "all") {
       // Use global filter for searching across all fields
-      setGlobalFilter(value)
+      setGlobalFilter(value);
       // Clear column filters
-      table.getColumn("fullname")?.setFilterValue("")
-      table.getColumn("email")?.setFilterValue("")
-      table.getColumn("phonenumber")?.setFilterValue("")
+      table.getColumn("fullname")?.setFilterValue("");
+      table.getColumn("email")?.setFilterValue("");
+      table.getColumn("phonenumber")?.setFilterValue("");
     } else {
       // Clear global filter
-      setGlobalFilter("")
+      setGlobalFilter("");
       // Clear all column filters first
-      table.getColumn("fullname")?.setFilterValue("")
-      table.getColumn("email")?.setFilterValue("")
-      table.getColumn("phonenumber")?.setFilterValue("")
+      table.getColumn("fullname")?.setFilterValue("");
+      table.getColumn("email")?.setFilterValue("");
+      table.getColumn("phonenumber")?.setFilterValue("");
       // Apply filter to specific field
-      table.getColumn(filterField)?.setFilterValue(value)
+      table.getColumn(filterField)?.setFilterValue(value);
     }
-  }
+  };
 
   const getFieldLabel = () => {
     switch (filterField) {
-      case "fullname": return "Name"
-      case "email": return "Email"
-      case "phonenumber": return "Phone"
-      case "all": return "All"
+      case "fullname":
+        return "Name";
+      case "email":
+        return "Email";
+      case "phonenumber":
+        return "Phone";
+      case "all":
+        return "All";
     }
-  }
+  };
 
   const handleSync = async () => {
-    setIsSyncing(true)
+    setIsSyncing(true);
     try {
-      const result = await syncMembers()
+      const result = await syncMembers();
       if (result.success) {
         // Refresh members from the store
-        await fetchMembers()
+        await fetchMembers();
       }
     } catch (error) {
-      console.error("Sync failed:", error)
+      console.error("Sync failed:", error);
     } finally {
-      setIsSyncing(false)
+      setIsSyncing(false);
     }
-  }
+  };
 
   return (
     <div className="w-full relative">
@@ -463,15 +470,9 @@ export function DataTable({ data }: DataTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFilterField("all")}>
-                All
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterField("fullname")}>
-                Name
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterField("email")}>
-                Email
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("all")}>All</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("fullname")}>Name</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("email")}>Email</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFilterField("phonenumber")}>
                 Phone
               </DropdownMenuItem>
@@ -485,11 +486,7 @@ export function DataTable({ data }: DataTableProps) {
           />
         </div>
         <DropdownMenu>
-          <Button
-            onClick={handleSync}
-            disabled={isSyncing || membersLoading}
-            className="relative"
-          >
+          <Button onClick={handleSync} disabled={isSyncing || membersLoading} className="relative">
             {isSyncing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -514,13 +511,11 @@ export function DataTable({ data }: DataTableProps) {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -535,12 +530,9 @@ export function DataTable({ data }: DataTableProps) {
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -557,27 +549,21 @@ export function DataTable({ data }: DataTableProps) {
                     transition={{
                       duration: 0.2,
                       delay: index * 0.02,
-                      ease: "easeOut"
+                      ease: "easeOut",
                     }}
                     data-state={row.getIsSelected() && "selected"}
                     className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </motion.tr>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -628,5 +614,5 @@ export function DataTable({ data }: DataTableProps) {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

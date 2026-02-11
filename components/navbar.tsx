@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { User, LogOut, ChevronDown, Shield, Wallet, Menu, X } from "lucide-react"
-import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import Link from "next/link";
+import { User, LogOut, ChevronDown, Shield, Wallet, Menu, X } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUserStore } from "@/app/store/userStore"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUserStore } from "@/app/store/userStore";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -86,12 +86,12 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {isAdmin && (
-                    <DropdownMenuItem onClick={() => router.push('/admin')}>
+                    <DropdownMenuItem onClick={() => router.push("/admin")}>
                       <Shield className="mr-2 h-4 w-4" />
                       <span>Admin Panel</span>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => router.push('/treasurer/receipts')}>
+                  <DropdownMenuItem onClick={() => router.push("/treasurer/receipts")}>
                     <Wallet className="mr-2 h-4 w-4" />
                     <span>Treasurer</span>
                   </DropdownMenuItem>
@@ -104,14 +104,22 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger className="h-10 w-10 rounded-full border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center">
               <Avatar className="h-8 w-8">
-                <AvatarImage className="object-cover" src={currentUser?.image ?? undefined} alt={currentUser?.name ?? "User Avatar"} />
+                <AvatarImage
+                  className="object-cover"
+                  src={currentUser?.image ?? undefined}
+                  alt={currentUser?.name ?? "User Avatar"}
+                />
                 <AvatarFallback>
-                  {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+                  {currentUser?.name ? (
+                    currentUser.name.charAt(0).toUpperCase()
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push('/profile')}>
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
@@ -139,7 +147,9 @@ export function Navbar() {
 
             {hasManagementAccess && (
               <>
-                <div className="px-4 py-2 text-sm font-medium text-muted-foreground">Management</div>
+                <div className="px-4 py-2 text-sm font-medium text-muted-foreground">
+                  Management
+                </div>
                 {isAdmin && (
                   <Link
                     href="/admin"
@@ -164,5 +174,5 @@ export function Navbar() {
         )}
       </div>
     </nav>
-  )
+  );
 }

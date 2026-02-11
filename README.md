@@ -21,33 +21,39 @@ A modern dashboard application built with Next.js 16, TypeScript, and shadcn/ui 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd aues-dashboard-2026
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 Add your database connection string to `.env`:
+
 ```
 DATABASE_URL="your-neon-postgresql-connection-string"
 ```
 
 4. Generate and run database migrations:
+
 ```bash
 npm run db:generate
 npm run db:migrate
 ```
 
 5. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -66,12 +72,14 @@ For a containerized setup with Docker:
 #### Quick Start with Docker
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd aues-dashboard-2026
 ```
 
 2. Copy and configure environment variables:
+
 ```bash
 cp .env.example .env
 ```
@@ -79,27 +87,32 @@ cp .env.example .env
 Edit `.env` if needed (defaults are configured for Docker Compose).
 
 3. Build and start the containers:
+
 ```bash
 docker-compose up -d
 ```
 
 This will:
+
 - Start a PostgreSQL database container
 - Build and start the Next.js application container
 - Automatically run database migrations
 - Expose the application on [http://localhost:3000](http://localhost:3000)
 
 4. View logs:
+
 ```bash
 docker-compose logs -f
 ```
 
 5. Stop the containers:
+
 ```bash
 docker-compose down
 ```
 
 6. Stop and remove all data:
+
 ```bash
 docker-compose down -v
 ```
@@ -185,6 +198,7 @@ aues-dashboard-2026/
 ### Development Workflow
 
 1. **Create a new branch** for your feature or bugfix:
+
 ```bash
 git checkout -b feature/your-feature-name
 # or
@@ -194,6 +208,7 @@ git checkout -b fix/bug-description
 2. **Make your changes** following the code style guidelines below.
 
 3. **Test your changes** locally:
+
 ```bash
 npm run dev
 npm run lint
@@ -203,6 +218,7 @@ npm run build
 4. **Commit your changes** following the commit message standards (see below).
 
 5. **Push to your branch** and create a pull request:
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -222,54 +238,63 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 #### Commit Types
 
 - **feat**: A new feature
+
   ```bash
   git commit -m "feat: add user profile page"
   git commit -m "feat(navbar): add logout functionality"
   ```
 
 - **fix**: A bug fix
+
   ```bash
   git commit -m "fix: resolve navigation menu alignment issue"
   git commit -m "fix(database): correct user query syntax"
   ```
 
 - **docs**: Documentation only changes
+
   ```bash
   git commit -m "docs: update README with installation steps"
   git commit -m "docs(contributing): add commit message guidelines"
   ```
 
 - **style**: Code style changes (formatting, missing semi-colons, etc.)
+
   ```bash
   git commit -m "style: format navbar component"
   git commit -m "style(global): apply prettier formatting"
   ```
 
 - **refactor**: Code changes that neither fix bugs nor add features
+
   ```bash
   git commit -m "refactor: simplify database connection logic"
   git commit -m "refactor(components): extract reusable button component"
   ```
 
 - **perf**: Performance improvements
+
   ```bash
   git commit -m "perf: optimize member list rendering"
   git commit -m "perf(database): add index to users table"
   ```
 
 - **test**: Adding or updating tests
+
   ```bash
   git commit -m "test: add unit tests for user service"
   git commit -m "test(navbar): add component tests"
   ```
 
 - **build**: Changes to build system or dependencies
+
   ```bash
   git commit -m "build: upgrade Next.js to v16"
   git commit -m "build(deps): add shadcn dropdown component"
   ```
 
 - **ci**: CI/CD configuration changes
+
   ```bash
   git commit -m "ci: add GitHub Actions workflow"
   git commit -m "ci(deploy): configure Vercel deployment"
@@ -294,6 +319,7 @@ BREAKING CHANGE: old auth tokens are no longer valid, users must re-authenticate
 #### Commit Message Examples
 
 Good commit messages:
+
 ```bash
 git commit -m "feat(members): add pagination to member list"
 git commit -m "fix: prevent duplicate user entries in database"
@@ -303,6 +329,7 @@ git commit -m "perf(database): add indexes for faster queries"
 ```
 
 Bad commit messages:
+
 ```bash
 git commit -m "fixed stuff"           # Too vague
 git commit -m "WIP"                   # Work in progress should not be committed
@@ -352,11 +379,13 @@ Before every commit, verify:
 ### Adding shadcn/ui Components
 
 To add new shadcn/ui components:
+
 ```bash
 npx shadcn@latest add <component-name>
 ```
 
 Example:
+
 ```bash
 npx shadcn@latest add button
 npx shadcn@latest add card
@@ -368,11 +397,14 @@ When modifying the database schema:
 
 1. Update the schema in `app/db/schema.ts`
 2. Generate migration:
+
 ```bash
 npm run db:generate
 ```
+
 3. Review the generated migration in `drizzle/`
 4. Apply the migration:
+
 ```bash
 npm run db:migrate
 ```
@@ -397,20 +429,17 @@ When creating new components:
 5. Use shadcn/ui components as building blocks when possible
 
 Example component structure:
+
 ```tsx
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface YourComponentProps {
-  className?: string
+  className?: string;
   // ... other props
 }
 
 export function YourComponent({ className, ...props }: YourComponentProps) {
-  return (
-    <div className={cn("base-classes", className)}>
-      {/* component content */}
-    </div>
-  )
+  return <div className={cn("base-classes", className)}>{/* component content */}</div>;
 }
 ```
 
@@ -428,6 +457,7 @@ When adding new routes, create a folder in `app/` with a `page.tsx` file.
 ### Environment Variables
 
 Required environment variables:
+
 - `DATABASE_URL` - PostgreSQL connection string (Neon Serverless)
 
 Create a `.env` file in the root directory (never commit this file).
@@ -463,6 +493,7 @@ PR titles must follow the same format as commit messages:
 ```
 
 Examples:
+
 - `feat(members): add search and filter functionality`
 - `fix: resolve navbar dropdown positioning bug`
 - `docs: update contributing guidelines`
@@ -473,9 +504,11 @@ Your PR description must include:
 
 ```markdown
 ## Description
+
 Brief summary of what this PR does and why.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -484,15 +517,18 @@ Brief summary of what this PR does and why.
 - [ ] Performance improvement
 
 ## Related Issues
+
 Fixes #123
 Relates to #456
 
 ## Changes Made
+
 - Detailed list of changes
 - Another change
 - Yet another change
 
 ## Screenshots (if applicable)
+
 Before:
 [Add screenshot]
 
@@ -500,6 +536,7 @@ After:
 [Add screenshot]
 
 ## Testing Done
+
 - [ ] Tested locally with `npm run dev`
 - [ ] Built successfully with `npm run build`
 - [ ] Linting passes with `npm run lint`
@@ -508,6 +545,7 @@ After:
 - [ ] Manually tested all affected features
 
 ## Checklist
+
 - [ ] My code follows the project's code style guidelines
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code where necessary
@@ -595,6 +633,7 @@ Your PR will be rejected if:
 ### Getting Help
 
 If you have questions or need help:
+
 - Open an issue for bug reports or feature requests
 - Check existing issues before creating new ones
 - Review the documentation for Next.js, Drizzle ORM, and shadcn/ui
@@ -608,6 +647,7 @@ This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude
 ### ✅ LLMs ARE ALLOWED FOR:
 
 #### Frontend Development
+
 - Creating React components with TypeScript
 - Implementing UI layouts and responsive designs
 - Using shadcn/ui components
@@ -618,6 +658,7 @@ This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude
 - Accessibility improvements (ARIA labels, keyboard navigation)
 
 #### Documentation
+
 - Writing or updating README files
 - Creating component documentation
 - Writing code comments
@@ -626,6 +667,7 @@ This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude
 ### ❌ LLMs ARE STRICTLY FORBIDDEN FROM:
 
 #### Database Operations (CRITICAL)
+
 - **NEVER** write SQL queries
 - **NEVER** modify database schema (`app/db/schema.ts`)
 - **NEVER** create or modify database migrations
@@ -634,6 +676,7 @@ This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude
 - **NEVER** generate migration files in `drizzle/`
 
 #### Backend Logic
+
 - **NEVER** create API routes or endpoints
 - **NEVER** write server-side data fetching logic
 - **NEVER** implement authentication/authorization logic
@@ -641,6 +684,7 @@ This project allows the use of Large Language Models (LLMs) like ChatGPT, Claude
 - **NEVER** access or modify environment variables for database
 
 #### Data Mutations
+
 - **NEVER** perform INSERT, UPDATE, DELETE operations
 - **NEVER** modify persistent data
 - **NEVER** create database transaction logic
@@ -676,7 +720,7 @@ Before committing LLM-generated code, verify:
 ```tsx
 // ✅ ALLOWED - Frontend component with client-side logic
 export function MemberCard({ name, email }: MemberCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <Card>
@@ -684,41 +728,38 @@ export function MemberCard({ name, email }: MemberCardProps) {
         <CardTitle>{name}</CardTitle>
         <CardDescription>{email}</CardDescription>
       </CardHeader>
-      {isExpanded && (
-        <CardContent>
-          {/* Additional details */}
-        </CardContent>
-      )}
+      {isExpanded && <CardContent>{/* Additional details */}</CardContent>}
     </Card>
-  )
+  );
 }
 
 // ❌ FORBIDDEN - Database query
 export async function getMembers() {
-  const members = await db.select().from(users)
-  return members
+  const members = await db.select().from(users);
+  return members;
 }
 
 // ❌ FORBIDDEN - Database mutation
 export async function updateMember(id: string, data: UserData) {
-  await db.update(users).set(data).where(eq(users.id, id))
+  await db.update(users).set(data).where(eq(users.id, id));
 }
 
 // ✅ ALLOWED - Client-side validation
 export function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // ❌ FORBIDDEN - Server action with database
-"use server"
+("use server");
 export async function createMember(formData: FormData) {
-  await db.insert(users).values({ name: formData.get('name') })
+  await db.insert(users).values({ name: formData.get("name") });
 }
 ```
 
 ### Consequences of Violations
 
 Pull requests containing LLM-generated code that violates these rules will be:
+
 - ❌ **Immediately rejected**
 - ❌ **Required to rewrite from scratch**
 - ❌ **Flagged for review of contributor's understanding**
@@ -745,6 +786,7 @@ If you're using an LLM and encounter any of these scenarios:
 ### Reporting Violations
 
 If you see LLM-generated code that violates these rules:
+
 1. Comment on the PR with specific violations
 2. Reference this section of the README
 3. Request immediate revision
@@ -761,4 +803,3 @@ To learn more about the technologies used:
 - [shadcn/ui Documentation](https://ui.shadcn.com)
 - [TailwindCSS Documentation](https://tailwindcss.com/docs)
 - [Radix UI Documentation](https://www.radix-ui.com/primitives)
-

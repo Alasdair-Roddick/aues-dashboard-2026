@@ -123,37 +123,33 @@ export function TreasurerReceiptContent() {
     }
   };
 
-  const filteredReceipts = filter === "All"
-    ? receipts
-    : receipts.filter(r => r.status === filter);
+  const filteredReceipts =
+    filter === "All" ? receipts : receipts.filter((r) => r.status === filter);
 
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Filter Buttons */}
       <div className="flex flex-wrap gap-2">
-        <Button
-          variant={filter === "All" ? "default" : "outline"}
-          onClick={() => setFilter("All")}
-        >
+        <Button variant={filter === "All" ? "default" : "outline"} onClick={() => setFilter("All")}>
           All ({receipts.length})
         </Button>
         <Button
           variant={filter === "Pending" ? "default" : "outline"}
           onClick={() => setFilter("Pending")}
         >
-          Pending ({receipts.filter(r => r.status === "Pending").length})
+          Pending ({receipts.filter((r) => r.status === "Pending").length})
         </Button>
         <Button
           variant={filter === "Fulfilled" ? "default" : "outline"}
           onClick={() => setFilter("Fulfilled")}
         >
-          Fulfilled ({receipts.filter(r => r.status === "Fulfilled").length})
+          Fulfilled ({receipts.filter((r) => r.status === "Fulfilled").length})
         </Button>
         <Button
           variant={filter === "Rejected" ? "default" : "outline"}
           onClick={() => setFilter("Rejected")}
         >
-          Rejected ({receipts.filter(r => r.status === "Rejected").length})
+          Rejected ({receipts.filter((r) => r.status === "Rejected").length})
         </Button>
       </div>
 
@@ -167,41 +163,43 @@ export function TreasurerReceiptContent() {
             <p className="text-muted-foreground text-center py-8">No reimbursement requests</p>
           ) : (
             <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReceipts.map((receipt) => (
-                  <TableRow key={receipt.id}>
-                    <TableCell>{new Date(receipt.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{receipt.userName}</TableCell>
-                    <TableCell className="font-medium">${parseFloat(receipt.amount).toFixed(2)}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {receipt.description || "-"}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(receipt.status)}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewReceipt(receipt)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredReceipts.map((receipt) => (
+                    <TableRow key={receipt.id}>
+                      <TableCell>{new Date(receipt.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{receipt.userName}</TableCell>
+                      <TableCell className="font-medium">
+                        ${parseFloat(receipt.amount).toFixed(2)}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {receipt.description || "-"}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(receipt.status)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewReceipt(receipt)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
@@ -212,9 +210,7 @@ export function TreasurerReceiptContent() {
         <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Reimbursement Request Details</DialogTitle>
-            <DialogDescription>
-              Review the request and update its status
-            </DialogDescription>
+            <DialogDescription>Review the request and update its status</DialogDescription>
           </DialogHeader>
 
           {selectedReceipt && (
@@ -227,11 +223,15 @@ export function TreasurerReceiptContent() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Date</p>
-                  <p className="text-base">{new Date(selectedReceipt.createdAt).toLocaleString()}</p>
+                  <p className="text-base">
+                    {new Date(selectedReceipt.createdAt).toLocaleString()}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                  <p className="text-2xl font-bold">${parseFloat(selectedReceipt.amount).toFixed(2)}</p>
+                  <p className="text-2xl font-bold">
+                    ${parseFloat(selectedReceipt.amount).toFixed(2)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Status</p>
@@ -243,7 +243,9 @@ export function TreasurerReceiptContent() {
               {selectedReceipt.description && (
                 <div>
                   <Label className="text-sm font-medium">Description</Label>
-                  <p className="mt-1 text-sm text-muted-foreground">{selectedReceipt.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {selectedReceipt.description}
+                  </p>
                 </div>
               )}
 
@@ -283,13 +285,13 @@ export function TreasurerReceiptContent() {
               <div>
                 <Label className="text-sm font-medium mb-2 block">Receipt Image</Label>
                 <div className="border rounded-lg overflow-hidden">
-                  {selectedReceipt.receiptImageUrl.endsWith('.pdf') ? (
+                  {selectedReceipt.receiptImageUrl.endsWith(".pdf") ? (
                     <div className="p-8 text-center bg-muted/50">
                       <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground mb-4">PDF Receipt</p>
                       <Button
                         variant="outline"
-                        onClick={() => window.open(selectedReceipt.receiptImageUrl, '_blank')}
+                        onClick={() => window.open(selectedReceipt.receiptImageUrl, "_blank")}
                       >
                         Open PDF
                       </Button>

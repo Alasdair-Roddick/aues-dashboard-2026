@@ -5,11 +5,7 @@ import { auth } from "@/auth";
 /**
  * Server component that fetches user customizations and passes them to ThemeProvider
  */
-export async function CustomThemeWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export async function CustomThemeWrapper({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   let customizations = null;

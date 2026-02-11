@@ -47,10 +47,10 @@ If the health check fails, the new container is killed and the old one stays liv
 
 Go to **Settings > Secrets and variables > Actions** and add:
 
-| Secret | Value |
-|---|---|
-| `DEPLOY_HOST` | IP or hostname of the AUES PC |
-| `DEPLOY_USER` | SSH username on the AUES PC |
+| Secret           | Value                                 |
+| ---------------- | ------------------------------------- |
+| `DEPLOY_HOST`    | IP or hostname of the AUES PC         |
+| `DEPLOY_USER`    | SSH username on the AUES PC           |
 | `DEPLOY_SSH_KEY` | Private SSH key (ed25519 recommended) |
 
 `GITHUB_TOKEN` is automatic and has `packages:write` for GHCR.

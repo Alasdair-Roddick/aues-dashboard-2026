@@ -30,7 +30,7 @@ export function generateColorPalette(hex: string) {
  */
 export function hexToHsl(hex: string): string {
   const { h, s, l } = colord(hex).toHsl();
-  return `${h.toFixed(1)} ${(s).toFixed(1)}% ${(l).toFixed(1)}%`;
+  return `${h.toFixed(1)} ${s.toFixed(1)}% ${l.toFixed(1)}%`;
 }
 
 /**
@@ -45,11 +45,7 @@ export function getContrastColor(hex: string): string {
  * Generate a complete theme from a primary color
  * This creates all necessary CSS variables for shadcn/ui
  */
-export function generateThemeFromColor(
-  primaryHex: string,
-  secondaryHex: string,
-  isDark = false
-) {
+export function generateThemeFromColor(primaryHex: string, secondaryHex: string, isDark = false) {
   const primary = colord(primaryHex);
   const secondary = colord(secondaryHex);
 

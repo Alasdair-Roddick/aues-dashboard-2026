@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion";
 
-import * as React from "react"
+import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -14,8 +14,8 @@ import {
   type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Key, Check, X } from "lucide-react"
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Key, Check, X } from "lucide-react";
 
 import {
   Select,
@@ -23,9 +23,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -34,8 +34,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -43,7 +43,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,38 +52,38 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { updateUserAction, deleteUserAction } from "./actions"
-import { toast } from "sonner"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Trash2 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUserStore } from "@/app/store/userStore"
+} from "@/components/ui/alert-dialog";
+import { updateUserAction, deleteUserAction } from "./actions";
+import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUserStore } from "@/app/store/userStore";
 
 export type User = {
-  id: string
-  name: string
-  image: string | null
-  role: "Admin" | "General" | "Temporary" | "Treasurer"
-  isActive: boolean
-  createdAt: Date
-  updatedAt: Date
-}
+  id: string;
+  name: string;
+  image: string | null;
+  role: "Admin" | "General" | "Temporary" | "Treasurer";
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 function UserRowActions({ user }: { user: User }) {
-  const updateUser = useUserStore((state) => state.updateUser)
-  const deleteUser = useUserStore((state) => state.deleteUser)
-  const [showEditModal, setShowEditModal] = React.useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
-  const [isDeleting, setIsDeleting] = React.useState(false)
-  const [isUpdating, setIsUpdating] = React.useState(false)
+  const updateUser = useUserStore((state) => state.updateUser);
+  const deleteUser = useUserStore((state) => state.deleteUser);
+  const [showEditModal, setShowEditModal] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isUpdating, setIsUpdating] = React.useState(false);
 
   // Form state
-  const [username, setUsername] = React.useState(user.name)
-  const [password, setPassword] = React.useState("")
-  const [role, setRole] = React.useState(user.role)
-  const [isActive, setIsActive] = React.useState(user.isActive)
+  const [username, setUsername] = React.useState(user.name);
+  const [password, setPassword] = React.useState("");
+  const [role, setRole] = React.useState(user.role);
+  const [isActive, setIsActive] = React.useState(user.isActive);
 
   const handleUpdate = async () => {
     // Validate password if provided
@@ -92,70 +92,70 @@ function UserRowActions({ user }: { user: User }) {
       return;
     }
 
-    setIsUpdating(true)
+    setIsUpdating(true);
     try {
       const result = await updateUserAction(user.id, {
         name: username,
         password: password || undefined,
         role,
-        isActive
-      })
+        isActive,
+      });
 
       if (result.success) {
         toast.success("User updated", {
-          description: `${username} has been updated successfully`
-        })
+          description: `${username} has been updated successfully`,
+        });
 
         // Update user in Zustand store immediately
         updateUser(user.id, {
           name: username,
           role,
-          isActive
-        })
+          isActive,
+        });
 
-        setShowEditModal(false)
+        setShowEditModal(false);
       } else {
         toast.error("Failed to update user", {
-          description: result.error
-        })
+          description: result.error,
+        });
       }
     } catch (error) {
       toast.error("Failed to update user", {
-        description: "An unexpected error occurred"
-      })
+        description: "An unexpected error occurred",
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      const result = await deleteUserAction(user.id)
+      const result = await deleteUserAction(user.id);
 
       if (result.success) {
         toast.success("User deleted", {
-          description: `${user.name} has been removed`
-        })
+          description: `${user.name} has been removed`,
+        });
 
         // Remove user from Zustand store immediately
-        deleteUser(user.id)
+        deleteUser(user.id);
 
-        setShowDeleteDialog(false)
+        setShowDeleteDialog(false);
       } else {
         toast.error("Failed to delete user", {
-          description: result.error
-        })
+          description: result.error,
+        });
       }
     } catch (error) {
       toast.error("Failed to delete user", {
-        description: "An unexpected error occurred"
-      })
+        description: "An unexpected error occurred",
+      });
     } finally {
-      setIsDeleting(false)
-      setShowDeleteDialog(false)
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
-  }
+  };
 
   return (
     <>
@@ -168,12 +168,8 @@ function UserRowActions({ user }: { user: User }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setShowEditModal(true)}>
-            Edit user
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => navigator.clipboard.writeText(user.id)}
-          >
+          <DropdownMenuItem onClick={() => setShowEditModal(true)}>Edit user</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
             Copy user ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -192,9 +188,7 @@ function UserRowActions({ user }: { user: User }) {
         <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Edit User</AlertDialogTitle>
-            <AlertDialogDescription>
-              Update user information for {user.name}
-            </AlertDialogDescription>
+            <AlertDialogDescription>Update user information for {user.name}</AlertDialogDescription>
           </AlertDialogHeader>
 
           <motion.div
@@ -245,15 +239,9 @@ function UserRowActions({ user }: { user: User }) {
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
                 <Label htmlFor="edit-active">Active Status</Label>
-                <p className="text-xs text-muted-foreground">
-                  Inactive users cannot log in
-                </p>
+                <p className="text-xs text-muted-foreground">Inactive users cannot log in</p>
               </div>
-              <Switch
-                id="edit-active"
-                checked={isActive}
-                onCheckedChange={setIsActive}
-              />
+              <Switch id="edit-active" checked={isActive} onCheckedChange={setIsActive} />
             </div>
 
             <div className="rounded-lg bg-muted p-3 space-y-1">
@@ -263,17 +251,10 @@ function UserRowActions({ user }: { user: User }) {
           </motion.div>
 
           <AlertDialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowEditModal(false)}
-              disabled={isUpdating}
-            >
+            <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={isUpdating}>
               Cancel
             </Button>
-            <Button
-              onClick={handleUpdate}
-              disabled={isUpdating || !username.trim()}
-            >
+            <Button onClick={handleUpdate} disabled={isUpdating || !username.trim()}>
               {isUpdating ? "Saving..." : "Save Changes"}
             </Button>
           </AlertDialogFooter>
@@ -286,7 +267,8 @@ function UserRowActions({ user }: { user: User }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the user <span className="font-semibold">{user.name}</span>. This action cannot be undone.
+              This will permanently delete the user{" "}
+              <span className="font-semibold">{user.name}</span>. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -297,18 +279,14 @@ function UserRowActions({ user }: { user: User }) {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Deleting..." : "Delete User"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
 
 export const columns: ColumnDef<User>[] = [
@@ -317,8 +295,7 @@ export const columns: ColumnDef<User>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -345,21 +322,21 @@ export const columns: ColumnDef<User>[] = [
           Username
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const name = row.getValue("name") as string
-      const image = row.original.image
+      const name = row.getValue("name") as string;
+      const image = row.original.image;
       return (
         <div className="flex items-center gap-2">
           <Avatar>
             <AvatarImage src={image ?? undefined} alt={name} className="object-cover" />
             <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
-          
+
           <span className="font-medium">{name}</span>
         </div>
-      )
+      );
     },
   },
   {
@@ -373,21 +350,23 @@ export const columns: ColumnDef<User>[] = [
           Role
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const role = row.getValue("role") as string
+      const role = row.getValue("role") as string;
       const roleColors = {
         Admin: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
         General: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
         Treasurer: "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300",
-        Temporary: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
-      }
+        Temporary: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+      };
       return (
-        <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${roleColors[role as keyof typeof roleColors]}`}>
+        <div
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${roleColors[role as keyof typeof roleColors]}`}
+        >
           {role}
         </div>
-      )
+      );
     },
   },
   {
@@ -401,20 +380,24 @@ export const columns: ColumnDef<User>[] = [
           Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const isActive = row.getValue("isActive") as boolean
+      const isActive = row.getValue("isActive") as boolean;
       return (
-        <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-          isActive
-            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-            : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
-        }`}>
-          <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-600" : "bg-red-600"}`} />
+        <div
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+            isActive
+              ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+              : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+          }`}
+        >
+          <span
+            className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-600" : "bg-red-600"}`}
+          />
           {isActive ? "Active" : "Inactive"}
         </div>
-      )
+      );
     },
   },
   {
@@ -422,20 +405,20 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
     cell: ({ row }) => <UserRowActions user={row.original} />,
   },
-]
+];
 
 interface DataTableProps {
-  data: User[]
+  data: User[];
 }
 
 export function DataTable({ data }: DataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [filterField, setFilterField] = React.useState<"name" | "email" | "role" | "all">("all")
-  const [filterValue, setFilterValue] = React.useState("")
-  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [filterField, setFilterField] = React.useState<"name" | "email" | "role" | "all">("all");
+  const [filterValue, setFilterValue] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
     data,
@@ -450,14 +433,14 @@ export function DataTable({ data }: DataTableProps) {
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, _columnId, filterValue) => {
-      const searchValue = String(filterValue).toLowerCase()
-      const name = String(row.getValue("name") || "").toLowerCase()
-      const email = String(row.getValue("email") || "").toLowerCase()
-      const role = String(row.getValue("role") || "").toLowerCase()
+      const searchValue = String(filterValue).toLowerCase();
+      const name = String(row.getValue("name") || "").toLowerCase();
+      const email = String(row.getValue("email") || "").toLowerCase();
+      const role = String(row.getValue("role") || "").toLowerCase();
 
-      return name.includes(searchValue) ||
-             email.includes(searchValue) ||
-             role.includes(searchValue)
+      return (
+        name.includes(searchValue) || email.includes(searchValue) || role.includes(searchValue)
+      );
     },
     state: {
       sorting,
@@ -466,33 +449,37 @@ export function DataTable({ data }: DataTableProps) {
       rowSelection,
       globalFilter,
     },
-  })
+  });
 
   const handleFilterChange = (value: string) => {
-    setFilterValue(value)
+    setFilterValue(value);
 
     if (filterField === "all") {
-      setGlobalFilter(value)
-      table.getColumn("name")?.setFilterValue("")
-      table.getColumn("email")?.setFilterValue("")
-      table.getColumn("role")?.setFilterValue("")
+      setGlobalFilter(value);
+      table.getColumn("name")?.setFilterValue("");
+      table.getColumn("email")?.setFilterValue("");
+      table.getColumn("role")?.setFilterValue("");
     } else {
-      setGlobalFilter("")
-      table.getColumn("name")?.setFilterValue("")
-      table.getColumn("email")?.setFilterValue("")
-      table.getColumn("role")?.setFilterValue("")
-      table.getColumn(filterField)?.setFilterValue(value)
+      setGlobalFilter("");
+      table.getColumn("name")?.setFilterValue("");
+      table.getColumn("email")?.setFilterValue("");
+      table.getColumn("role")?.setFilterValue("");
+      table.getColumn(filterField)?.setFilterValue(value);
     }
-  }
+  };
 
   const getFieldLabel = () => {
     switch (filterField) {
-      case "name": return "Username"
-      case "email": return "Email"
-      case "role": return "Role"
-      case "all": return "All"
+      case "name":
+        return "Username";
+      case "email":
+        return "Email";
+      case "role":
+        return "Role";
+      case "all":
+        return "All";
     }
-  }
+  };
 
   return (
     <div className="w-full">
@@ -511,18 +498,10 @@ export function DataTable({ data }: DataTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFilterField("all")}>
-                All
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterField("name")}>
-                Username
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterField("email")}>
-                Email
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterField("role")}>
-                Role
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("all")}>All</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("name")}>Username</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("email")}>Email</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterField("role")}>Role</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Input
@@ -548,13 +527,11 @@ export function DataTable({ data }: DataTableProps) {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -569,12 +546,9 @@ export function DataTable({ data }: DataTableProps) {
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -591,27 +565,21 @@ export function DataTable({ data }: DataTableProps) {
                     transition={{
                       duration: 0.2,
                       delay: index * 0.02,
-                      ease: "easeOut"
+                      ease: "easeOut",
                     }}
                     data-state={row.getIsSelected() && "selected"}
                     className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </motion.tr>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -662,5 +630,5 @@ export function DataTable({ data }: DataTableProps) {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

@@ -31,9 +31,7 @@ export function ShippingModal({
   saving = false,
   onSubmit,
 }: ShippingModalProps) {
-  const [trackingNumber, setTrackingNumber] = useState(
-    () => order.shippingTrackingNumber || ""
-  );
+  const [trackingNumber, setTrackingNumber] = useState(() => order.shippingTrackingNumber || "");
 
   const trackingLink = useMemo(() => {
     const trimmed = trackingNumber.trim();

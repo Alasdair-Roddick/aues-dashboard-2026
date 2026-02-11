@@ -4,8 +4,8 @@ import { ReceiptContent } from "./components/ReceiptContent";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Receipts - AUES Dashboard"
-}
+  title: "Receipts - AUES Dashboard",
+};
 
 export default async function ReceiptsPage() {
   const session = await auth();

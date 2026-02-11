@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { getAllUsersAction } from '@/app/admin/actions';
-import { getCurrentUser, type CurrentUser } from '@/lib/getUser';
+import { create } from "zustand";
+import { getAllUsersAction } from "@/app/admin/actions";
+import { getCurrentUser, type CurrentUser } from "@/lib/getUser";
 
 export type User = {
   id: string;
@@ -12,10 +12,9 @@ export type User = {
   updatedAt: Date;
 };
 
-
 /**
  * * Type definition for the user store, managing both all users and the current user.
- * 
+ *
  */
 
 type UserStore = {
@@ -37,11 +36,10 @@ type UserStore = {
   updateCurrentUser: (updates: Partial<NonNullable<CurrentUser>>) => void;
 };
 
-
 /**
  * * Zustand store for managing user data, including fetching, adding, updating, and deleting users.
  * @returns A Zustand store with user management functionalities.
- * 
+ *
  */
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -58,21 +56,21 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   addUser: (user: User) => {
     set((state) => ({
-      users: [...state.users, user]
+      users: [...state.users, user],
     }));
   },
 
   updateUser: (userId: string, updates: Partial<User>) => {
     set((state) => ({
       users: state.users.map((user) =>
-        user.id === userId ? { ...user, ...updates, updatedAt: new Date() } : user
-      )
+        user.id === userId ? { ...user, ...updates, updatedAt: new Date() } : user,
+      ),
     }));
   },
 
   deleteUser: (userId: string) => {
     set((state) => ({
-      users: state.users.filter((user) => user.id !== userId)
+      users: state.users.filter((user) => user.id !== userId),
     }));
   },
 
@@ -84,7 +82,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   updateCurrentUser: (updates: Partial<NonNullable<CurrentUser>>) => {
     set((state) => ({
-      currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null
+      currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null,
     }));
   },
 }));
