@@ -16,12 +16,7 @@ function getRoleFromSessionUser(user: unknown): UserRole | null {
   }
 
   const role = (user as { role?: string }).role;
-  if (
-    role === "Admin" ||
-    role === "General" ||
-    role === "Temporary" ||
-    role === "Treasurer"
-  ) {
+  if (role === "Admin" || role === "General" || role === "Temporary" || role === "Treasurer") {
     return role;
   }
 
@@ -57,7 +52,6 @@ export async function getAllUsersAction() {
     return [];
   }
 }
-
 
 export async function addUserAction(formData: FormData) {
   try {
@@ -95,7 +89,7 @@ export async function addUserAction(formData: FormData) {
     console.error("Error adding user:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to add user"
+      error: error instanceof Error ? error.message : "Failed to add user",
     };
   }
 }
@@ -107,7 +101,7 @@ export async function updateUserAction(
     password?: string;
     role?: UserRole;
     isActive?: boolean;
-  }
+  },
 ) {
   try {
     const session = await auth();
@@ -136,17 +130,14 @@ export async function updateUserAction(
     if (data.role) updateData.role = data.role;
     if (typeof data.isActive === "boolean") updateData.isActive = data.isActive;
 
-    await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, userId));
+    await db.update(users).set(updateData).where(eq(users.id, userId));
 
     return { success: true };
   } catch (error) {
     console.error("Error updating user:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update user"
+      error: error instanceof Error ? error.message : "Failed to update user",
     };
   }
 }
@@ -171,7 +162,7 @@ export async function deleteUserAction(userId: string) {
     console.error("Error deleting user:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete user"
+      error: error instanceof Error ? error.message : "Failed to delete user",
     };
   }
 }

@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -99,19 +93,18 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
   const [deleting, setDeleting] = useState(false);
   const [savingShipping, setSavingShipping] = useState(false);
 
-  const customerOrderCode = order.orderNumber
-    ? order.orderNumber.slice(-4).toUpperCase()
-    : "----";
+  const customerOrderCode = order.orderNumber ? order.orderNumber.slice(-4).toUpperCase() : "----";
   const lastActivity = order.activity?.[0];
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
-  const sizeBreakdown = order.items.reduce((acc, item) => {
-    const sizeKey = item.size?.trim() || "No size";
-    acc[sizeKey] = (acc[sizeKey] || 0) + item.quantity;
-    return acc;
-  }, {} as Record<string, number>);
-  const sortedSizeBreakdown = Object.entries(sizeBreakdown).sort(([a], [b]) =>
-    a.localeCompare(b)
+  const sizeBreakdown = order.items.reduce(
+    (acc, item) => {
+      const sizeKey = item.size?.trim() || "No size";
+      acc[sizeKey] = (acc[sizeKey] || 0) + item.quantity;
+      return acc;
+    },
+    {} as Record<string, number>,
   );
+  const sortedSizeBreakdown = Object.entries(sizeBreakdown).sort(([a], [b]) => a.localeCompare(b));
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     const result = await updateStatus(order.id, newStatus);
@@ -156,7 +149,11 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
     switch (order.fulfillmentStatus) {
       case "PENDING":
         return (
-          <Button size="sm" onClick={() => handleStatusChange("PACKED")} className="w-full rounded-lg">
+          <Button
+            size="sm"
+            onClick={() => handleStatusChange("PACKED")}
+            className="w-full rounded-lg"
+          >
             <PackageCheck className="mr-2 h-4 w-4" />
             Mark as Packed
           </Button>
@@ -172,7 +169,11 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
             >
               Pending
             </Button>
-            <Button size="sm" onClick={() => handleStatusChange("FULFILLED")} className="flex-1 rounded-lg">
+            <Button
+              size="sm"
+              onClick={() => handleStatusChange("FULFILLED")}
+              className="flex-1 rounded-lg"
+            >
               Fulfill
             </Button>
           </div>
@@ -251,7 +252,10 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={getFulfillmentBadgeClasses(order.fulfillmentStatus)}>
+            <Badge
+              variant="outline"
+              className={getFulfillmentBadgeClasses(order.fulfillmentStatus)}
+            >
               {order.fulfillmentStatus}
             </Badge>
             <Badge variant={order.shippingStatus === "SHIPPED" ? "default" : "secondary"}>
@@ -296,10 +300,17 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
 
           <div className="space-y-2">
             {order.items.map((item) => (
-              <div key={item.id} className="flex gap-3 rounded-xl border border-slate-200/70 bg-background/90 p-3 dark:border-slate-800">
+              <div
+                key={item.id}
+                className="flex gap-3 rounded-xl border border-slate-200/70 bg-background/90 p-3 dark:border-slate-800"
+              >
                 {item.imageUrl ? (
                   <div className="h-14 w-14 overflow-hidden rounded-md bg-muted">
-                    <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
+                    <img
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 ) : (
                   <div className="flex h-14 w-14 items-center justify-center rounded-md bg-muted">
@@ -343,7 +354,8 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
                       </AvatarFallback>
                     </Avatar>
                     <span className="truncate">
-                      {formatAction(lastActivity.action)} by <span className="font-medium text-foreground">{lastActivity.userName}</span>
+                      {formatAction(lastActivity.action)} by{" "}
+                      <span className="font-medium text-foreground">{lastActivity.userName}</span>
                     </span>
                   </>
                 ) : (
@@ -352,19 +364,20 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
                       <AvatarFallback className="text-[10px]">S</AvatarFallback>
                     </Avatar>
                     <span>
-                      {formatAction(lastActivity.action)} by <span className="font-medium text-foreground">Server</span>
+                      {formatAction(lastActivity.action)} by{" "}
+                      <span className="font-medium text-foreground">Server</span>
                     </span>
                   </>
                 )}
-                <span className="ml-auto shrink-0">{formatRelativeTime(lastActivity.createdAt)}</span>
+                <span className="ml-auto shrink-0">
+                  {formatRelativeTime(lastActivity.createdAt)}
+                </span>
               </div>
             </>
           )}
         </CardContent>
 
-        <CardFooter className="border-t px-4 py-3 md:px-5">
-          {renderActions()}
-        </CardFooter>
+        <CardFooter className="border-t px-4 py-3 md:px-5">{renderActions()}</CardFooter>
       </Card>
 
       <ShippingModal
@@ -381,7 +394,8 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete order?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes order #{order.orderNumber ?? "unknown"} and all its line items from the dashboard.
+              This removes order #{order.orderNumber ?? "unknown"} and all its line items from the
+              dashboard.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

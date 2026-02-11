@@ -68,7 +68,11 @@ export function ReceiptContent() {
     accountName: currentUser?.accountName || "",
   };
 
-  const hasBankDetails = userBankDetails.bankName && userBankDetails.BSB && userBankDetails.accountNumber && userBankDetails.accountName;
+  const hasBankDetails =
+    userBankDetails.bankName &&
+    userBankDetails.BSB &&
+    userBankDetails.accountNumber &&
+    userBankDetails.accountName;
 
   useEffect(() => {
     loadReceipts();
@@ -144,7 +148,9 @@ export function ReceiptContent() {
     }
 
     if (!hasBankDetails) {
-      toast.error("Please complete your bank details in your profile before submitting a reimbursement request");
+      toast.error(
+        "Please complete your bank details in your profile before submitting a reimbursement request",
+      );
       return;
     }
 
@@ -177,11 +183,26 @@ export function ReceiptContent() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Pending":
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return (
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+            <Clock className="h-3 w-3 mr-1" />
+            Pending
+          </Badge>
+        );
       case "Fulfilled":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Fulfilled</Badge>;
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Fulfilled
+          </Badge>
+        );
       case "Rejected":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            <XCircle className="h-3 w-3 mr-1" />
+            Rejected
+          </Badge>
+        );
       default:
         return <Badge>{status}</Badge>;
     }
@@ -194,7 +215,8 @@ export function ReceiptContent() {
         <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800">
           <CardContent className="pt-6">
             <p className="text-yellow-800 dark:text-yellow-200">
-              Please complete your bank details in your profile before submitting reimbursement requests.
+              Please complete your bank details in your profile before submitting reimbursement
+              requests.
             </p>
           </CardContent>
         </Card>
@@ -244,15 +266,14 @@ export function ReceiptContent() {
             <div className="space-y-2">
               <Label htmlFor="receipt">Receipt Image</Label>
               <div className="space-y-3">
-                <Input
-                  id="receipt"
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleFileChange}
-                />
+                <Input id="receipt" type="file" accept="image/*,.pdf" onChange={handleFileChange} />
                 {previewUrl && selectedFile?.type.startsWith("image/") && (
                   <div className="relative w-full h-48 rounded-md overflow-hidden border">
-                    <img src={previewUrl} alt="Receipt preview" className="w-full h-full object-contain" />
+                    <img
+                      src={previewUrl}
+                      alt="Receipt preview"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 )}
                 {selectedFile && !formData.receiptImageUrl && (
@@ -267,7 +288,9 @@ export function ReceiptContent() {
                   </Button>
                 )}
                 {formData.receiptImageUrl && (
-                  <p className="text-sm text-green-600 dark:text-green-400">Receipt uploaded successfully!</p>
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    Receipt uploaded successfully!
+                  </p>
                 )}
               </div>
             </div>
@@ -317,13 +340,15 @@ export function ReceiptContent() {
                     <span className="text-muted-foreground">Bank:</span> {userBankDetails.bankName}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Account Name:</span> {userBankDetails.accountName}
+                    <span className="text-muted-foreground">Account Name:</span>{" "}
+                    {userBankDetails.accountName}
                   </div>
                   <div>
                     <span className="text-muted-foreground">BSB:</span> {userBankDetails.BSB}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Account Number:</span> {userBankDetails.accountNumber}
+                    <span className="text-muted-foreground">Account Number:</span>{" "}
+                    {userBankDetails.accountNumber}
                   </div>
                 </div>
               </div>

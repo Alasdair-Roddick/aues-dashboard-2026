@@ -17,7 +17,7 @@ async function addUser() {
     .values({
       name: username,
       password: hashedPassword,
-      role: role as 'General' | 'Admin' | 'Temporary',
+      role: role as "General" | "Admin" | "Temporary",
       isActive: true,
     })
     .returning();

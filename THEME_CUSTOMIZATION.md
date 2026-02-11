@@ -5,6 +5,7 @@ This application includes a custom color system that works seamlessly with shadc
 ## How It Works
 
 The custom theme system dynamically applies user-selected colors to CSS variables that shadcn/ui uses internally. Colors are:
+
 - Stored in the database per user (`userCustomisations` table)
 - Converted from hex to OKLCH format (matching shadcn's color system)
 - Applied at runtime using CSS custom properties
@@ -14,6 +15,7 @@ The custom theme system dynamically applies user-selected colors to CSS variable
 ## Files Overview
 
 ### Core Files
+
 - **`lib/color-utils.ts`** - Color conversion utilities (hex to OKLCH)
 - **`components/theme-provider.tsx`** - Client component that applies custom colors based on theme
 - **`components/custom-theme-wrapper.tsx`** - Server component that fetches user colors
@@ -22,10 +24,13 @@ The custom theme system dynamically applies user-selected colors to CSS variable
 - **`app/layout.tsx`** - Root layout with next-themes integration
 
 ### Database Schema
+
 ```typescript
 // app/db/schema.ts
 export const userCustomisations = pgTable("user_customizations", {
-  userId: uuid("userId").notNull().references(() => users.id),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => users.id),
   // Light mode colors
   lightPrimaryColor: text("lightPrimaryColor").notNull().default("#2563eb"),
   lightSecondaryColor: text("lightSecondaryColor").notNull().default("#10b981"),
@@ -40,6 +45,7 @@ export const userCustomisations = pgTable("user_customizations", {
 ## Usage
 
 ### For Users
+
 1. Navigate to your Profile page
 2. Click on the "Appearance" tab
 3. Select your theme mode (Light, Dark, or System)
@@ -50,6 +56,7 @@ export const userCustomisations = pgTable("user_customizations", {
 ### For Developers
 
 #### Using Custom Colors in Components
+
 All shadcn/ui components automatically use the custom colors:
 
 ```tsx
@@ -63,6 +70,7 @@ import { Button } from "@/components/ui/button";
 ```
 
 #### Accessing Colors in Custom Components
+
 ```tsx
 // Use Tailwind classes - they automatically reference the CSS variables
 <div className="bg-primary text-primary-foreground">
@@ -75,6 +83,7 @@ import { Button } from "@/components/ui/button";
 ```
 
 #### Programmatically Updating Colors
+
 ```typescript
 import { updateUserCustomizations } from "@/app/actions/customizations";
 
@@ -84,11 +93,12 @@ await updateUserCustomizations(
   "#10b981", // light secondary
   "#3b82f6", // dark primary
   "#22c55e", // dark secondary
-  "system"   // theme preference
+  "system", // theme preference
 );
 ```
 
 #### Fetching User Colors
+
 ```typescript
 import { getUserCustomizations } from "@/app/actions/customizations";
 
@@ -99,6 +109,7 @@ console.log(colors?.theme); // e.g., "system"
 ```
 
 #### Using the Theme
+
 ```tsx
 "use client";
 import { useTheme } from "next-themes";
@@ -109,17 +120,14 @@ function MyComponent() {
   // theme: user's preference ("light" | "dark" | "system")
   // resolvedTheme: actual theme being used ("light" | "dark")
 
-  return (
-    <button onClick={() => setTheme("dark")}>
-      Switch to Dark Mode
-    </button>
-  );
+  return <button onClick={() => setTheme("dark")}>Switch to Dark Mode</button>;
 }
 ```
 
 ## Supported CSS Variables
 
 The theme system updates these CSS variables based on the current theme:
+
 - `--primary` - Primary brand color
 - `--primary-foreground` - Text color on primary backgrounds
 - `--secondary` - Secondary accent color
@@ -161,11 +169,13 @@ ON CONFLICT (userId) DO NOTHING;
 ## Dark Mode Support
 
 The system automatically switches colors based on the active theme:
+
 - **Light mode**: Uses `lightPrimaryColor` and `lightSecondaryColor`
 - **Dark mode**: Uses `darkPrimaryColor` and `darkSecondaryColor`
 - **System**: Follows the user's OS preference
 
 The theme switcher in the Appearance section allows users to:
+
 - Force light mode
 - Force dark mode
 - Follow system preference (default)
@@ -173,7 +183,9 @@ The theme switcher in the Appearance section allows users to:
 ## Extending the System
 
 ### Adding More Color Variables
+
 1. Add new fields to the database schema:
+
 ```typescript
 lightAccentColor: text("lightAccentColor").notNull().default("#f59e0b"),
 darkAccentColor: text("darkAccentColor").notNull().default("#fbbf24"),
@@ -184,27 +196,32 @@ darkAccentColor: text("darkAccentColor").notNull().default("#fbbf24"),
 4. Add color pickers in the appearance component
 
 ### Customizing Color Conversion
+
 Edit `lib/color-utils.ts` to adjust the hex to OKLCH conversion algorithm if certain colors don't look right.
 
 ## Troubleshooting
 
 **Colors not applying?**
+
 - Ensure you clicked "Save Changes" in the Appearance section
 - The page should automatically refresh after saving
 - Check browser console for errors
 - Verify the database has the customization record
 
 **Theme not switching?**
+
 - Clear browser cache and cookies
 - Check that next-themes is properly installed
 - Verify `suppressHydrationWarning` is on the `<html>` tag
 
 **Colors look wrong?**
+
 - The hex to OKLCH conversion is approximate
 - Try slightly different hex values for better results
 - Ensure sufficient contrast for accessibility
 
 **Dark mode colors not working?**
+
 - Check that you've set colors for both light AND dark modes
 - Verify the theme is actually switching (check DevTools)
 - Ensure `resolvedTheme` from useTheme() is correct

@@ -4,8 +4,8 @@ import { AdminContent } from "./components/AdminContent";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin - AUES Dashboard"
-}
+  title: "Admin - AUES Dashboard",
+};
 
 export default async function AdminPage() {
   const session = await auth();

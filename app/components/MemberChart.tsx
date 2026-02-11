@@ -32,7 +32,7 @@ export function MemberChart() {
     console.log("Chart counts:", counts);
 
     // Get the computed primary color value
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.style.color = `hsl(var(--primary))`;
     document.body.appendChild(tempDiv);
     const computedColor = getComputedStyle(tempDiv).color;
@@ -40,7 +40,7 @@ export function MemberChart() {
 
     // Convert RGB to RGBA with alpha channel
     const primaryColorWithAlpha = (alpha: number) => {
-      return computedColor.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+      return computedColor.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
     };
 
     chartRef.current = new Chart(ctx, {
@@ -97,7 +97,7 @@ export function MemberChart() {
               },
               label: (context) => {
                 const value = context.parsed.y;
-                return `${value} new ${value === 1 ? 'member' : 'members'}`;
+                return `${value} new ${value === 1 ? "member" : "members"}`;
               },
             },
           },

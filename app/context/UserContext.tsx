@@ -12,11 +12,10 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 /**
- * 
- * @param children ReactNode - The child components that will have access to the UserContext 
+ *
+ * @param children ReactNode - The child components that will have access to the UserContext
  * @returns JSX.Element - The UserProvider component that wraps its children with UserContext.Provider
  */
-
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<CurrentUser>(null);
@@ -45,9 +44,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [refreshUser]);
 
   return (
-    <UserContext.Provider value={{ user, loading, refreshUser }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={{ user, loading, refreshUser }}>{children}</UserContext.Provider>
   );
 }
 

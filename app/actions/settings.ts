@@ -58,7 +58,9 @@ export async function getSiteSettings(): Promise<SiteSettingsData | null> {
   }
 }
 
-export async function updateSiteSettings(data: SiteSettingsData): Promise<{ success: boolean; error?: string }> {
+export async function updateSiteSettings(
+  data: SiteSettingsData,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
     const userRole = getSessionRole(session?.user);
@@ -75,7 +77,9 @@ export async function updateSiteSettings(data: SiteSettingsData): Promise<{ succ
       qpaySessionId: data.qpaySessionId ? encrypt(data.qpaySessionId) : null,
       squarespaceApiKey: data.squarespaceApiKey ? encrypt(data.squarespaceApiKey) : null,
       squarespaceApiUrl: data.squarespaceApiUrl ? encrypt(data.squarespaceApiUrl) : null,
-      squarespaceApiVersion: data.squarespaceApiVersion ? encrypt(data.squarespaceApiVersion) : null,
+      squarespaceApiVersion: data.squarespaceApiVersion
+        ? encrypt(data.squarespaceApiVersion)
+        : null,
       pubcrawlShirtKeyword: data.pubcrawlShirtKeyword ? encrypt(data.pubcrawlShirtKeyword) : null,
       updatedAt: new Date(),
     };

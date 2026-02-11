@@ -5,12 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -25,7 +20,7 @@ import type { OrderStatus } from "@/app/actions/squarespace";
 import { useShallow } from "zustand/react/shallow";
 import { Box, CheckCircle2, Clock3, Search, RefreshCw } from "lucide-react";
 
-type SectionKey = 'PENDING' | 'PACKED' | 'FULFILLED';
+type SectionKey = "PENDING" | "PACKED" | "FULFILLED";
 
 export function ShirtsContent() {
   const {
@@ -45,24 +40,26 @@ export function ShirtsContent() {
     syncOrders,
     startPolling,
     stopPolling,
-  } = useShirtOrderStore(useShallow((state) => ({
-    orders: state.orders,
-    loading: state.loading,
-    loadingMore: state.loadingMore,
-    hasMore: state.hasMore,
-    totalForActive: state.totalForActive,
-    statusCounts: state.statusCounts,
-    activeStatus: state.activeStatus,
-    syncing: state.syncing,
-    searchQuery: state.searchQuery,
-    setSearchQuery: state.setSearchQuery,
-    fetchOrders: state.fetchOrders,
-    loadMore: state.loadMore,
-    setActiveStatus: state.setActiveStatus,
-    syncOrders: state.syncOrders,
-    startPolling: state.startPolling,
-    stopPolling: state.stopPolling,
-  })));
+  } = useShirtOrderStore(
+    useShallow((state) => ({
+      orders: state.orders,
+      loading: state.loading,
+      loadingMore: state.loadingMore,
+      hasMore: state.hasMore,
+      totalForActive: state.totalForActive,
+      statusCounts: state.statusCounts,
+      activeStatus: state.activeStatus,
+      syncing: state.syncing,
+      searchQuery: state.searchQuery,
+      setSearchQuery: state.setSearchQuery,
+      fetchOrders: state.fetchOrders,
+      loadMore: state.loadMore,
+      setActiveStatus: state.setActiveStatus,
+      syncOrders: state.syncOrders,
+      startPolling: state.startPolling,
+      stopPolling: state.stopPolling,
+    })),
+  );
   const initialSearchHandled = useRef(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const loadTriggerRef = useRef<HTMLDivElement | null>(null);
@@ -119,7 +116,7 @@ export function ShirtsContent() {
         root,
         rootMargin: "0px 0px 320px 0px",
         threshold: 0.01,
-      }
+      },
     );
 
     observer.observe(target);
@@ -140,9 +137,9 @@ export function ShirtsContent() {
   const fulfilledOrders = statusCounts.FULFILLED;
 
   const sections: { key: SectionKey; label: string; count: number; color: string }[] = [
-    { key: 'PENDING', label: 'Pending', count: pendingOrders, color: 'amber' },
-    { key: 'PACKED', label: 'Packed', count: packedOrders, color: 'blue' },
-    { key: 'FULFILLED', label: 'Fulfilled', count: fulfilledOrders, color: 'green' },
+    { key: "PENDING", label: "Pending", count: pendingOrders, color: "amber" },
+    { key: "PACKED", label: "Packed", count: packedOrders, color: "blue" },
+    { key: "FULFILLED", label: "Fulfilled", count: fulfilledOrders, color: "green" },
   ];
 
   const activeSection = activeStatus as SectionKey;
@@ -184,16 +181,28 @@ export function ShirtsContent() {
 
           <div className="grid grid-cols-3 gap-2 md:gap-3">
             <div className="rounded-lg border border-amber-200/60 bg-amber-50/80 p-3 dark:border-amber-900/40 dark:bg-amber-950/20">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-300">Pending</p>
-              <p className="mt-1 text-lg font-bold text-amber-800 dark:text-amber-200">{pendingOrders}</p>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                Pending
+              </p>
+              <p className="mt-1 text-lg font-bold text-amber-800 dark:text-amber-200">
+                {pendingOrders}
+              </p>
             </div>
             <div className="rounded-lg border border-blue-200/60 bg-blue-50/80 p-3 dark:border-blue-900/40 dark:bg-blue-950/20">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-blue-700 dark:text-blue-300">Packed</p>
-              <p className="mt-1 text-lg font-bold text-blue-800 dark:text-blue-200">{packedOrders}</p>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                Packed
+              </p>
+              <p className="mt-1 text-lg font-bold text-blue-800 dark:text-blue-200">
+                {packedOrders}
+              </p>
             </div>
             <div className="rounded-lg border border-emerald-200/60 bg-emerald-50/80 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/20">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Fulfilled</p>
-              <p className="mt-1 text-lg font-bold text-emerald-800 dark:text-emerald-200">{fulfilledOrders}</p>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                Fulfilled
+              </p>
+              <p className="mt-1 text-lg font-bold text-emerald-800 dark:text-emerald-200">
+                {fulfilledOrders}
+              </p>
             </div>
           </div>
 
@@ -216,11 +225,8 @@ export function ShirtsContent() {
           <div className="hidden gap-2 sm:flex">
             {sections.map((section) => {
               const isActive = activeSection === section.key;
-              const icon = section.key === "PENDING"
-                ? Clock3
-                : section.key === "PACKED"
-                  ? Box
-                  : CheckCircle2;
+              const icon =
+                section.key === "PENDING" ? Clock3 : section.key === "PACKED" ? Box : CheckCircle2;
               const Icon = icon;
 
               return (
@@ -259,7 +265,10 @@ export function ShirtsContent() {
           </div>
         </CardHeader>
 
-        <CardContent ref={scrollAreaRef} className="overflow-visible px-4 py-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:px-6">
+        <CardContent
+          ref={scrollAreaRef}
+          className="overflow-visible px-4 py-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:px-6"
+        >
           {loading ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -283,7 +292,9 @@ export function ShirtsContent() {
               </svg>
               <p className="text-lg font-medium">No {activeSection.toLowerCase()} orders</p>
               <p className="text-sm mt-1">
-                {searchQuery ? 'Try a different search term' : 'Orders will appear here when available'}
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Orders will appear here when available"}
               </p>
             </div>
           ) : (

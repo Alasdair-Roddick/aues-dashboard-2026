@@ -37,7 +37,7 @@ export function ThemeProvider({
     const theme = generateThemeFromColor(
       isDark ? darkPrimaryColor : lightPrimaryColor,
       isDark ? darkSecondaryColor : lightSecondaryColor,
-      isDark
+      isDark,
     );
 
     // Apply all theme variables

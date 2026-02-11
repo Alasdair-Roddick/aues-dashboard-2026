@@ -11,64 +11,67 @@ import {
   jsonb,
   index,
   primaryKey,
-} from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
-import { email } from 'zod';
-
-
+import { email } from "zod";
 
 // Auth.js Tables (for authentication)
 
 export const users = pgTable("users", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    name: text("name").notNull().unique(), // username for login
-    lastName: text("lastName"),
-    phoneNumber: text("phoneNumber"),
-    password: text("password").notNull(), // hashed password for credentials login
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().unique(), // username for login
+  lastName: text("lastName"),
+  phoneNumber: text("phoneNumber"),
+  password: text("password").notNull(), // hashed password for credentials login
 
-    // Bank details
+  // Bank details
 
-    bankName: text("bankName"),
-    BSB: text("BSB"),
-    accountNumber: text("accountNumber"),
-    accountName: text("accountName"),
+  bankName: text("bankName"),
+  BSB: text("BSB"),
+  accountNumber: text("accountNumber"),
+  accountName: text("accountName"),
 
-    role: text("role").$type<'General' | 'Admin' | 'Treasurer' | 'Temporary'>().notNull().default('General'),
-    isActive: boolean("is_active").notNull().default(true),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  role: text("role")
+    .$type<"General" | "Admin" | "Treasurer" | "Temporary">()
+    .notNull()
+    .default("General"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
 
-
-    accountSetupComplete: boolean("accountSetupComplete").notNull().default(false),
-    // NextAuth adapter requires these fields even if unused
-    email: text("email").unique(),
-    emailVerified: timestamp("emailVerified", { mode: "date" }),
-    image: text("image"),
+  accountSetupComplete: boolean("accountSetupComplete").notNull().default(false),
+  // NextAuth adapter requires these fields even if unused
+  email: text("email").unique(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
 });
 
-
-export const userCustomisations = pgTable("user_customizations", {
+export const userCustomisations = pgTable(
+  "user_customizations",
+  {
     userId: uuid("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-      // Light mode colors
-      lightPrimaryColor: text("lightPrimaryColor").notNull().default("#2563eb"),
-      lightSecondaryColor: text("lightSecondaryColor").notNull().default("#10b981"),
-      // Dark mode colors
-      darkPrimaryColor: text("darkPrimaryColor").notNull().default("#3b82f6"),
-      darkSecondaryColor: text("darkSecondaryColor").notNull().default("#22c55e"),
-      // Theme preference
-      theme: text("theme").$type<"light" | "dark" | "system">().notNull().default("system"),
+    // Light mode colors
+    lightPrimaryColor: text("lightPrimaryColor").notNull().default("#2563eb"),
+    lightSecondaryColor: text("lightSecondaryColor").notNull().default("#10b981"),
+    // Dark mode colors
+    darkPrimaryColor: text("darkPrimaryColor").notNull().default("#3b82f6"),
+    darkSecondaryColor: text("darkSecondaryColor").notNull().default("#22c55e"),
+    // Theme preference
+    theme: text("theme").$type<"light" | "dark" | "system">().notNull().default("system"),
   },
   (userCustomizations) => [
     primaryKey({
       columns: [userCustomizations.userId],
     }),
-  ]
+  ],
 );
 
-export const accounts = pgTable("accounts", {
+export const accounts = pgTable(
+  "accounts",
+  {
     userId: uuid("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -87,7 +90,7 @@ export const accounts = pgTable("accounts", {
     primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  ]
+  ],
 );
 
 export const sessions = pgTable("sessions", {
@@ -98,7 +101,9 @@ export const sessions = pgTable("sessions", {
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
-export const verificationTokens = pgTable("verificationToken", {
+export const verificationTokens = pgTable(
+  "verificationToken",
+  {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
@@ -107,10 +112,12 @@ export const verificationTokens = pgTable("verificationToken", {
     primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  ]
+  ],
 );
 
-export const authenticators = pgTable("authenticator", {
+export const authenticators = pgTable(
+  "authenticator",
+  {
     credentialID: text("credentialID").notNull().unique(),
     userId: uuid("userId")
       .notNull()
@@ -126,18 +133,10 @@ export const authenticators = pgTable("authenticator", {
     primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
-  ]
+  ],
 );
 
-
-
-
-
-
-
-
 // Members and Membership Responses Tables
-
 
 export const members = pgTable("members", {
   id: serial("id").primaryKey(),
@@ -155,7 +154,9 @@ export const members = pgTable("members", {
 
 export const membershipResponses = pgTable("membership_responses", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => members.id).notNull(),
+  memberId: integer("member_id")
+    .references(() => members.id)
+    .notNull(),
   responses: jsonb("responses"), // full Firebase form block
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
 });
@@ -174,7 +175,9 @@ export const membershipResponsesRelations = relations(membershipResponses, ({ on
 // OPTIONAL: PAYMENT TRACKING
 export const membershipPayments = pgTable("membership_payments", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => members.id).notNull(),
+  memberId: integer("member_id")
+    .references(() => members.id)
+    .notNull(),
   amount: numeric("amount", { precision: 8, scale: 2 }),
   method: varchar("method", { length: 50 }),
   status: varchar("status", { length: 50 }).default("pending"),
@@ -206,7 +209,7 @@ export const receiptReimbursements = pgTable("receipt_reimbursements", {
   approvedByUserId: uuid("approved_by_user_id").references(() => users.id),
 
   // Status tracking
-  status: text("status").$type<'Pending' | 'Fulfilled' | 'Rejected'>().notNull().default('Pending'),
+  status: text("status").$type<"Pending" | "Fulfilled" | "Rejected">().notNull().default("Pending"),
 
   // Treasurer notes
   treasurerNotes: text("treasurer_notes"),
@@ -233,42 +236,61 @@ export const receiptReimbursementsRelations = relations(receiptReimbursements, (
 }));
 
 // Squarespace Orders Table
-export const squarespaceOrders = pgTable("squarespace_orders", {
-  id: text("id").primaryKey(), // Squarespace internal order ID
-  orderNumber: text("order_number"), // Customer-facing order number (e.g., 1001234)
-  customerEmail: text("customer_email").notNull(),
-  customerName: text("customer_name").notNull(),
-  fulfillmentStatus: text("fulfillment_status").$type<'PENDING' | 'PACKED' | 'FULFILLED'>().notNull().default('PENDING'),
+export const squarespaceOrders = pgTable(
+  "squarespace_orders",
+  {
+    id: text("id").primaryKey(), // Squarespace internal order ID
+    orderNumber: text("order_number"), // Customer-facing order number (e.g., 1001234)
+    customerEmail: text("customer_email").notNull(),
+    customerName: text("customer_name").notNull(),
+    fulfillmentStatus: text("fulfillment_status")
+      .$type<"PENDING" | "PACKED" | "FULFILLED">()
+      .notNull()
+      .default("PENDING"),
 
-  // Shipping
-  shippingStatus: text("shipping_status").$type<'PENDING' | 'SHIPPED'>().notNull().default('PENDING'),
-  shippingTrackingNumber: text("shipping_tracking_number"),
-  shippingCarrier: text("shipping_carrier").default('auspost'),
-  shippedAt: timestamp("shipped_at", { withTimezone: true, mode: "date" }),
+    // Shipping
+    shippingStatus: text("shipping_status")
+      .$type<"PENDING" | "SHIPPED">()
+      .notNull()
+      .default("PENDING"),
+    shippingTrackingNumber: text("shipping_tracking_number"),
+    shippingCarrier: text("shipping_carrier").default("auspost"),
+    shippedAt: timestamp("shipped_at", { withTimezone: true, mode: "date" }),
 
-  createdOn: timestamp("created_on", { withTimezone: true, mode: "date" }).notNull(),
-  syncedAt: timestamp("synced_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
-}, (table) => ({
-  statusCreatedIdx: index("sq_orders_status_created_idx").on(table.fulfillmentStatus, table.createdOn),
-  orderNumberIdx: index("sq_orders_order_number_idx").on(table.orderNumber),
-  customerEmailIdx: index("sq_orders_customer_email_idx").on(table.customerEmail),
-  customerNameIdx: index("sq_orders_customer_name_idx").on(table.customerName),
-  syncedAtIdx: index("sq_orders_synced_at_idx").on(table.syncedAt),
-}));
+    createdOn: timestamp("created_on", { withTimezone: true, mode: "date" }).notNull(),
+    syncedAt: timestamp("synced_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => ({
+    statusCreatedIdx: index("sq_orders_status_created_idx").on(
+      table.fulfillmentStatus,
+      table.createdOn,
+    ),
+    orderNumberIdx: index("sq_orders_order_number_idx").on(table.orderNumber),
+    customerEmailIdx: index("sq_orders_customer_email_idx").on(table.customerEmail),
+    customerNameIdx: index("sq_orders_customer_name_idx").on(table.customerName),
+    syncedAtIdx: index("sq_orders_synced_at_idx").on(table.syncedAt),
+  }),
+);
 
 // Squarespace Order Items Table
-export const squarespaceOrderItems = pgTable("squarespace_order_items", {
-  id: serial("id").primaryKey(),
-  orderId: text("order_id").notNull().references(() => squarespaceOrders.id, { onDelete: "cascade" }),
-  productName: text("product_name").notNull(),
-  quantity: integer("quantity").notNull().default(1),
-  size: text("size"),
-  imageUrl: text("image_url"),
-}, (table) => ({
-  orderIdIdx: index("sq_order_items_order_id_idx").on(table.orderId),
-  productNameIdx: index("sq_order_items_product_name_idx").on(table.productName),
-  sizeIdx: index("sq_order_items_size_idx").on(table.size),
-}));
+export const squarespaceOrderItems = pgTable(
+  "squarespace_order_items",
+  {
+    id: serial("id").primaryKey(),
+    orderId: text("order_id")
+      .notNull()
+      .references(() => squarespaceOrders.id, { onDelete: "cascade" }),
+    productName: text("product_name").notNull(),
+    quantity: integer("quantity").notNull().default(1),
+    size: text("size"),
+    imageUrl: text("image_url"),
+  },
+  (table) => ({
+    orderIdIdx: index("sq_order_items_order_id_idx").on(table.orderId),
+    productNameIdx: index("sq_order_items_product_name_idx").on(table.productName),
+    sizeIdx: index("sq_order_items_size_idx").on(table.size),
+  }),
+);
 
 export const squarespaceOrdersRelations = relations(squarespaceOrders, ({ many }) => ({
   items: many(squarespaceOrderItems),
@@ -299,7 +321,10 @@ export const siteSettings = pgTable("site_settings", {
   pubcrawlShirtKeyword: text("pubcrawl_shirt_keyword"),
 
   // Sync metadata (not encrypted)
-  lastSquarespaceOrderDate: timestamp("last_squarespace_order_date", { withTimezone: true, mode: "date" }),
+  lastSquarespaceOrderDate: timestamp("last_squarespace_order_date", {
+    withTimezone: true,
+    mode: "date",
+  }),
 
   // Timestamps
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
@@ -308,22 +333,22 @@ export const siteSettings = pgTable("site_settings", {
 
 // Activity Log Action Types
 export type ActivityActionType =
-  | 'USER_CREATED'
-  | 'USER_UPDATED'
-  | 'USER_DELETED'
-  | 'USER_ROLE_CHANGED'
-  | 'SETTINGS_UPDATED'
-  | 'ORDER_SYNCED'
-  | 'ORDER_STATUS_UPDATED'
-  | 'ORDER_PACKED'
-  | 'ORDER_FULFILLED'
-  | 'RECEIPT_SUBMITTED'
-  | 'RECEIPT_APPROVED'
-  | 'RECEIPT_REJECTED'
-  | 'RECEIPT_FULFILLED'
-  | 'MEMBER_SYNCED'
-  | 'LOGIN'
-  | 'LOGOUT';
+  | "USER_CREATED"
+  | "USER_UPDATED"
+  | "USER_DELETED"
+  | "USER_ROLE_CHANGED"
+  | "SETTINGS_UPDATED"
+  | "ORDER_SYNCED"
+  | "ORDER_STATUS_UPDATED"
+  | "ORDER_PACKED"
+  | "ORDER_FULFILLED"
+  | "RECEIPT_SUBMITTED"
+  | "RECEIPT_APPROVED"
+  | "RECEIPT_REJECTED"
+  | "RECEIPT_FULFILLED"
+  | "MEMBER_SYNCED"
+  | "LOGIN"
+  | "LOGOUT";
 
 // Activity Log Table - tracks all user actions
 export const activityLog = pgTable("activity_log", {

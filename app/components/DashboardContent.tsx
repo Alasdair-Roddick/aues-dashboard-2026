@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +19,7 @@ import {
 import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
 import { useMembersStore } from "@/app/store/membersStore";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import { MemberChart } from "./MemberChart";
 import { parseDate } from "@/app/utils/dateFormatter";
@@ -38,7 +32,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   const currentUser = useUserStore((state) => state.currentUser);
   const currentUserLoading = useUserStore((state) => state.currentUserLoading);
   const fetchCurrentUser = useUserStore((state) => state.fetchCurrentUser);
-  
+
   const members = useMembersStore((state) => state.members);
   const membersLoading = useMembersStore((state) => state.membersLoading);
   const fetchMembers = useMembersStore((state) => state.fetchMembers);
@@ -75,7 +69,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
 
   if (currentUserLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="container mx-auto p-4 md:p-6 max-w-7xl">
           <div className="flex items-center gap-4 mb-8">
             <Skeleton className="h-16 w-16 rounded-full" />
@@ -95,28 +89,35 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-              {!accountSetupComplete && (
-              <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              >
-        <Alert variant="destructive" className="mb-6 border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950/20 shadow-sm">
-          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
-          <AlertTitle className="text-red-900 dark:text-red-100 font-semibold">Account Setup Incomplete</AlertTitle>
-          <AlertDescription className="text-red-800 dark:text-red-200">
-            Please complete your account setup in your profile to access all dashboard features.
-            <Link href="/profile" className="inline-flex items-center gap-1 ml-1 font-medium underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-100 transition-colors">
-              Go to Profile
-              <ArrowRight className="h-3 w-3" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-        </motion.div>
-      )}
+        {!accountSetupComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Alert
+              variant="destructive"
+              className="mb-6 border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950/20 shadow-sm"
+            >
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
+              <AlertTitle className="text-red-900 dark:text-red-100 font-semibold">
+                Account Setup Incomplete
+              </AlertTitle>
+              <AlertDescription className="text-red-800 dark:text-red-200">
+                Please complete your account setup in your profile to access all dashboard features.
+                <Link
+                  href="/profile"
+                  className="inline-flex items-center gap-1 ml-1 font-medium underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-100 transition-colors"
+                >
+                  Go to Profile
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
         {/* Header with User Info */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
@@ -168,9 +169,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
               <div className="text-2xl font-bold">
                 {membersLoading ? <Skeleton className="h-8 w-12" /> : members.length}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Charts coming soon
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Charts coming soon</p>
             </CardContent>
           </Card>
 
@@ -185,9 +184,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
               <div className="text-2xl font-bold">
                 {membersLoading ? <Skeleton className="h-8 w-12" /> : monthlyMembers}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Members joined this month
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Members joined this month</p>
             </CardContent>
           </Card>
 
@@ -199,12 +196,16 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${growthRate() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {membersLoading ? <Skeleton className="h-8 w-12" /> : `${growthRate() >= 0 ? '+' : ''}${growthRate()}%`}
+              <div
+                className={`text-2xl font-bold ${growthRate() >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {membersLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  `${growthRate() >= 0 ? "+" : ""}${growthRate()}%`
+                )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                vs last month
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">vs last month</p>
             </CardContent>
           </Card>
 
@@ -217,9 +218,7 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Charts coming soon
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Charts coming soon</p>
             </CardContent>
           </Card>
         </div>

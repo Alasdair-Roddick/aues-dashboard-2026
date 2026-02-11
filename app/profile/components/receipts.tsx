@@ -98,9 +98,7 @@ export function ReceiptsSection() {
             <Receipt className="h-5 w-5" />
             Receipt Reimbursements
           </CardTitle>
-          <CardDescription>
-            View and manage your reimbursement requests
-          </CardDescription>
+          <CardDescription>View and manage your reimbursement requests</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Stats Grid */}
@@ -123,9 +121,7 @@ export function ReceiptsSection() {
             </div>
             <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
               <p className="text-sm text-red-700 dark:text-red-300">Rejected</p>
-              <p className="text-2xl font-bold text-red-700 dark:text-red-300">
-                {stats.rejected}
-              </p>
+              <p className="text-2xl font-bold text-red-700 dark:text-red-300">{stats.rejected}</p>
             </div>
           </div>
 
@@ -147,11 +143,7 @@ export function ReceiptsSection() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Recent Requests</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/receipts")}
-              >
+              <Button variant="outline" size="sm" onClick={() => router.push("/receipts")}>
                 <ExternalLink className="h-4 w-4 mr-1" />
                 View All
               </Button>
@@ -162,9 +154,7 @@ export function ReceiptsSection() {
             ) : receipts.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">No reimbursement requests yet</p>
-                <Button onClick={() => router.push("/receipts")}>
-                  Submit Your First Request
-                </Button>
+                <Button onClick={() => router.push("/receipts")}>Submit Your First Request</Button>
               </div>
             ) : (
               <Table>

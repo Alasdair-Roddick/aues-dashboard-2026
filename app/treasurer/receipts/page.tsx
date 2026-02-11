@@ -4,8 +4,8 @@ import { TreasurerReceiptContent } from "./components/TreasurerReceiptContent";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Receipt Management - AUES Dashboard"
-}
+  title: "Receipt Management - AUES Dashboard",
+};
 
 export default async function TreasurerReceiptsPage() {
   const session = await auth();

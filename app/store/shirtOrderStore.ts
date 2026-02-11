@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   getSquarespaceOrdersPage,
   getSquarespaceOrdersVersion,
@@ -8,7 +8,7 @@ import {
   updateShipping,
   type ShirtOrder,
   type OrderStatus,
-} from '@/app/actions/squarespace';
+} from "@/app/actions/squarespace";
 
 const DEFAULT_PAGE_SIZE = 40;
 
@@ -20,7 +20,7 @@ const EMPTY_COUNTS: Record<OrderStatus, number> = {
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
-  return 'Something went wrong';
+  return "Something went wrong";
 }
 
 function mergeOrders(existing: ShirtOrder[], incoming: ShirtOrder[]): ShirtOrder[] {
@@ -51,13 +51,24 @@ type ShirtOrderStore = {
   activeRequestId: number;
 
   // Actions
-  fetchOrders: (options?: { reset?: boolean; silent?: boolean; limitOverride?: number }) => Promise<void>;
+  fetchOrders: (options?: {
+    reset?: boolean;
+    silent?: boolean;
+    limitOverride?: number;
+  }) => Promise<void>;
   loadMore: () => Promise<void>;
   setActiveStatus: (status: OrderStatus) => void;
   syncOrders: () => Promise<{ success: boolean; added?: number; updated?: number; error?: string }>;
-  updateStatus: (orderId: string, newStatus: OrderStatus) => Promise<{ success: boolean; error?: string }>;
+  updateStatus: (
+    orderId: string,
+    newStatus: OrderStatus,
+  ) => Promise<{ success: boolean; error?: string }>;
   removeOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
-  setShipping: (orderId: string, trackingNumber: string, carrier?: string) => Promise<{ success: boolean; error?: string }>;
+  setShipping: (
+    orderId: string,
+    trackingNumber: string,
+    carrier?: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   setSearchQuery: (query: string) => void;
 
   // Polling
@@ -77,8 +88,8 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
   activeMutations: 0,
   lastUpdated: null,
   pollingInterval: null,
-  searchQuery: '',
-  activeStatus: 'PENDING',
+  searchQuery: "",
+  activeStatus: "PENDING",
   pageSize: DEFAULT_PAGE_SIZE,
   hasMore: false,
   totalForActive: 0,
@@ -122,9 +133,7 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
       }
 
       set((current) => ({
-        orders: reset
-          ? result.orders
-          : mergeOrders(current.orders, result.orders),
+        orders: reset ? result.orders : mergeOrders(current.orders, result.orders),
         totalForActive: result.total,
         hasMore: result.hasMore,
         statusCounts: result.statusCounts,
@@ -132,7 +141,7 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
         lastUpdated: result.timestamp,
       }));
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error("Failed to fetch orders:", error);
     } finally {
       if (get().activeRequestId === requestId) {
         set({ loading: false, loadingMore: false });
@@ -168,9 +177,7 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
     set((state) => ({
       activeMutations: state.activeMutations + 1,
       orders: previousOrders.map((order) =>
-        order.id === orderId
-          ? { ...order, fulfillmentStatus: newStatus }
-          : order
+        order.id === orderId ? { ...order, fulfillmentStatus: newStatus } : order,
       ),
     }));
 
@@ -180,7 +187,11 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
       if (!result.success) {
         set({ orders: previousOrders });
       } else {
-        await get().fetchOrders({ reset: true, silent: true, limitOverride: Math.max(get().orders.length, get().pageSize) });
+        await get().fetchOrders({
+          reset: true,
+          silent: true,
+          limitOverride: Math.max(get().orders.length, get().pageSize),
+        });
       }
 
       return result;
@@ -207,7 +218,11 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
       if (!result.success) {
         set({ orders: previousOrders });
       } else {
-        await get().fetchOrders({ reset: true, silent: true, limitOverride: Math.max(get().orders.length, get().pageSize) });
+        await get().fetchOrders({
+          reset: true,
+          silent: true,
+          limitOverride: Math.max(get().orders.length, get().pageSize),
+        });
       }
 
       return result;
@@ -221,7 +236,7 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
     }
   },
 
-  setShipping: async (orderId: string, trackingNumber: string, carrier: string = 'auspost') => {
+  setShipping: async (orderId: string, trackingNumber: string, carrier: string = "auspost") => {
     const previousOrders = get().orders;
     set((state) => ({
       activeMutations: state.activeMutations + 1,
@@ -229,12 +244,12 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
         order.id === orderId
           ? {
               ...order,
-              shippingStatus: 'SHIPPED',
+              shippingStatus: "SHIPPED",
               shippingTrackingNumber: trackingNumber,
               shippingCarrier: carrier,
               shippedAt: new Date(),
             }
-          : order
+          : order,
       ),
     }));
 
@@ -244,7 +259,11 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
       if (!result.success) {
         set({ orders: previousOrders });
       } else {
-        await get().fetchOrders({ reset: true, silent: true, limitOverride: Math.max(get().orders.length, get().pageSize) });
+        await get().fetchOrders({
+          reset: true,
+          silent: true,
+          limitOverride: Math.max(get().orders.length, get().pageSize),
+        });
       }
 
       return result;

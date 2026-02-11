@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { DashboardContent } from "./components/DashboardContent";
 import { isAccountSetupComplete } from "./lib/accountSetup";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function Home() {
   const session = await auth();

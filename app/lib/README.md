@@ -11,29 +11,35 @@ This module handles syncing member data from the Rubric API to your PostgreSQL d
 ## Functions
 
 ### `fetchMembersFromRubric()`
+
 Fetches all members from the Rubric API.
 
 **Returns**: `Promise<Member[]>`
 
 ### `syncMembersWithDatabase()`
+
 **Fast** - Only adds NEW members that don't exist in the database.
 
 **Performance**:
+
 - Fetches all existing emails in one query
 - Uses a Set for O(1) lookup
 - Batch inserts all new members at once
 - **Use this for most operations** ✅
 
 **Example**:
+
 ```typescript
-import { syncMembersWithDatabase } from './app/lib/rubric';
+import { syncMembersWithDatabase } from "./app/lib/rubric";
 await syncMembersWithDatabase();
 ```
 
 ### `updateAllMembers()`
+
 Updates all existing members in the database with fresh data from Rubric.
 
 **Performance**:
+
 - Fetches all existing members once
 - Updates in batches of 100 using Promise.all
 - Shows progress as it updates
@@ -41,60 +47,72 @@ Updates all existing members in the database with fresh data from Rubric.
 **Use when**: You need to refresh existing member data (e.g., membership status changed)
 
 **Example**:
+
 ```typescript
-import { updateAllMembers } from './app/lib/rubric';
+import { updateAllMembers } from "./app/lib/rubric";
 await updateAllMembers();
 ```
 
 ### `syncMembershipPayments()`
+
 Syncs payment records for members.
 
 **Performance**:
+
 - Maps members to their database IDs
 - Avoids duplicate payments using memberId + transactionId
 - Batch inserts all new payments at once
 
 **What it does**:
+
 - Creates payment records based on member data
 - Sets status to "completed" if membership is valid, "pending" otherwise
 - Uses membershipId as the transactionId
 
 **Example**:
+
 ```typescript
-import { syncMembershipPayments } from './app/lib/rubric';
+import { syncMembershipPayments } from "./app/lib/rubric";
 await syncMembershipPayments();
 ```
 
 ### `syncMembershipResponses()`
+
 Syncs form response data for members.
 
 **Performance**:
+
 - Fetches members with response data
 - Avoids duplicate responses (one per member)
 - Batch inserts all new responses at once
 
 **What it does**:
+
 - Stores the full form responses object (JSONB)
 - Contains fields like: Student Number, Gender, Study Year, Degree, etc.
 
 **Example**:
+
 ```typescript
-import { syncMembershipResponses } from './app/lib/rubric';
+import { syncMembershipResponses } from "./app/lib/rubric";
 await syncMembershipResponses();
 ```
 
 ### `fullSync()`
+
 Runs complete sync: members + payments + responses.
 
 **What it does**:
+
 1. Adds new members
 2. Syncs payment records
 3. Syncs form responses
 4. (Optional) Updates existing members
 
 **Example**:
+
 ```typescript
-import { fullSync } from './app/lib/rubric';
+import { fullSync } from "./app/lib/rubric";
 await fullSync();
 ```
 
@@ -120,10 +138,10 @@ For a typical member listing page, you'll want to:
 
 ```typescript
 // In your API route or server action
-import { syncMembersWithDatabase, fullSync } from '@/app/lib/rubric';
-import { db } from '@/app/db';
-import { members, membershipPayments, membershipResponses } from '@/app/db/schema';
-import { eq } from 'drizzle-orm';
+import { syncMembersWithDatabase, fullSync } from "@/app/lib/rubric";
+import { db } from "@/app/db";
+import { members, membershipPayments, membershipResponses } from "@/app/db/schema";
+import { eq } from "drizzle-orm";
 
 // GET /api/members - just fetch from DB (fast!)
 export async function GET() {
@@ -136,13 +154,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   const memberId = parseInt(params.id);
 
   const [member] = await db.select().from(members).where(eq(members.id, memberId));
-  const payments = await db.select().from(membershipPayments).where(eq(membershipPayments.memberId, memberId));
-  const [responses] = await db.select().from(membershipResponses).where(eq(membershipResponses.memberId, memberId));
+  const payments = await db
+    .select()
+    .from(membershipPayments)
+    .where(eq(membershipPayments.memberId, memberId));
+  const [responses] = await db
+    .select()
+    .from(membershipResponses)
+    .where(eq(membershipResponses.memberId, memberId));
 
   return Response.json({
     ...member,
     payments,
-    formResponses: responses?.responses
+    formResponses: responses?.responses,
   });
 }
 
@@ -176,6 +200,7 @@ RUBRIC_EMAIL="club@aues.com.au"
 ## Data Mapping
 
 API Field → Database Field
+
 - `membershipid` → `id`
 - `fullname` → `fullname`
 - `email` → `email`

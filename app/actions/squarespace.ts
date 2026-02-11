@@ -13,7 +13,7 @@ import {
 import { ActivityLogger } from "@/app/lib/activity";
 import { getOrdersActivityWithUsers, type ActivityLogEntry } from "@/app/actions/activity";
 
-export type OrderStatus = 'PENDING' | 'PACKED' | 'FULFILLED';
+export type OrderStatus = "PENDING" | "PACKED" | "FULFILLED";
 
 export type OrderActivity = {
   id: string;
@@ -40,7 +40,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export type ShippingStatus = 'PENDING' | 'SHIPPED';
+export type ShippingStatus = "PENDING" | "SHIPPED";
 
 export type ShirtOrder = {
   id: string;
@@ -73,7 +73,12 @@ export type OrdersPageResult = {
   serverVersion: string | null;
 };
 
-export async function syncSquarespaceOrders(): Promise<{ success: boolean; added?: number; updated?: number; error?: string }> {
+export async function syncSquarespaceOrders(): Promise<{
+  success: boolean;
+  added?: number;
+  updated?: number;
+  error?: string;
+}> {
   try {
     const session = await auth();
     const userRole = getSessionRole(session?.user);
@@ -104,13 +109,13 @@ export async function getSquarespaceOrders(): Promise<ShirtOrder[]> {
     const orders = await getShirtOrdersFromDatabase();
 
     // Fetch activity logs for all orders
-    const orderIds = orders.map(o => o.id);
+    const orderIds = orders.map((o) => o.id);
     const activityByOrder = await getOrdersActivityWithUsers(orderIds);
 
     // Merge activity into orders
-    return orders.map(order => ({
+    return orders.map((order) => ({
       ...order,
-      activity: (activityByOrder[order.id] || []).map(log => ({
+      activity: (activityByOrder[order.id] || []).map((log) => ({
         id: log.id,
         userName: log.userName,
         userImage: log.userImage,
@@ -214,8 +219,8 @@ export async function getSquarespaceOrdersPage(params: {
               ilike(squarespaceOrders.customerName, pattern),
               ilike(squarespaceOrders.customerEmail, pattern),
               ilike(squarespaceOrders.orderNumber, pattern),
-              ilike(squarespaceOrders.id, pattern)
-            )
+              ilike(squarespaceOrders.id, pattern),
+            ),
           ),
         db
           .selectDistinct({ orderId: squarespaceOrderItems.orderId })
@@ -223,16 +228,13 @@ export async function getSquarespaceOrdersPage(params: {
           .where(
             or(
               ilike(squarespaceOrderItems.productName, pattern),
-              ilike(squarespaceOrderItems.size, pattern)
-            )
+              ilike(squarespaceOrderItems.size, pattern),
+            ),
           ),
       ]);
 
       matchingOrderIds = Array.from(
-        new Set([
-          ...orderMatches.map((row) => row.id),
-          ...itemMatches.map((row) => row.orderId),
-        ])
+        new Set([...orderMatches.map((row) => row.id), ...itemMatches.map((row) => row.orderId)]),
       );
 
       if (matchingOrderIds.length === 0) {
@@ -257,7 +259,7 @@ export async function getSquarespaceOrdersPage(params: {
     const baseCondition = matchingOrderIds
       ? and(
           eq(squarespaceOrders.fulfillmentStatus, params.status),
-          inArray(squarespaceOrders.id, matchingOrderIds)
+          inArray(squarespaceOrders.id, matchingOrderIds),
         )
       : eq(squarespaceOrders.fulfillmentStatus, params.status);
 
@@ -269,10 +271,7 @@ export async function getSquarespaceOrdersPage(params: {
         .orderBy(desc(squarespaceOrders.createdOn))
         .limit(limit)
         .offset(offset),
-      db
-        .select({ total: count() })
-        .from(squarespaceOrders)
-        .where(baseCondition),
+      db.select({ total: count() }).from(squarespaceOrders).where(baseCondition),
       statusCountsPromise,
       serverVersionPromise,
     ]);
@@ -356,7 +355,11 @@ export async function getShirtStats(): Promise<Record<string, Record<string, num
 }
 
 // Preview orders without saving to database
-export async function previewSquarespaceOrders(): Promise<{ success: boolean; orders?: PreviewOrder[]; error?: string }> {
+export async function previewSquarespaceOrders(): Promise<{
+  success: boolean;
+  orders?: PreviewOrder[];
+  error?: string;
+}> {
   try {
     const session = await auth();
     const userRole = getSessionRole(session?.user);
@@ -377,7 +380,7 @@ export async function previewSquarespaceOrders(): Promise<{ success: boolean; or
 // Update order status
 export async function updateOrderStatus(
   orderId: string,
-  newStatus: OrderStatus
+  newStatus: OrderStatus,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
@@ -408,17 +411,17 @@ export async function updateOrderStatus(
       .update(squarespaceOrders)
       .set({
         fulfillmentStatus: newStatus,
-        syncedAt: new Date()
+        syncedAt: new Date(),
       })
       .where(eq(squarespaceOrders.id, orderId));
 
     // Log the activity
     await ActivityLogger.orderStatusUpdated(
-      { id: userId, name: userName || 'Unknown' },
+      { id: userId, name: userName || "Unknown" },
       orderId,
       oldStatus,
       newStatus,
-      currentOrder[0].customerName
+      currentOrder[0].customerName,
     );
 
     return { success: true };
@@ -464,7 +467,7 @@ export async function deleteOrder(orderId: string): Promise<{ success: boolean; 
 export async function updateShipping(
   orderId: string,
   trackingNumber: string,
-  carrier: string = 'auspost'
+  carrier: string = "auspost",
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
@@ -492,21 +495,21 @@ export async function updateShipping(
     await db
       .update(squarespaceOrders)
       .set({
-        shippingStatus: 'SHIPPED',
+        shippingStatus: "SHIPPED",
         shippingTrackingNumber: trackingNumber,
         shippingCarrier: carrier,
         shippedAt: new Date(),
-        syncedAt: new Date()
+        syncedAt: new Date(),
       })
       .where(eq(squarespaceOrders.id, orderId));
 
     // Log the activity
     await ActivityLogger.orderStatusUpdated(
-      { id: userId, name: userName || 'Unknown' },
+      { id: userId, name: userName || "Unknown" },
       orderId,
-      'SHIPPING',
-      'SHIPPED',
-      currentOrder[0].customerName
+      "SHIPPING",
+      "SHIPPED",
+      currentOrder[0].customerName,
     );
 
     return { success: true };

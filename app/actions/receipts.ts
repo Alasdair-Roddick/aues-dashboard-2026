@@ -127,7 +127,7 @@ export async function getAllReceipts() {
 export async function updateReceiptStatus(
   receiptId: string,
   status: "Pending" | "Fulfilled" | "Rejected",
-  treasurerNotes?: string
+  treasurerNotes?: string,
 ) {
   const session = await auth();
 
