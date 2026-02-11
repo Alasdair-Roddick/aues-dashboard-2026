@@ -34,11 +34,8 @@ export function Navbar() {
   }, [status, fetchCurrentUser, session?.user]);
 
   const handleLogout = async () => {
-    const callbackUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/login`
-        : "/login";
-    await signOut({ callbackUrl });
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    await signOut({ callbackUrl: `${baseUrl}/login` });
   };
 
   const closeMobileMenu = () => {

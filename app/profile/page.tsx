@@ -25,10 +25,8 @@ export default function ProfilePage() {
     const { data: session } = useSession();
     const user = session?.user;
     const [activeTab, setActiveTab] = useState<Tab>("profile")
-    const logoutCallbackUrl =
-        typeof window !== "undefined"
-            ? `${window.location.origin}/login`
-            : "/login";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    const logoutCallbackUrl = `${baseUrl}/login`;
 
     const tabContent = {
         profile: (

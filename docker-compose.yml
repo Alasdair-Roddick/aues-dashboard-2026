@@ -7,6 +7,7 @@ services:
       args:
         # Build only needs a non-empty DATABASE_URL to satisfy server module initialization.
         DATABASE_URL: ${DATABASE_URL:-postgresql://build:build@localhost:5432/build}
+        NEXT_PUBLIC_APP_URL: https://dashboard.aues.com.au
     container_name: aues-dashboard-app
     restart: unless-stopped
     environment:
