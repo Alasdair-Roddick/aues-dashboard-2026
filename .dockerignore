@@ -41,3 +41,7 @@ README.md
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# CI/CD and deploy scripts
+.github
+deploy

@@ -1,217 +1,206 @@
-Here’s a clean, repo-ready **`DEPLOYMENT.md`** you can drop straight into your project.
+# Deployment Guide
 
-You can copy-paste this exactly into a file called `DEPLOYMENT.md`.
+**AUES Dashboard 2026 — Automated CI/CD with Blue-Green Deploys**
 
----
+## Architecture
 
-````md
-# Deployment Guide  
-**AUES Dashboard 2026 — Homelab → GHCR → AUES PC**
-
-This project is deployed using a two-machine workflow:
-
-- **Homelab** = build machine  
-- **AUES PC (VPS)** = runtime machine  
-- **GitHub Container Registry (GHCR)** = image store  
-- **Neon** = database (runtime only)
-
-The VPS never builds. It only pulls pre-built images.
-
----
-
-## 🧱 Assumptions
-
-- Dockerfile builds without `DATABASE_URL`
-- Image is private on GHCR
-- Database credentials are injected at runtime
-- Docker and Docker Compose are installed on both machines
-
----
-
-# 🖥️ PART 1 — Homelab (Build + Push)
-
-## 1. Login to GHCR (once)
-
-```bash
-docker login ghcr.io -u alasdair-roddick
-````
-
-Password = GitHub Personal Access Token with **write packages** permission.
-
----
-
-## 2. Build the image
-
-From the project directory:
-
-```bash
-docker build -t ghcr.io/alasdair-roddick/aues-dashboard-2026:latest .
+```
+Push to main
+    |
+    v
+GitHub Actions (self-hosted runner on homelab)
+    |-- Build Docker image
+    |-- Push to ghcr.io/alasdair-roddick/aues-dashboard-2026
+    |
+    v
+SSH into AUES PC
+    |-- Pull new image
+    |-- Blue-green swap (deploy.sh)
+    |-- Nginx reload (zero downtime)
 ```
 
-Verify:
+- **Homelab** = build machine (GitHub Actions self-hosted runner)
+- **AUES PC** = runtime machine (Docker + nginx)
+- **GHCR** = private image registry
+- **Neon** = PostgreSQL database (runtime only, never in image)
 
-```bash
-docker images | grep aues-dashboard
-```
+## How It Works
 
----
+1. Code is pushed or merged to `main`
+2. GitHub Actions triggers on the homelab self-hosted runner
+3. Docker image is built and pushed to GHCR with `latest` + `sha-<commit>` tags
+4. CI SSHs into the AUES PC and runs `deploy.sh`
+5. `deploy.sh` does a blue-green swap:
+   - Detects current live container (blue on :5055 or green on :5056)
+   - Starts the OTHER color with the new image
+   - Health checks `/api/health` with retries
+   - Swaps nginx upstream and reloads
+   - Removes the old container after a 5s drain
 
-## 3. Push the image
-
-```bash
-docker push ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
-```
-
-Image now exists at:
-
-GitHub → Repo → Packages → `aues-dashboard-2026`
-
-(Keep it private.)
-
----
-
-# 🖥️ PART 2 — AUES PC (Pull + Run)
-
-## 1. Login to GHCR (once)
-
-```bash
-docker login ghcr.io -u alasdair-roddick
-```
-
-Password = GitHub Personal Access Token with **read packages** permission.
+If the health check fails, the new container is killed and the old one stays live.
 
 ---
 
-## 2. Create `.env` file (on AUES PC)
+## One-Time Setup
+
+### GitHub Repo Secrets
+
+Go to **Settings > Secrets and variables > Actions** and add:
+
+| Secret | Value |
+|---|---|
+| `DEPLOY_HOST` | IP or hostname of the AUES PC |
+| `DEPLOY_USER` | SSH username on the AUES PC |
+| `DEPLOY_SSH_KEY` | Private SSH key (ed25519 recommended) |
+
+`GITHUB_TOKEN` is automatic and has `packages:write` for GHCR.
+
+### Homelab (Build Machine)
+
+1. **Install the GitHub Actions self-hosted runner:**
 
 ```bash
-nano .env
+# Go to: github.com/alasdair-roddick/aues-dashboard-2026/settings/actions/runners/new
+# Follow the instructions for Linux
+# Install as a systemd service:
+sudo ./svc.sh install
+sudo ./svc.sh start
 ```
 
-Example:
+2. **Ensure Docker is installed** and the runner user is in the `docker` group:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+### AUES PC (Runtime Machine)
+
+1. **Create deployment directory and copy the deploy script:**
+
+```bash
+sudo mkdir -p /opt/aues-dashboard/deploy
+# Copy deploy/deploy.sh from this repo to /opt/aues-dashboard/deploy/
+chmod +x /opt/aues-dashboard/deploy/deploy.sh
+```
+
+2. **Create the `.env` file:**
+
+```bash
+sudo nano /opt/aues-dashboard/.env
+```
 
 ```env
 DATABASE_URL=postgresql://neondb_owner:password@ep-xxxx.neon.tech/neondb?sslmode=require
 AUTH_URL=https://dashboard.aues.com.au
+AUTH_SECRET=<your-auth-secret>
+ENCRYPTION_KEY=<your-encryption-key>
 ```
 
----
-
-## 3. `docker-compose.yml`
-
-Example:
-
-```yaml
-services:
-  app:
-    image: ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
-    container_name: aues-dashboard-app
-    ports:
-      - "5055:5055"
-    env_file:
-      - .env
-    restart: unless-stopped
-```
-
----
-
-## 4. Pull the image
+3. **Create the shared uploads volume:**
 
 ```bash
-docker pull ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
+docker volume create aues-uploads
+```
+
+4. **Login to GHCR:**
+
+```bash
+docker login ghcr.io -u alasdair-roddick
+# Use a PAT with read:packages scope
+```
+
+5. **Set up SSH access for the deploy user:**
+
+```bash
+# Add the deploy user's public key to ~/.ssh/authorized_keys
+# Grant docker permissions:
+sudo usermod -aG docker <deploy-user>
+```
+
+6. **Grant passwordless nginx access to the deploy user:**
+
+```bash
+# Add to /etc/sudoers.d/deploy:
+echo '<deploy-user> ALL=(ALL) NOPASSWD: /usr/sbin/nginx' | sudo tee /etc/sudoers.d/deploy
+sudo chmod 440 /etc/sudoers.d/deploy
+```
+
+7. **Install nginx config:**
+
+```bash
+# Copy deploy/nginx-app.conf to /etc/nginx/sites-available/dashboard.aues.com.au
+sudo ln -s /etc/nginx/sites-available/dashboard.aues.com.au /etc/nginx/sites-enabled/
+
+# Create initial upstream file:
+echo 'upstream aues_dashboard { server 127.0.0.1:5055; }' \
+  | sudo tee /etc/nginx/conf.d/aues-dashboard-upstream.conf
+
+# Get SSL certificate:
+sudo certbot --nginx -d dashboard.aues.com.au
+
+# Test and reload:
+sudo nginx -t && sudo nginx -s reload
 ```
 
 ---
 
-## 5. Run the container
+## Manual Deploy (Emergency)
+
+If CI is down, you can deploy manually:
+
+**On homelab:**
 
 ```bash
-docker compose up -d
-```
-
----
-
-## 6. Check logs
-
-```bash
-docker logs -f aues-dashboard-app
-```
-
-Expected output:
-
-```text
-Ready in XXXms
-```
-
----
-
-# 🔁 Update / Redeploy Flow
-
-## On Homelab
-
-```bash
-git pull
+docker login ghcr.io -u alasdair-roddick
 docker build -t ghcr.io/alasdair-roddick/aues-dashboard-2026:latest .
 docker push ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
 ```
 
----
-
-## On AUES PC
+**On AUES PC:**
 
 ```bash
-docker pull ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
-docker compose up -d
+cd /opt/aues-dashboard
+./deploy/deploy.sh ghcr.io/alasdair-roddick/aues-dashboard-2026:latest
 ```
 
-No rebuilds on the VPS.
+## Rollback
 
----
-
-# 🔐 Security Rules
-
-* Never put `DATABASE_URL` in Dockerfile
-* Never bake secrets into images
-* Database is runtime-only
-* Keep GHCR image private
-* Rotate Neon password if leaked
-* VPS logs in to GHCR once only
-
----
-
-# 🧪 Debugging
-
-## Check env inside container
+Every image is tagged with `sha-<commit>`. To rollback:
 
 ```bash
-docker inspect aues-dashboard-app | grep DATABASE_URL
+# On AUES PC:
+cd /opt/aues-dashboard
+./deploy/deploy.sh ghcr.io/alasdair-roddick/aues-dashboard-2026:sha-abc1234
 ```
 
 ---
 
-## Test DB manually
+## Debugging
 
 ```bash
-psql "$DATABASE_URL"
+# Check which container is live:
+docker ps --filter "name=aues-dashboard"
+
+# View container logs:
+docker logs -f aues-dashboard-blue   # or aues-dashboard-green
+
+# Check current nginx upstream:
+cat /etc/nginx/conf.d/aues-dashboard-upstream.conf
+
+# Health check:
+curl http://localhost:5055/api/health
+curl http://localhost:5056/api/health
+
+# Check env inside container:
+docker exec aues-dashboard-blue printenv AUTH_URL
 ```
 
 ---
 
-## List running containers
+## Security Rules
 
-```bash
-docker ps
-```
-
----
-
-# 🧠 Architecture Model
-
-```text
-Homelab:   build → push
-GHCR:      store image
-AUES PC:   pull → run
-DB:        runtime only
-```
-
----
+- Never put `DATABASE_URL` or secrets in the Dockerfile
+- Database credentials are runtime-only (injected via `.env`)
+- Keep GHCR image private
+- SSH key for deploys should be dedicated and rotatable
+- Rotate Neon password if leaked
