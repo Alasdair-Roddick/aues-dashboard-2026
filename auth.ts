@@ -48,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          // Verify password using argon2 (dynamic import to avoid bundling in edge runtime)
+          // Verify password using bcrypt
           const { verifyPassword } = await import("@/app/utils/password");
           const isValid = await verifyPassword(password, user.password);
 
