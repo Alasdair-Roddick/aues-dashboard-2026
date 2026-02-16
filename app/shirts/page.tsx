@@ -12,7 +12,7 @@ export default async function ShirtsPage() {
   const userRole = (session?.user as { role?: string } | undefined)?.role;
 
   // Only Admin or Treasurer can access
-  if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+  if (!session?.user) {
     redirect("/");
   }
 
