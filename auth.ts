@@ -25,38 +25,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
+        try {
+          if (!credentials?.username || !credentials?.password) {
+            return null;
+          }
+
+          const parsed = signInSchema.safeParse({
+            username: credentials.username,
+            password: credentials.password,
+          });
+
+          if (!parsed.success) {
+            return null;
+          }
+
+          const { username, password } = parsed.data;
+
+          // Find user by username
+          const [user] = await db.select().from(users).where(eq(users.name, username)).limit(1);
+
+          if (!user || !user.password) {
+            return null;
+          }
+
+          // Verify password using argon2 (dynamic import to avoid bundling in edge runtime)
+          const { verifyPassword } = await import("@/app/utils/password");
+          const isValid = await verifyPassword(password, user.password);
+
+          if (!isValid) {
+            return null;
+          }
+
+          // Return user object (without password)
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+          };
+        } catch {
           return null;
         }
-
-        const { username, password } = await signInSchema.parseAsync({
-          username: credentials.username,
-          password: credentials.password,
-        });
-
-        // Find user by username
-        const [user] = await db.select().from(users).where(eq(users.name, username)).limit(1);
-
-        if (!user || !user.password) {
-          return null;
-        }
-
-        // Verify password using argon2 (dynamic import to avoid bundling in edge runtime)
-        const { verifyPassword } = await import("@/app/utils/password");
-        const isValid = await verifyPassword(password, user.password);
-
-        if (!isValid) {
-          return null;
-        }
-
-        // Return user object (without password)
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          image: user.image,
-        };
       },
     }),
   ],
