@@ -84,7 +84,7 @@ export async function syncSquarespaceOrders(): Promise<{
     const userRole = getSessionRole(session?.user);
 
     // Only Admin or Treasurer can sync orders
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -102,7 +102,7 @@ export async function getSquarespaceOrders(): Promise<ShirtOrder[]> {
     const userRole = getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view orders
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return [];
     }
 
@@ -186,7 +186,7 @@ export async function getSquarespaceOrdersPage(params: {
     const userRole = getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view orders
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return {
         orders: [],
         total: 0,
@@ -342,7 +342,7 @@ export async function getShirtStats(): Promise<Record<string, Record<string, num
     const userRole = getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view stats
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return {};
     }
 
@@ -365,7 +365,7 @@ export async function previewSquarespaceOrders(): Promise<{
     const userRole = getSessionRole(session?.user);
 
     // Only Admin or Treasurer can preview orders
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -389,7 +389,7 @@ export async function updateOrderStatus(
     const userName = session?.user?.name;
 
     // Only Admin or Treasurer can update orders
-    if (!session?.user || !userId || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user || !userId) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -476,7 +476,7 @@ export async function updateShipping(
     const userName = session?.user?.name;
 
     // Only Admin or Treasurer can update shipping
-    if (!session?.user || !userId || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user || !userId) {
       return { success: false, error: "Unauthorized" };
     }
 
