@@ -40,6 +40,12 @@ export function ProfileSection() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large", { description: "Profile pictures must be under 5MB." });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setUploadingImage(true);
     const formData = new FormData();
     formData.append("file", file);

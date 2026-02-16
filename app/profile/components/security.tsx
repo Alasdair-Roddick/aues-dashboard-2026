@@ -126,7 +126,13 @@ export function SecuritySection() {
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+              {newPassword.length > 0 && newPassword.length < 8 ? (
+                <p className="text-xs text-destructive">
+                  Must be at least 8 characters ({8 - newPassword.length} more)
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+              )}
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
@@ -150,12 +156,23 @@ export function SecuritySection() {
                   )}
                 </button>
               </div>
+              {confirmPassword.length > 0 && confirmPassword !== newPassword && (
+                <p className="text-xs text-destructive">Passwords don&apos;t match</p>
+              )}
             </div>
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={handleCancel} disabled={saving}>
                 Cancel
               </Button>
-              <Button onClick={handleChangePassword} disabled={saving}>
+              <Button
+                onClick={handleChangePassword}
+                disabled={
+                  saving ||
+                  !currentPassword ||
+                  newPassword.length < 8 ||
+                  newPassword !== confirmPassword
+                }
+              >
                 {saving ? "Saving..." : "Update Password"}
               </Button>
             </div>
