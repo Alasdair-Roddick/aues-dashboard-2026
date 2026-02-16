@@ -172,7 +172,7 @@ export async function getAllMembersAction() {
     const session = await auth();
     const userRole = getRoleFromSessionUser(session?.user);
 
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user) {
       return [];
     }
 
