@@ -5,7 +5,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,13 +27,10 @@ import { ShippingModal } from "./ShippingModal";
 import { toast } from "sonner";
 import {
   CalendarDays,
-  Hash,
-  Mail,
   MoreHorizontal,
   Package2,
   PackageCheck,
   PackageX,
-  Ruler,
   Truck,
   Trash2,
 } from "lucide-react";
@@ -96,15 +92,6 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
   const customerOrderCode = order.orderNumber ? order.orderNumber.slice(-4).toUpperCase() : "----";
   const lastActivity = order.activity?.[0];
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
-  const sizeBreakdown = order.items.reduce(
-    (acc, item) => {
-      const sizeKey = item.size?.trim() || "No size";
-      acc[sizeKey] = (acc[sizeKey] || 0) + item.quantity;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedSizeBreakdown = Object.entries(sizeBreakdown).sort(([a], [b]) => a.localeCompare(b));
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     const result = await updateStatus(order.id, newStatus);
@@ -206,106 +193,92 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
 
   return (
     <>
-      <Card className="overflow-hidden border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70 py-0 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:from-slate-950 dark:to-slate-950/70">
-        <CardHeader className="space-y-3 border-b px-4 py-4 md:px-5">
+      <Card className="flex flex-col overflow-hidden border-slate-200/80 bg-linear-to-b from-white to-slate-50/50 py-0 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:from-slate-950 dark:to-slate-950/70">
+        {/* Header: name, code, menu */}
+        <CardHeader className="px-4 pb-0 pt-4">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <CardTitle className="truncate text-base">{order.customerName}</CardTitle>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{order.customerEmail}</span>
-              </p>
+              <div className="flex items-center gap-2">
+                <CardTitle className="truncate text-sm font-semibold">
+                  {order.customerName}
+                </CardTitle>
+                <Badge
+                  variant="outline"
+                  className="shrink-0 rounded-md px-1.5 font-mono text-[10px] text-muted-foreground"
+                >
+                  #{customerOrderCode}
+                </Badge>
+              </div>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{order.customerEmail}</p>
             </div>
 
-            <div className="flex items-center gap-1">
-              <Badge variant="outline" className="h-8 rounded-md px-2 font-mono text-xs">
-                #{customerOrderCode}
-              </Badge>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" className="rounded-md">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Order actions</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleStatusChange("PENDING")}
-                    disabled={order.fulfillmentStatus === "PENDING"}
-                  >
-                    <PackageX className="mr-2 h-4 w-4" />
-                    Force set pending
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShippingModalOpen(true)}>
-                    <Truck className="mr-2 h-4 w-4" />
-                    {order.shippingStatus === "SHIPPED" ? "Edit shipping" : "Add shipping"}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} variant="destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete order
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-sm" className="-mr-1 -mt-1 shrink-0 rounded-md">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Order actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange("PENDING")}
+                  disabled={order.fulfillmentStatus === "PENDING"}
+                >
+                  <PackageX className="mr-2 h-4 w-4" />
+                  Force set pending
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShippingModalOpen(true)}>
+                  <Truck className="mr-2 h-4 w-4" />
+                  {order.shippingStatus === "SHIPPED" ? "Edit shipping" : "Add shipping"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} variant="destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete order
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Status badges row */}
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <Badge
               variant="outline"
-              className={getFulfillmentBadgeClasses(order.fulfillmentStatus)}
+              className={`text-[10px] font-semibold ${getFulfillmentBadgeClasses(order.fulfillmentStatus)}`}
             >
               {order.fulfillmentStatus}
             </Badge>
-            <Badge variant={order.shippingStatus === "SHIPPED" ? "default" : "secondary"}>
-              {order.shippingStatus === "SHIPPED" ? "Shipped" : "Not shipped"}
-            </Badge>
+            {order.shippingStatus === "SHIPPED" ? (
+              <Badge
+                variant="outline"
+                className="border-emerald-200 bg-emerald-50 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+              >
+                <Truck className="mr-1 h-3 w-3" />
+                Shipped
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="text-[10px]">
+                Not shipped
+              </Badge>
+            )}
             {order.shippingTrackingNumber && (
-              <Badge variant="outline" className="font-mono text-[10px]">
+              <Badge variant="outline" className="max-w-30 truncate font-mono text-[10px]">
                 {order.shippingTrackingNumber}
               </Badge>
             )}
           </div>
-
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <CalendarDays className="h-3.5 w-3.5" />
-            Ordered {new Date(order.createdOn).toLocaleDateString()}
-            {order.orderNumber && <span className="ml-1">• Squarespace #{order.orderNumber}</span>}
-          </div>
         </CardHeader>
 
-        <CardContent className="space-y-4 px-4 py-4 md:px-5">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg border border-slate-200/70 bg-slate-100/70 px-3 py-2 dark:border-slate-800 dark:bg-slate-900/70">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Total Qty
-              </p>
-              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-foreground">
-                <Package2 className="h-4 w-4 text-muted-foreground" />
-                {totalQuantity}
-              </p>
-            </div>
-            <div className="rounded-lg border border-slate-200/70 bg-slate-100/70 px-3 py-2 dark:border-slate-800 dark:bg-slate-900/70">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Sizes
-              </p>
-              <p className="mt-1 truncate text-sm font-semibold text-foreground">
-                {sortedSizeBreakdown.map(([size, qty]) => `${size} (${qty})`).join(" · ")}
-              </p>
-            </div>
-          </div>
-
-          <Separator />
-
+        {/* Items */}
+        <CardContent className="flex-1 px-4 pb-0 pt-3">
           <div className="space-y-2">
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-3 rounded-xl border border-slate-200/70 bg-background/90 p-3 dark:border-slate-800"
+                className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-2.5 dark:border-slate-800/60 dark:bg-slate-900/40"
               >
                 {item.imageUrl ? (
-                  <div className="h-14 w-14 overflow-hidden rounded-md bg-muted">
+                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                     <img
                       src={item.imageUrl}
                       alt={item.productName}
@@ -313,71 +286,60 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-md bg-muted">
-                    <PackageCheck className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
+                    <Package2 className="h-4 w-4 text-muted-foreground" />
                   </div>
                 )}
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{item.productName}</p>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                    <Badge
-                      variant="outline"
-                      className="h-6 rounded-md border-blue-200 bg-blue-50 px-2 text-[10px] font-semibold text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
-                    >
-                      <Ruler className="mr-1 h-3 w-3" />
+                  <p className="truncate text-xs font-medium leading-snug">{item.productName}</p>
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <span className="inline-flex items-center rounded-md bg-blue-100/80 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                       {item.size || "No size"}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="h-6 rounded-md border-emerald-200 bg-emerald-50 px-2 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-                    >
-                      <Hash className="mr-1 h-3 w-3" />
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground">
                       Qty {item.quantity}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {lastActivity && (
-            <>
-              <Separator />
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {lastActivity.userName ? (
-                  <>
-                    <Avatar className="h-5 w-5">
+          {/* Footer metadata */}
+          <div className="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-3 pb-1 text-[11px] text-muted-foreground dark:border-slate-800/60">
+            {lastActivity ? (
+              <>
+                <Avatar className="h-4 w-4">
+                  {lastActivity.userName ? (
+                    <>
                       <AvatarImage src={lastActivity.userImage || undefined} />
-                      <AvatarFallback className="text-[10px]">
+                      <AvatarFallback className="text-[8px]">
                         {lastActivity.userName.charAt(0).toUpperCase()}
                       </AvatarFallback>
-                    </Avatar>
-                    <span className="truncate">
-                      {formatAction(lastActivity.action)} by{" "}
-                      <span className="font-medium text-foreground">{lastActivity.userName}</span>
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Avatar className="h-5 w-5">
-                      <AvatarFallback className="text-[10px]">S</AvatarFallback>
-                    </Avatar>
-                    <span>
-                      {formatAction(lastActivity.action)} by{" "}
-                      <span className="font-medium text-foreground">Server</span>
-                    </span>
-                  </>
-                )}
-                <span className="ml-auto shrink-0">
-                  {formatRelativeTime(lastActivity.createdAt)}
+                    </>
+                  ) : (
+                    <AvatarFallback className="text-[8px]">S</AvatarFallback>
+                  )}
+                </Avatar>
+                <span className="truncate">
+                  {formatAction(lastActivity.action)} {formatRelativeTime(lastActivity.createdAt)}
                 </span>
-              </div>
-            </>
-          )}
+              </>
+            ) : (
+              <>
+                <CalendarDays className="h-3 w-3 shrink-0" />
+                <span>{new Date(order.createdOn).toLocaleDateString()}</span>
+              </>
+            )}
+            <span className="ml-auto shrink-0 font-mono text-[10px]">
+              {totalQuantity} item{totalQuantity !== 1 ? "s" : ""}
+            </span>
+          </div>
         </CardContent>
 
-        <CardFooter className="border-t px-4 py-3 md:px-5">{renderActions()}</CardFooter>
+        {/* Actions */}
+        <CardFooter className="px-4 pb-4 pt-3">{renderActions()}</CardFooter>
       </Card>
 
       <ShippingModal
