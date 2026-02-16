@@ -30,7 +30,7 @@ cd aues-dashboard-2026
 2. Install dependencies:
 
 ```bash
-npm install
+bun add .
 ```
 
 3. Set up environment variables:
@@ -48,17 +48,17 @@ DATABASE_URL="your-neon-postgresql-connection-string"
 4. Generate and run database migrations:
 
 ```bash
-npm run db:generate
-npm run db:migrate
+bun run db:generate
+bun run db:migrate
 ```
 
 5. Start the development server:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+Open [http://localhost:5505](http://localhost:5505) with your browser to see the application.
 
 ### Docker Setup (Alternative)
 
