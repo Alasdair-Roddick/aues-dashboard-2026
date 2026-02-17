@@ -26,7 +26,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         try {
+          console.log("[Auth] Starting authentication process");
+
           if (!credentials?.username || !credentials?.password) {
+            console.log("[Auth] Missing credentials - username or password not provided");
             return null;
           }
 
@@ -36,25 +39,50 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (!parsed.success) {
+            console.log("[Auth] Validation failed:", parsed.error.issues.map((i) => i.message).join(", "));
             return null;
           }
 
           const { username, password } = parsed.data;
+          console.log("[Auth] Credentials validated, looking up user:", username);
 
           // Find user by username
-          const [user] = await db.select().from(users).where(eq(users.name, username)).limit(1);
-
-          if (!user || !user.password) {
+          let user;
+          try {
+            [user] = await db.select().from(users).where(eq(users.name, username)).limit(1);
+          } catch (error) {
+            console.error("[Auth] Database error during user lookup:", error instanceof Error ? error.message : "Unknown error");
             return null;
           }
+
+          if (!user) {
+            console.log("[Auth] User not found:", username);
+            return null;
+          }
+
+          if (!user.password) {
+            console.log("[Auth] User has no password set:", username);
+            return null;
+          }
+
+          console.log("[Auth] User found, verifying password for:", username);
 
           // Verify password using bcrypt
-          const { verifyPassword } = await import("@/app/utils/password");
-          const isValid = await verifyPassword(password, user.password);
-
-          if (!isValid) {
+          let isValid = false;
+          try {
+            const { verifyPassword } = await import("@/app/utils/password");
+            isValid = await verifyPassword(password, user.password);
+          } catch (error) {
+            console.error("[Auth] Error during password verification:", error instanceof Error ? error.message : "Unknown error");
             return null;
           }
+
+          if (!isValid) {
+            console.log("[Auth] Invalid password for user:", username);
+            return null;
+          }
+
+          console.log("[Auth] Authentication successful for user:", username, "with role:", user.role);
 
           // Return user object (without password)
           return {
@@ -64,7 +92,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: user.role,
             image: user.image,
           };
-        } catch {
+        } catch (error) {
+          console.error("[Auth] Unexpected error in authorize:", error instanceof Error ? error.message : "Unknown error");
           return null;
         }
       },

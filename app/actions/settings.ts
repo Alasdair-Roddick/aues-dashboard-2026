@@ -6,13 +6,7 @@ import { auth } from "@/auth";
 import { encrypt, decrypt } from "@/app/lib/encryption";
 import { invalidateSquarespaceSettingsCache } from "@/app/lib/squarespace";
 import { eq } from "drizzle-orm";
-
-type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
-
-function getSessionRole(user: unknown): UserRole | null {
-  const role = (user as { role?: UserRole } | undefined)?.role;
-  return role ?? null;
-}
+import { getSessionRole } from "@/lib/session";
 
 export type SiteSettingsData = {
   qpayUrl: string | null;
