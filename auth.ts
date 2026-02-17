@@ -5,6 +5,9 @@ import { db } from "@/app/db";
 import { users, accounts, sessions, verificationTokens, authenticators } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { signInSchema } from "@/app/lib/zod";
+import { randomUUID } from "crypto";
+
+const SESSION_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -16,7 +19,63 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authenticatorsTable: authenticators,
   }),
   session: {
-    strategy: "database",
+    strategy: "jwt",
+    maxAge: SESSION_MAX_AGE,
+  },
+  jwt: {
+    async encode({ token }) {
+      if (!token) return "";
+
+      // Existing session — return the stored session token
+      if (token.sessionToken) {
+        return token.sessionToken as string;
+      }
+
+      // New sign-in — create a database session and return the token
+      if (token.id) {
+        const sessionToken = randomUUID();
+        await db.insert(sessions).values({
+          sessionToken,
+          userId: token.id as string,
+          expires: new Date(Date.now() + SESSION_MAX_AGE * 1000),
+        });
+        return sessionToken;
+      }
+
+      return "";
+    },
+    async decode({ token }) {
+      if (!token) return null;
+
+      // Look up the session in the database
+      const [session] = await db
+        .select()
+        .from(sessions)
+        .where(eq(sessions.sessionToken, token))
+        .limit(1);
+
+      if (!session || session.expires < new Date()) {
+        return null;
+      }
+
+      // Fetch the user to get role and other fields
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, session.userId))
+        .limit(1);
+
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        sessionToken: token,
+        exp: Math.floor(session.expires.getTime() / 1000),
+      };
+    },
   },
   providers: [
     Credentials({
@@ -100,17 +159,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: string }).role ?? null;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
         const mutableUser = session.user as {
           id?: string;
           role?: string | null;
         };
-        const dbUser = user as { id: string; role?: string | null };
-        mutableUser.id = dbUser.id;
-        mutableUser.role = dbUser.role ?? null;
+        mutableUser.id = typeof token.id === "string" ? token.id : undefined;
+        mutableUser.role = typeof token.role === "string" ? token.role : null;
       }
       return session;
+    },
+  },
+  events: {
+    async signOut(message) {
+      // Delete the session from the database on sign-out
+      if ("token" in message && message.token?.sessionToken) {
+        await db
+          .delete(sessions)
+          .where(eq(sessions.sessionToken, message.token.sessionToken as string));
+      }
     },
   },
   pages: {
