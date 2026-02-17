@@ -100,24 +100,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        const mutableToken = token as Record<string, unknown>;
-        const role = (user as { role?: string }).role;
-        mutableToken.id = user.id;
-        mutableToken.role = role ?? null;
-      }
-      return token;
-    },
-    async session({ session, token }) {
+    async session({ session, user }) {
       if (session.user) {
         const mutableUser = session.user as {
           id?: string;
           role?: string | null;
         };
-        const tokenData = token as Record<string, unknown>;
-        mutableUser.id = typeof tokenData.id === "string" ? tokenData.id : undefined;
-        mutableUser.role = typeof tokenData.role === "string" ? tokenData.role : null;
+        const dbUser = user as { id: string; role?: string | null };
+        mutableUser.id = dbUser.id;
+        mutableUser.role = dbUser.role ?? null;
       }
       return session;
     },
