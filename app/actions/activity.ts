@@ -35,7 +35,7 @@ export async function getActivityLogs(params: GetActivityLogsParams = {}): Promi
 }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin can view activity logs
     if (!session?.user || userRole !== "Admin") {
@@ -107,7 +107,7 @@ export async function getEntityActivity(
 ): Promise<ActivityLogEntry[]> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view entity activity
     if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
@@ -131,7 +131,7 @@ export async function getEntityActivity(
 export async function getRecentActivity(limit: number = 10): Promise<ActivityLogEntry[]> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin can view recent activity
     if (!session?.user || userRole !== "Admin") {
@@ -157,7 +157,7 @@ export async function getOrdersActivityWithUsers(
 ): Promise<Record<string, ActivityLogEntry[]>> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
       return {};

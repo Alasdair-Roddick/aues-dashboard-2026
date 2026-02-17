@@ -22,7 +22,7 @@ export type SiteSettingsData = {
 export async function getSiteSettings(): Promise<SiteSettingsData | null> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin can view settings
     if (!session?.user || userRole !== "Admin") {
@@ -59,7 +59,7 @@ export async function updateSiteSettings(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin can update settings
     if (!session?.user || userRole !== "Admin") {
@@ -108,7 +108,7 @@ export async function updateSiteSettings(
 export async function getDecryptedSettings(): Promise<SiteSettingsData | null> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     if (!session?.user || userRole !== "Admin") {
       return null;

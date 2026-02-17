@@ -13,7 +13,7 @@ export type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
  * @param user - The user object from the session (may be of unknown type)
  * @returns The user's role or null
  */
-export function getSessionRole(user: unknown): UserRole | null {
+export async function getSessionRole(user: unknown): Promise<UserRole | null> {
   const role = (user as { role?: UserRole } | undefined)?.role;
   return role ?? null;
 }
@@ -25,7 +25,7 @@ export function getSessionRole(user: unknown): UserRole | null {
  * @param user - The user object from the session (may be of unknown type)
  * @returns The user's ID or undefined
  */
-export function getSessionUserId(user: unknown): string | undefined {
+export async function getSessionUserId(user: unknown): Promise<string | undefined> {
   const userId = (user as { id?: string } | undefined)?.id;
   return userId;
 }

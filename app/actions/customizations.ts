@@ -9,8 +9,8 @@ import { getSessionRole, getSessionUserId } from "@/lib/session";
 export async function getUserCustomizations(userId: string) {
   try {
     const session = await auth();
-    const sessionUserId = getSessionUserId(session?.user);
-    const userRole = getSessionRole(session?.user);
+    const sessionUserId = await getSessionUserId(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
       return null;
@@ -49,8 +49,8 @@ export async function updateUserCustomizations(
 ) {
   try {
     const session = await auth();
-    const sessionUserId = getSessionUserId(session?.user);
-    const userRole = getSessionRole(session?.user);
+    const sessionUserId = await getSessionUserId(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
       return { success: false, error: "Unauthorized" };

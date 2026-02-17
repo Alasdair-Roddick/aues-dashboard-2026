@@ -77,7 +77,7 @@ export async function syncSquarespaceOrders(): Promise<{
 }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can sync orders
     if (!session?.user) {
@@ -95,7 +95,7 @@ export async function syncSquarespaceOrders(): Promise<{
 export async function getSquarespaceOrders(): Promise<ShirtOrder[]> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view orders
     if (!session?.user) {
@@ -129,7 +129,7 @@ export async function getSquarespaceOrders(): Promise<ShirtOrder[]> {
 export async function getSquarespaceOrdersVersion(): Promise<string | null> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
       return null;
@@ -179,7 +179,7 @@ export async function getSquarespaceOrdersPage(params: {
 }): Promise<OrdersPageResult> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view orders
     if (!session?.user) {
@@ -335,7 +335,7 @@ export async function getSquarespaceOrdersPage(params: {
 export async function getShirtStats(): Promise<Record<string, Record<string, number>>> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can view stats
     if (!session?.user) {
@@ -358,7 +358,7 @@ export async function previewSquarespaceOrders(): Promise<{
 }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin or Treasurer can preview orders
     if (!session?.user) {
@@ -380,7 +380,7 @@ export async function updateOrderStatus(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
     const userId = (session?.user as { id?: string } | undefined)?.id;
     const userName = session?.user?.name;
 
@@ -443,7 +443,7 @@ export async function getOrdersWithTimestamp(): Promise<{
 export async function deleteOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
 
     // Only Admin can delete orders
     if (!session?.user || userRole !== "Admin") {
@@ -467,7 +467,7 @@ export async function updateShipping(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
-    const userRole = getSessionRole(session?.user);
+    const userRole = await getSessionRole(session?.user);
     const userId = (session?.user as { id?: string } | undefined)?.id;
     const userName = session?.user?.name;
 

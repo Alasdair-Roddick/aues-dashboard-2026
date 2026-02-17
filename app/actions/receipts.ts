@@ -80,7 +80,7 @@ export async function getAllReceipts() {
     return { success: false, error: "Unauthorized" };
   }
 
-  const userRole = getSessionRole(session.user);
+  const userRole = await getSessionRole(session.user);
   if (userRole !== "Treasurer" && userRole !== "Admin") {
     return { success: false, error: "Unauthorized - Treasurer or Admin role required" };
   }
@@ -129,7 +129,7 @@ export async function updateReceiptStatus(
     return { success: false, error: "Unauthorized" };
   }
 
-  const userRole = getSessionRole(session.user);
+  const userRole = await getSessionRole(session.user);
   if (userRole !== "Treasurer" && userRole !== "Admin") {
     return { success: false, error: "Unauthorized - Treasurer or Admin role required" };
   }
