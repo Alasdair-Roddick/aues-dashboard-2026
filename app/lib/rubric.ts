@@ -196,7 +196,7 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
   return members;
 };
 
-export const syncMembersWithDatabase = async () => {
+export const syncMembersWithDatabase = async (): Promise<number> => {
   const fetchedMembers = await fetchMembersFromRubric();
   console.log(`Syncing ${fetchedMembers.length} members with database...`);
 
@@ -211,7 +211,7 @@ export const syncMembersWithDatabase = async () => {
 
   if (newMembers.length === 0) {
     console.log("No new members to insert.");
-    return;
+    return 0;
   }
 
   console.log(`Found ${newMembers.length} new members to insert.`);
@@ -232,6 +232,7 @@ export const syncMembersWithDatabase = async () => {
 
   await db.insert(members).values(membersToInsert);
   console.log(`Successfully inserted ${newMembers.length} new members.`);
+  return newMembers.length;
 };
 
 export const updateAllMembers = async () => {
@@ -389,22 +390,23 @@ export const syncMembershipResponses = async () => {
 };
 
 // Combined sync and update function for full refresh
-export const fullSync = async () => {
+export const fullSync = async (): Promise<{ newMembers: number; durationSeconds: string }> => {
   console.log("Starting full sync...");
   const startTime = Date.now();
 
   // First, add any new members
-  await syncMembersWithDatabase();
+  const newMembers = await syncMembersWithDatabase();
 
   // Then sync payments and responses
   await syncMembershipPayments();
   await syncMembershipResponses();
 
-  // Optionally update existing members (comment out if not needed)
-  // await updateAllMembers();
+  // Update existing members with latest data from Rubric
+  await updateAllMembers();
 
-  const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log(`Full sync completed in ${duration}s`);
+  const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(2);
+  console.log(`Full sync completed in ${durationSeconds}s`);
+  return { newMembers, durationSeconds };
 };
 
 // To run the sync manually (for testing purposes)
