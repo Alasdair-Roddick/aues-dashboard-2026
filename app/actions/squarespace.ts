@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/squarespace";
 import { ActivityLogger } from "@/app/lib/activity";
 import { getOrdersActivityWithUsers, type ActivityLogEntry } from "@/app/actions/activity";
+import { getSessionRole } from "@/lib/session";
 
 export type OrderStatus = "PENDING" | "PACKED" | "FULFILLED";
 
@@ -24,14 +25,9 @@ export type OrderActivity = {
   createdAt: Date;
 };
 
-type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
 type OrderItemRow = typeof squarespaceOrderItems.$inferSelect;
 type PreviewOrder = Awaited<ReturnType<typeof fetchShirtOrders>>[number];
 
-function getSessionRole(user: unknown): UserRole | null {
-  const role = (user as { role?: UserRole } | undefined)?.role;
-  return role ?? null;
-}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error) {

@@ -4,6 +4,7 @@ import { db } from "@/app/db";
 import { activityLog, users, ActivityActionType } from "@/app/db/schema";
 import { auth } from "@/auth";
 import { desc, eq, and, gte, lte, inArray } from "drizzle-orm";
+import { getSessionRole } from "@/lib/session";
 
 export type ActivityLogEntry = {
   id: string;
@@ -16,13 +17,6 @@ export type ActivityLogEntry = {
   details: Record<string, unknown> | null;
   createdAt: Date;
 };
-
-type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
-
-function getSessionRole(user: unknown): UserRole | null {
-  const role = (user as { role?: UserRole } | undefined)?.role;
-  return role ?? null;
-}
 
 interface GetActivityLogsParams {
   limit?: number;

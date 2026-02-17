@@ -5,13 +5,7 @@ import { receiptReimbursements, users } from "@/app/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-
-type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
-
-function getSessionRole(user: unknown): UserRole | null {
-  const role = (user as { role?: UserRole } | undefined)?.role;
-  return role ?? null;
-}
+import { getSessionRole } from "@/lib/session";
 
 export async function createReceiptReimbursement(data: {
   amount: string;

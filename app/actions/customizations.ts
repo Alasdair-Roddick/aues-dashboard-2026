@@ -4,18 +4,12 @@ import { db } from "@/app/db";
 import { userCustomisations } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
-
-type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
-
-function getSessionRole(user: unknown): UserRole | null {
-  const role = (user as { role?: UserRole } | undefined)?.role;
-  return role ?? null;
-}
+import { getSessionRole, getSessionUserId } from "@/lib/session";
 
 export async function getUserCustomizations(userId: string) {
   try {
     const session = await auth();
-    const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+    const sessionUserId = getSessionUserId(session?.user);
     const userRole = getSessionRole(session?.user);
 
     if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
@@ -55,7 +49,7 @@ export async function updateUserCustomizations(
 ) {
   try {
     const session = await auth();
-    const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+    const sessionUserId = getSessionUserId(session?.user);
     const userRole = getSessionRole(session?.user);
 
     if (!session?.user || !sessionUserId || (userRole !== "Admin" && sessionUserId !== userId)) {
