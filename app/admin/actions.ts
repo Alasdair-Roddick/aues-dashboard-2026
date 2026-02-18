@@ -6,6 +6,7 @@ import { users, members } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { saltAndHashPassword } from "@/app/utils/password";
 import { auth } from "@/auth";
+import { ActivityLogger } from "@/app/lib/activity";
 import crypto from "crypto";
 
 type UserRole = "Admin" | "General" | "Temporary" | "Treasurer";
@@ -72,6 +73,10 @@ export async function addUserAction(formData: FormData) {
     const password = generateTemporaryPassword();
 
     const createdUser = await addUser(username, password, role);
+    await ActivityLogger.userCreated(
+      { id: session.user.id as string, name: session.user.name as string },
+      { id: createdUser.id, name: createdUser.name, role: createdUser.role },
+    );
     return {
       success: true,
       temporaryPassword: password,
@@ -130,7 +135,25 @@ export async function updateUserAction(
     if (data.role) updateData.role = data.role;
     if (typeof data.isActive === "boolean") updateData.isActive = data.isActive;
 
+    // Fetch target user name for logging
+    const [targetUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1);
+
     await db.update(users).set(updateData).where(eq(users.id, userId));
+
+    if (data.role && targetUser) {
+      await ActivityLogger.userRoleChanged(
+        { id: session.user.id as string, name: session.user.name as string },
+        { id: userId, name: targetUser.name },
+        "",
+        data.role,
+      );
+    } else if (targetUser) {
+      await ActivityLogger.userUpdated(
+        { id: session.user.id as string, name: session.user.name as string },
+        { id: userId, name: targetUser.name },
+        data,
+      );
+    }
 
     return { success: true };
   } catch (error) {
@@ -155,7 +178,16 @@ export async function deleteUserAction(userId: string) {
       return { success: false, error: "User ID is required" };
     }
 
+    const [targetUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1);
+
     await db.delete(users).where(eq(users.id, userId));
+
+    if (targetUser) {
+      await ActivityLogger.userDeleted(
+        { id: session.user.id as string, name: session.user.name as string },
+        { id: userId, name: targetUser.name },
+      );
+    }
 
     return { success: true };
   } catch (error) {

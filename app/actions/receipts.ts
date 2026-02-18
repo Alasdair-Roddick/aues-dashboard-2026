@@ -6,6 +6,7 @@ import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { getSessionRole } from "@/lib/session";
+import { ActivityLogger } from "@/app/lib/activity";
 
 export async function createReceiptReimbursement(data: {
   amount: string;
@@ -21,7 +22,7 @@ export async function createReceiptReimbursement(data: {
   }
 
   try {
-    await db.insert(receiptReimbursements).values({
+    const [inserted] = await db.insert(receiptReimbursements).values({
       userId: session.user.id,
       amount: data.amount,
       description: data.description,
@@ -29,7 +30,13 @@ export async function createReceiptReimbursement(data: {
       requiresPriorApproval: data.requiresPriorApproval,
       approvedByUserId: data.approvedByUserId || null,
       status: "Pending",
-    });
+    }).returning({ id: receiptReimbursements.id });
+
+    await ActivityLogger.receiptSubmitted(
+      { id: session.user.id, name: session.user.name ?? "Unknown" },
+      inserted.id,
+      data.amount,
+    );
 
     revalidatePath("/receipts");
     return { success: true };
@@ -135,6 +142,13 @@ export async function updateReceiptStatus(
   }
 
   try {
+    // Get receipt submitter for logging
+    const [receipt] = await db
+      .select({ userId: receiptReimbursements.userId })
+      .from(receiptReimbursements)
+      .where(eq(receiptReimbursements.id, receiptId))
+      .limit(1);
+
     await db
       .update(receiptReimbursements)
       .set({
@@ -145,6 +159,14 @@ export async function updateReceiptStatus(
         updatedAt: new Date(),
       })
       .where(eq(receiptReimbursements.id, receiptId));
+
+    const performer = { id: session.user.id, name: session.user.name ?? "Unknown" };
+    const submittedBy = receipt?.userId ?? "Unknown";
+    if (status === "Fulfilled") {
+      await ActivityLogger.receiptFulfilled(performer, receiptId, submittedBy);
+    } else if (status === "Rejected") {
+      await ActivityLogger.receiptRejected(performer, receiptId, submittedBy, treasurerNotes);
+    }
 
     revalidatePath("/treasurer/receipts");
     return { success: true };
