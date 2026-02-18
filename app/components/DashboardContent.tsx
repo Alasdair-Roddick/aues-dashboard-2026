@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   TrendingUp,
-  Calendar,
+  UserCheck,
   Activity,
   ArrowRight,
   BarChart3,
@@ -22,6 +22,7 @@ import { useMembersStore } from "@/app/store/membersStore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import { MemberChart } from "./MemberChart";
+import { RecentActivity } from "./RecentActivity";
 import { parseDate } from "@/app/utils/dateFormatter";
 
 interface DashboardContentProps {
@@ -212,13 +213,23 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Upcoming Events
+                Active Members
               </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">Charts coming soon</p>
+              <div className="text-2xl font-bold">
+                {membersLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  members.filter((m) => m.isValid).length
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {!membersLoading && members.length > 0
+                  ? `${Math.round((members.filter((m) => m.isValid).length / members.length) * 100)}% of total`
+                  : "Valid memberships"}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -272,21 +283,8 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
           </Card>
         </div>
 
-        {/* Recent Activity Placeholder */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates and changes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg bg-muted/30">
-              <div className="text-center text-muted-foreground">
-                <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Activity feed coming soon</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Recent Activity */}
+        <RecentActivity />
       </div>
     </div>
   );

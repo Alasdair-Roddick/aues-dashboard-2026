@@ -6,6 +6,7 @@ import { users, accounts, sessions, verificationTokens, authenticators } from "@
 import { eq } from "drizzle-orm";
 import { signInSchema } from "@/app/lib/zod";
 import { randomUUID } from "crypto";
+import { ActivityLogger } from "@/app/lib/activity";
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
 
@@ -179,7 +180,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   events: {
+    async signIn({ user }) {
+      if (user?.id && user?.name) {
+        await ActivityLogger.login({ id: user.id, name: user.name });
+      }
+    },
     async signOut(message) {
+      // Log logout before deleting session
+      if ("token" in message && message.token?.id && message.token?.name) {
+        await ActivityLogger.logout({
+          id: message.token.id as string,
+          name: message.token.name as string,
+        });
+      }
       // Delete the session from the database on sign-out
       if ("token" in message && message.token?.sessionToken) {
         await db

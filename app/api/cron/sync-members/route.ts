@@ -6,6 +6,7 @@
  */
 
 import { fullSync } from "@/app/lib/rubric";
+import { logActivity } from "@/app/lib/activity";
 import { NextResponse } from "next/server";
 
 let lastSync = 0;
@@ -37,8 +38,18 @@ export async function POST(request: Request) {
 
   lastSync = Date.now();
   try {
-    const { newMembers, durationSeconds } = await fullSync();
+    const { newMembers, newMemberNames, durationSeconds } = await fullSync();
     const nextCheckInSeconds = getNextCheckInterval(newMembers);
+
+    // Log each new member as activity
+    for (const name of newMemberNames) {
+      await logActivity({
+        userName: "System",
+        action: "MEMBER_SYNCED",
+        entityType: "member",
+        details: { memberName: name },
+      });
+    }
 
     return NextResponse.json({
       message: "Members synced successfully",

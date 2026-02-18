@@ -196,7 +196,7 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
   return members;
 };
 
-export const syncMembersWithDatabase = async (): Promise<number> => {
+export const syncMembersWithDatabase = async (): Promise<{ count: number; names: string[] }> => {
   const fetchedMembers = await fetchMembersFromRubric();
   console.log(`Syncing ${fetchedMembers.length} members with database...`);
 
@@ -211,7 +211,7 @@ export const syncMembersWithDatabase = async (): Promise<number> => {
 
   if (newMembers.length === 0) {
     console.log("No new members to insert.");
-    return 0;
+    return { count: 0, names: [] };
   }
 
   console.log(`Found ${newMembers.length} new members to insert.`);
@@ -232,7 +232,7 @@ export const syncMembersWithDatabase = async (): Promise<number> => {
 
   await db.insert(members).values(membersToInsert);
   console.log(`Successfully inserted ${newMembers.length} new members.`);
-  return newMembers.length;
+  return { count: newMembers.length, names: newMembers.map((m) => m.fullname) };
 };
 
 export const updateAllMembers = async () => {
@@ -390,12 +390,12 @@ export const syncMembershipResponses = async () => {
 };
 
 // Combined sync and update function for full refresh
-export const fullSync = async (): Promise<{ newMembers: number; durationSeconds: string }> => {
+export const fullSync = async (): Promise<{ newMembers: number; newMemberNames: string[]; durationSeconds: string }> => {
   console.log("Starting full sync...");
   const startTime = Date.now();
 
   // First, add any new members
-  const newMembers = await syncMembersWithDatabase();
+  const { count: newMembers, names: newMemberNames } = await syncMembersWithDatabase();
 
   // Then sync payments and responses
   await syncMembershipPayments();
@@ -406,7 +406,7 @@ export const fullSync = async (): Promise<{ newMembers: number; durationSeconds:
 
   const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(2);
   console.log(`Full sync completed in ${durationSeconds}s`);
-  return { newMembers, durationSeconds };
+  return { newMembers, newMemberNames, durationSeconds };
 };
 
 // To run the sync manually (for testing purposes)
