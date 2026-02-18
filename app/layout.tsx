@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { UserProvider } from "@/app/context/UserContext";
 import { CustomThemeWrapper } from "@/components/custom-theme-wrapper";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,11 +43,13 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <CustomThemeWrapper>
-                {session && <Navbar />}
-                {children}
-                <Toaster richColors position="top-right" />
-              </CustomThemeWrapper>
+              <TooltipProvider>
+                <CustomThemeWrapper>
+                  {session && <Navbar />}
+                  {children}
+                  <Toaster richColors position="top-right" />
+                </CustomThemeWrapper>
+              </TooltipProvider>
             </NextThemesProvider>
           </UserProvider>
         </SessionProvider>

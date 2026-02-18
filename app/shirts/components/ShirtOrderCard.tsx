@@ -26,6 +26,11 @@ import { type ShirtOrder, type OrderStatus } from "@/app/actions/squarespace";
 import { ShippingModal } from "./ShippingModal";
 import { toast } from "sonner";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   CalendarDays,
   MoreHorizontal,
   Package2,
@@ -309,23 +314,36 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
           {/* Footer metadata */}
           <div className="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-3 pb-1 text-[11px] text-muted-foreground dark:border-slate-800/60">
             {lastActivity ? (
-              <>
-                <Avatar className="h-4 w-4">
-                  {lastActivity.userName ? (
-                    <>
-                      <AvatarImage src={lastActivity.userImage || undefined} />
-                      <AvatarFallback className="text-[8px]">
-                        {lastActivity.userName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </>
-                  ) : (
-                    <AvatarFallback className="text-[8px]">S</AvatarFallback>
-                  )}
-                </Avatar>
-                <span className="truncate">
-                  {formatAction(lastActivity.action)} {formatRelativeTime(lastActivity.createdAt)}
-                </span>
-              </>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5 min-w-0 cursor-default">
+                    <Avatar className="h-4 w-4 shrink-0">
+                      {lastActivity.userName ? (
+                        <>
+                          <AvatarImage src={lastActivity.userImage || undefined} />
+                          <AvatarFallback className="text-[8px]">
+                            {lastActivity.userName.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </>
+                      ) : (
+                        <AvatarFallback className="text-[8px]">S</AvatarFallback>
+                      )}
+                    </Avatar>
+                    <span className="truncate">
+                      {formatAction(lastActivity.action)} {formatRelativeTime(lastActivity.createdAt)}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  <p className="font-medium">{lastActivity.userName ?? "System"}</p>
+                  <p className="text-muted-foreground">
+                    {formatAction(lastActivity.action)} {formatRelativeTime(lastActivity.createdAt)}
+                    {lastActivity.details?.oldStatus && lastActivity.details?.newStatus
+                      ? ` (${lastActivity.details.oldStatus} → ${lastActivity.details.newStatus})`
+                      : ""}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             ) : (
               <>
                 <CalendarDays className="h-3 w-3 shrink-0" />
