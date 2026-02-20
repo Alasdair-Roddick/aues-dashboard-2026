@@ -79,8 +79,8 @@ export async function syncSquarespaceOrders(): Promise<{
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can sync orders
-    if (!session?.user) {
+    // All committee roles can sync orders (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -97,8 +97,8 @@ export async function getSquarespaceOrders(): Promise<ShirtOrder[]> {
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can view orders
-    if (!session?.user) {
+    // All committee roles can view orders (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return [];
     }
 
@@ -131,7 +131,7 @@ export async function getSquarespaceOrdersVersion(): Promise<string | null> {
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return null;
     }
 
@@ -181,8 +181,8 @@ export async function getSquarespaceOrdersPage(params: {
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can view orders
-    if (!session?.user) {
+    // All committee roles can view orders (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return {
         orders: [],
         total: 0,
@@ -337,8 +337,8 @@ export async function getShirtStats(): Promise<Record<string, Record<string, num
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can view stats
-    if (!session?.user) {
+    // All committee roles can view stats (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return {};
     }
 
@@ -377,8 +377,8 @@ export async function previewSquarespaceOrders(): Promise<{
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can preview orders
-    if (!session?.user) {
+    // All committee roles can preview orders (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -401,8 +401,8 @@ export async function updateOrderStatus(
     const userId = (session?.user as { id?: string } | undefined)?.id;
     const userName = session?.user?.name;
 
-    // Only Admin or Treasurer can update orders
-    if (!session?.user || !userId) {
+    // All committee roles can update orders (exclude Temporary)
+    if (!session?.user || !userId || userRole === "Temporary" || !userRole) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -488,8 +488,8 @@ export async function updateShipping(
     const userId = (session?.user as { id?: string } | undefined)?.id;
     const userName = session?.user?.name;
 
-    // Only Admin or Treasurer can update shipping
-    if (!session?.user || !userId) {
+    // All committee roles can update shipping (exclude Temporary)
+    if (!session?.user || !userId || userRole === "Temporary" || !userRole) {
       return { success: false, error: "Unauthorized" };
     }
 

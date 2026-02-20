@@ -281,7 +281,7 @@ export const useShirtOrderStore = create<ShirtOrderStore>((set, get) => ({
     set({ searchQuery: query });
   },
 
-  startPolling: (intervalMs = 3000) => {
+  startPolling: (intervalMs = 15000) => {
     const currentInterval = get().pollingInterval;
     if (currentInterval) {
       clearInterval(currentInterval);

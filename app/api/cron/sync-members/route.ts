@@ -7,9 +7,10 @@
 
 import { fullSync } from "@/app/lib/rubric";
 import { logActivity } from "@/app/lib/activity";
+import { db } from "@/app/db";
+import { siteSettings } from "@/app/db/schema";
 import { NextResponse } from "next/server";
 
-let lastSync = 0;
 const MIN_SYNC_INTERVAL = 1000 * 60 * 1; // 1 minute
 
 // Adaptive intervals (in seconds) returned to the external caller
@@ -29,6 +30,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Check last sync time from database (distributed-safe)
+  const settings = await db.select().from(siteSettings).limit(1);
+  const lastSync = settings[0]?.lastMemberSyncAt?.getTime() ?? 0;
+
   if (Date.now() - lastSync < MIN_SYNC_INTERVAL) {
     return NextResponse.json(
       { error: "Sync already in progress or recently completed" },
@@ -36,7 +41,11 @@ export async function POST(request: Request) {
     );
   }
 
-  lastSync = Date.now();
+  // Update sync timestamp before running (prevents concurrent starts)
+  if (settings.length > 0) {
+    await db.update(siteSettings).set({ lastMemberSyncAt: new Date() });
+  }
+
   try {
     const { newMembers, newMemberNames, durationSeconds } = await fullSync();
     const nextCheckInSeconds = getNextCheckInterval(newMembers);

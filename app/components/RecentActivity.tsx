@@ -66,7 +66,7 @@ export function RecentActivity() {
 
   useEffect(() => {
     fetchActivity();
-    startPolling(10000);
+    startPolling(30000);
     return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -58,7 +58,7 @@ bun run db:migrate
 bun run dev
 ```
 
-Open [http://localhost:5505](http://localhost:5505) with your browser to see the application.
+Open [http://localhost:5055](http://localhost:5055) with your browser to see the application.
 
 ### Docker Setup (Alternative)
 

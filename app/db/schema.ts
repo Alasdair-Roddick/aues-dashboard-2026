@@ -14,7 +14,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
-import { email } from "zod";
 
 // Auth.js Tables (for authentication)
 
@@ -326,6 +325,14 @@ export const siteSettings = pgTable("site_settings", {
     withTimezone: true,
     mode: "date",
   }),
+  lastOrderSyncAt: timestamp("last_order_sync_at", {
+    withTimezone: true,
+    mode: "date",
+  }),
+  lastMemberSyncAt: timestamp("last_member_sync_at", {
+    withTimezone: true,
+    mode: "date",
+  }),
 
   // Timestamps
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
@@ -352,26 +359,34 @@ export type ActivityActionType =
   | "LOGOUT";
 
 // Activity Log Table - tracks all user actions
-export const activityLog = pgTable("activity_log", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const activityLog = pgTable(
+  "activity_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
 
-  // Who performed the action
-  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
-  userName: text("user_name"), // Store name in case user is deleted
+    // Who performed the action
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    userName: text("user_name"), // Store name in case user is deleted
 
-  // What action was performed
-  action: text("action").$type<ActivityActionType>().notNull(),
+    // What action was performed
+    action: text("action").$type<ActivityActionType>().notNull(),
 
-  // What entity was affected (optional)
-  entityType: text("entity_type"), // 'user', 'order', 'receipt', 'settings', etc.
-  entityId: text("entity_id"), // ID of the affected entity
+    // What entity was affected (optional)
+    entityType: text("entity_type"), // 'user', 'order', 'receipt', 'settings', etc.
+    entityId: text("entity_id"), // ID of the affected entity
 
-  // Additional details about the action (JSON)
-  details: jsonb("details"), // e.g., { oldStatus: 'PENDING', newStatus: 'PACKED' }
+    // Additional details about the action (JSON)
+    details: jsonb("details"), // e.g., { oldStatus: 'PENDING', newStatus: 'PACKED' }
 
-  // When it happened
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
-});
+    // When it happened
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => ({
+    createdAtIdx: index("activity_log_created_at_idx").on(table.createdAt),
+    userIdIdx: index("activity_log_user_id_idx").on(table.userId),
+    entityIdx: index("activity_log_entity_idx").on(table.entityType, table.entityId),
+  }),
+);
 
 export const activityLogRelations = relations(activityLog, ({ one }) => ({
   user: one(users, {

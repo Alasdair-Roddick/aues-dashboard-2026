@@ -3,7 +3,7 @@
 import { db } from "@/app/db";
 import { activityLog, users, members, squarespaceOrders, squarespaceOrderItems, ActivityActionType } from "@/app/db/schema";
 import { auth } from "@/auth";
-import { desc, eq, and, gte, lte, inArray } from "drizzle-orm";
+import { desc, eq, and, gte, lte, inArray, count } from "drizzle-orm";
 import { getSessionRole } from "@/lib/session";
 
 export type ActivityLogEntry = {
@@ -84,15 +84,15 @@ export async function getActivityLogs(params: GetActivityLogsParams = {}): Promi
       .limit(limit)
       .offset(offset);
 
-    // Get total count (simplified - for pagination)
-    const allLogs = await db
-      .select({ id: activityLog.id })
+    // Get total count using SQL count()
+    const [totalRow] = await db
+      .select({ total: count() })
       .from(activityLog)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return {
       logs: logs as ActivityLogEntry[],
-      total: allLogs.length,
+      total: totalRow?.total ?? 0,
     };
   } catch (error) {
     console.error("Error fetching activity logs:", error);
@@ -109,8 +109,8 @@ export async function getEntityActivity(
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    // Only Admin or Treasurer can view entity activity
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    // All committee roles can view entity activity (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return [];
     }
 
@@ -256,7 +256,8 @@ export async function getOrdersActivityWithUsers(
     const session = await auth();
     const userRole = await getSessionRole(session?.user);
 
-    if (!session?.user || (userRole !== "Admin" && userRole !== "Treasurer")) {
+    // All committee roles can view order activity (exclude Temporary)
+    if (!session?.user || userRole === "Temporary" || !userRole) {
       return {};
     }
 

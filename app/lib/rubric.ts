@@ -115,10 +115,6 @@ function filterByConfiguredMembership(
     return rubricMembershipName === normalizedConfiguredName;
   });
 
-  console.log(
-    `Filtered Rubric memberships by "${configuredMembershipName}": ${filteredMemberships.length}/${memberships.length} matched.`,
-  );
-
   return filteredMemberships;
 }
 
@@ -167,8 +163,6 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
 
   const allMemberships = response.data.allMemberships as RubricMembership[];
   const membersData = filterByConfiguredMembership(allMemberships, settings.qpayMembershipName);
-  console.log(`Fetched ${membersData.length} members from Rubric.`);
-  console.log(membersData[0]); // Log the first member for inspection
 
   const members: Member[] = membersData.map((data) => {
     // Parse price: remove currency symbols and convert to number
@@ -198,7 +192,6 @@ export const fetchMembersFromRubric = async (): Promise<Member[]> => {
 
 export const syncMembersWithDatabase = async (): Promise<{ count: number; names: string[] }> => {
   const fetchedMembers = await fetchMembersFromRubric();
-  console.log(`Syncing ${fetchedMembers.length} members with database...`);
 
   // Get all existing emails in one query
   const existingMembers = await db.select({ email: members.email }).from(members);
@@ -210,11 +203,8 @@ export const syncMembersWithDatabase = async (): Promise<{ count: number; names:
   );
 
   if (newMembers.length === 0) {
-    console.log("No new members to insert.");
     return { count: 0, names: [] };
   }
-
-  console.log(`Found ${newMembers.length} new members to insert.`);
 
   // Batch insert all new members at once
   const membersToInsert = newMembers.map((member) => ({
@@ -231,13 +221,11 @@ export const syncMembersWithDatabase = async (): Promise<{ count: number; names:
   }));
 
   await db.insert(members).values(membersToInsert);
-  console.log(`Successfully inserted ${newMembers.length} new members.`);
   return { count: newMembers.length, names: newMembers.map((m) => m.fullname) };
 };
 
 export const updateAllMembers = async () => {
   const fetchedMembers = await fetchMembersFromRubric();
-  console.log(`Updating ${fetchedMembers.length} members...`);
 
   // Get all existing members with their IDs
   const existingMembers = await db.select().from(members);
@@ -260,8 +248,6 @@ export const updateAllMembers = async () => {
       },
     }));
 
-  console.log(`Updating ${membersToUpdate.length} existing members...`);
-
   // Update in batches to avoid overwhelming the database
   const batchSize = 100;
   for (let i = 0; i < membersToUpdate.length; i += batchSize) {
@@ -269,18 +255,12 @@ export const updateAllMembers = async () => {
     await Promise.all(
       batch.map(({ id, data }) => db.update(members).set(data).where(eq(members.id, id))),
     );
-    console.log(
-      `Updated ${Math.min(i + batchSize, membersToUpdate.length)}/${membersToUpdate.length}`,
-    );
   }
-
-  console.log("Update complete.");
 };
 
 // Sync membership payments for members
 export const syncMembershipPayments = async () => {
   const fetchedMembers = await fetchMembersFromRubric();
-  console.log(`Syncing payments for ${fetchedMembers.length} members...`);
 
   // Get all existing members to map email to ID
   const existingMembers = await db.select().from(members);
@@ -312,13 +292,10 @@ export const syncMembershipPayments = async () => {
     });
 
   if (paymentsToInsert.length === 0) {
-    console.log("No new payments to insert.");
     return;
   }
 
-  console.log(`Found ${paymentsToInsert.length} new payments to insert.`);
   await db.insert(membershipPayments).values(paymentsToInsert);
-  console.log(`Successfully inserted ${paymentsToInsert.length} payments.`);
 };
 
 // Sync membership responses for members
@@ -348,7 +325,6 @@ export const syncMembershipResponses = async () => {
 
   const allMemberships = response.data.allMemberships as RubricMembership[];
   const membersData = filterByConfiguredMembership(allMemberships, settings.qpayMembershipName);
-  console.log(`Syncing responses for ${membersData.length} members...`);
 
   // Get all existing members to map email to ID
   const existingMembers = await db.select().from(members);
@@ -380,18 +356,14 @@ export const syncMembershipResponses = async () => {
     });
 
   if (responsesToInsert.length === 0) {
-    console.log("No new responses to insert.");
     return;
   }
 
-  console.log(`Found ${responsesToInsert.length} new responses to insert.`);
   await db.insert(membershipResponses).values(responsesToInsert);
-  console.log(`Successfully inserted ${responsesToInsert.length} responses.`);
 };
 
 // Combined sync and update function for full refresh
 export const fullSync = async (): Promise<{ newMembers: number; newMemberNames: string[]; durationSeconds: string }> => {
-  console.log("Starting full sync...");
   const startTime = Date.now();
 
   // First, add any new members
@@ -405,7 +377,6 @@ export const fullSync = async (): Promise<{ newMembers: number; newMemberNames: 
   await updateAllMembers();
 
   const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log(`Full sync completed in ${durationSeconds}s`);
   return { newMembers, newMemberNames, durationSeconds };
 };
 

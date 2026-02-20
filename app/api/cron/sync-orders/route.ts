@@ -1,12 +1,13 @@
 /**
  * @file app/api/cron/sync-orders/route.ts
- * @description Sits here and waits for an external app to ping it, then it will tirgger the sync orders function
+ * @description Sits here and waits for an external app to ping it, then it will trigger the sync orders function
  */
 
 import { syncShirtOrdersToDatabase } from "@/app/lib/squarespace";
+import { db } from "@/app/db";
+import { siteSettings } from "@/app/db/schema";
 import { NextResponse } from "next/server";
 
-let lastSync = 0;
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
 export async function POST(request: Request) {
@@ -15,6 +16,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Check last sync time from database (distributed-safe)
+  const settings = await db.select().from(siteSettings).limit(1);
+  const lastSync = settings[0]?.lastOrderSyncAt?.getTime() ?? 0;
+
   if (Date.now() - lastSync < SYNC_INTERVAL) {
     return NextResponse.json(
       { error: "Sync already in progress or recently completed" },
@@ -22,7 +27,11 @@ export async function POST(request: Request) {
     );
   }
 
-  lastSync = Date.now();
+  // Update sync timestamp before running (prevents concurrent starts)
+  if (settings.length > 0) {
+    await db.update(siteSettings).set({ lastOrderSyncAt: new Date() });
+  }
+
   try {
     await syncShirtOrdersToDatabase();
     return NextResponse.json({ message: "Orders synced successfully" });

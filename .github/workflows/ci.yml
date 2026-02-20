@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   checks:
-    name: Lint, Format & Typecheck
+    name: Lint, Format, Typecheck & Test
     runs-on: self-hosted
     permissions:
       contents: read
@@ -36,3 +36,6 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Test
+        run: npm run test

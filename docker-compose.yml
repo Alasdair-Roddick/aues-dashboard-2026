@@ -16,7 +16,7 @@ services:
       - AUTH_TRUST_HOST=true
       - AUTH_URL=${AUTH_URL}
     ports:
-      - "5055:5055"
+      - "127.0.0.1:5055:5055"
     env_file:
       - .env.local
     volumes:
