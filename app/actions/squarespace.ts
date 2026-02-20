@@ -350,23 +350,6 @@ export async function getShirtStats(): Promise<Record<string, Record<string, num
   }
 }
 
-export async function getPendingOrderCount(): Promise<number> {
-  try {
-    const session = await auth();
-    if (!session?.user) return 0;
-
-    const [result] = await db
-      .select({ count: count() })
-      .from(squarespaceOrders)
-      .where(eq(squarespaceOrders.fulfillmentStatus, "PENDING"));
-
-    return result?.count ?? 0;
-  } catch (error) {
-    console.error("Error fetching pending order count:", error);
-    return 0;
-  }
-}
-
 // Preview orders without saving to database
 export async function previewSquarespaceOrders(): Promise<{
   success: boolean;

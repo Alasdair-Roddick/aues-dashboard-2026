@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   TrendingUp,
-  Package,
+  UserCheck,
   Activity,
   ArrowRight,
   BarChart3,
@@ -19,7 +19,6 @@ import {
 import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
 import { useMembersStore } from "@/app/store/membersStore";
-import { getPendingOrderCount } from "@/app/actions/squarespace";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import { MemberChart } from "./MemberChart";
@@ -40,8 +39,6 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
   const fetchMembers = useMembersStore((state) => state.fetchMembers);
   const growthRate = useMembersStore((state) => state.growthRate);
 
-  const [pendingOrders, setPendingOrders] = useState<number | null>(null);
-
   const hasFetchedUser = useRef(false);
   const hasFetchedMembers = useRef(false);
 
@@ -54,7 +51,6 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
       hasFetchedMembers.current = true;
       fetchMembers();
     }
-    getPendingOrderCount().then(setPendingOrders);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -217,15 +213,23 @@ export function DashboardContent({ accountSetupComplete }: DashboardContentProps
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending Orders
+                Active Members
               </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {pendingOrders === null ? <Skeleton className="h-8 w-12" /> : pendingOrders}
+                {membersLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  members.filter((m) => m.isValid).length
+                )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Awaiting fulfilment</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {!membersLoading && members.length > 0
+                  ? `${Math.round((members.filter((m) => m.isValid).length / members.length) * 100)}% of total`
+                  : "Valid memberships"}
+              </p>
             </CardContent>
           </Card>
         </div>
