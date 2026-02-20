@@ -74,7 +74,7 @@ docker run -d \
     -e NODE_ENV=production \
     -e AUTH_TRUST_HOST=true \
     -e AUTH_URL=https://dashboard.aues.com.au \
-    -p "${NEW_PORT}:5055" \
+    -p "127.0.0.1:${NEW_PORT}:5055" \
     -v "${UPLOADS_VOLUME}:/app/public/uploads" \
     --restart unless-stopped \
     "${IMAGE}" || die "Failed to start container"
