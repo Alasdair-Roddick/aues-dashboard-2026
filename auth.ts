@@ -5,7 +5,6 @@ import { db } from "@/app/db";
 import { users, accounts, sessions, verificationTokens, authenticators } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import { signInSchema } from "@/app/lib/zod";
-import { randomUUID } from "node:crypto";
 import { ActivityLogger } from "@/app/lib/activity";
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
@@ -34,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // New sign-in — create a database session and return the token
       if (token.id) {
-        const sessionToken = randomUUID();
+        const sessionToken = crypto.randomUUID();
         await db.insert(sessions).values({
           sessionToken,
           userId: token.id as string,
