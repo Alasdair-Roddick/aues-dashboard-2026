@@ -28,7 +28,6 @@ export type OrderActivity = {
 type OrderItemRow = typeof squarespaceOrderItems.$inferSelect;
 type PreviewOrder = Awaited<ReturnType<typeof fetchShirtOrders>>[number];
 
-
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error) {
     return error.message;

@@ -136,7 +136,11 @@ export async function updateUserAction(
     if (typeof data.isActive === "boolean") updateData.isActive = data.isActive;
 
     // Fetch target user name for logging
-    const [targetUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1);
+    const [targetUser] = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     await db.update(users).set(updateData).where(eq(users.id, userId));
 
@@ -178,7 +182,11 @@ export async function deleteUserAction(userId: string) {
       return { success: false, error: "User ID is required" };
     }
 
-    const [targetUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId)).limit(1);
+    const [targetUser] = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     await db.delete(users).where(eq(users.id, userId));
 

@@ -363,7 +363,11 @@ export const syncMembershipResponses = async () => {
 };
 
 // Combined sync and update function for full refresh
-export const fullSync = async (): Promise<{ newMembers: number; newMemberNames: string[]; durationSeconds: string }> => {
+export const fullSync = async (): Promise<{
+  newMembers: number;
+  newMemberNames: string[];
+  durationSeconds: string;
+}> => {
   const startTime = Date.now();
 
   // First, add any new members

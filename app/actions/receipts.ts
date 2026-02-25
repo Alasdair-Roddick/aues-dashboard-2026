@@ -22,15 +22,18 @@ export async function createReceiptReimbursement(data: {
   }
 
   try {
-    const [inserted] = await db.insert(receiptReimbursements).values({
-      userId: session.user.id,
-      amount: data.amount,
-      description: data.description,
-      receiptImageUrl: data.receiptImageUrl,
-      requiresPriorApproval: data.requiresPriorApproval,
-      approvedByUserId: data.approvedByUserId || null,
-      status: "Pending",
-    }).returning({ id: receiptReimbursements.id });
+    const [inserted] = await db
+      .insert(receiptReimbursements)
+      .values({
+        userId: session.user.id,
+        amount: data.amount,
+        description: data.description,
+        receiptImageUrl: data.receiptImageUrl,
+        requiresPriorApproval: data.requiresPriorApproval,
+        approvedByUserId: data.approvedByUserId || null,
+        status: "Pending",
+      })
+      .returning({ id: receiptReimbursements.id });
 
     await ActivityLogger.receiptSubmitted(
       { id: session.user.id, name: session.user.name ?? "Unknown" },

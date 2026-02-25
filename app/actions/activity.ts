@@ -1,7 +1,14 @@
 "use server";
 
 import { db } from "@/app/db";
-import { activityLog, users, members, squarespaceOrders, squarespaceOrderItems, ActivityActionType } from "@/app/db/schema";
+import {
+  activityLog,
+  users,
+  members,
+  squarespaceOrders,
+  squarespaceOrderItems,
+  ActivityActionType,
+} from "@/app/db/schema";
 import { auth } from "@/auth";
 import { desc, eq, and, gte, lte, inArray, count } from "drizzle-orm";
 import { getSessionRole } from "@/lib/session";
@@ -167,7 +174,11 @@ export async function getDashboardFeed(limit: number = 5): Promise<DashboardFeed
     // Fetch all three in parallel
     const [recentLogs, recentMembers, recentOrders] = await Promise.all([
       db.select().from(activityLog).orderBy(desc(activityLog.createdAt)).limit(limit),
-      db.select({ id: members.id, fullname: members.fullname, createdAt: members.createdAt }).from(members).orderBy(desc(members.createdAt)).limit(limit),
+      db
+        .select({ id: members.id, fullname: members.fullname, createdAt: members.createdAt })
+        .from(members)
+        .orderBy(desc(members.createdAt))
+        .limit(limit),
       db
         .select({
           id: squarespaceOrders.id,
@@ -188,7 +199,11 @@ export async function getDashboardFeed(limit: number = 5): Promise<DashboardFeed
         id: `activity-${log.id}`,
         type: "activity",
         icon: log.action,
-        description: formatActivityDescription(log.action as ActivityActionType, log.userName, log.details as Record<string, unknown> | null),
+        description: formatActivityDescription(
+          log.action as ActivityActionType,
+          log.userName,
+          log.details as Record<string, unknown> | null,
+        ),
         createdAt: log.createdAt,
       });
     }
@@ -225,26 +240,47 @@ export async function getDashboardFeed(limit: number = 5): Promise<DashboardFeed
   }
 }
 
-function formatActivityDescription(action: ActivityActionType, userName: string | null, details: Record<string, unknown> | null): string {
+function formatActivityDescription(
+  action: ActivityActionType,
+  userName: string | null,
+  details: Record<string, unknown> | null,
+): string {
   const actor = userName ?? "System";
   switch (action) {
-    case "USER_CREATED": return `${actor} created user${details?.newUserName ? ` ${details.newUserName}` : ""}`;
-    case "USER_UPDATED": return `${actor} updated a user`;
-    case "USER_DELETED": return `${actor} deleted user${details?.deletedUserName ? ` ${details.deletedUserName}` : ""}`;
-    case "USER_ROLE_CHANGED": return `${actor} changed role${details?.newRole ? ` to ${details.newRole}` : ""}`;
-    case "SETTINGS_UPDATED": return `${actor} updated settings`;
-    case "ORDER_SYNCED": return `Orders synced${details?.added ? ` (${details.added} new)` : ""}`;
-    case "ORDER_STATUS_UPDATED": return `${actor} updated order${details?.newStatus ? ` to ${details.newStatus}` : ""}`;
-    case "ORDER_PACKED": return `${actor} packed an order`;
-    case "ORDER_FULFILLED": return `${actor} fulfilled an order`;
-    case "RECEIPT_SUBMITTED": return `${actor} submitted a receipt`;
-    case "RECEIPT_APPROVED": return `${actor} approved a receipt`;
-    case "RECEIPT_REJECTED": return `${actor} rejected a receipt`;
-    case "RECEIPT_FULFILLED": return `${actor} fulfilled a receipt`;
-    case "MEMBER_SYNCED": return details?.memberName ? `New member: ${details.memberName}` : "Members synced";
-    case "LOGIN": return `${actor} logged in`;
-    case "LOGOUT": return `${actor} logged out`;
-    default: return `${actor} performed an action`;
+    case "USER_CREATED":
+      return `${actor} created user${details?.newUserName ? ` ${details.newUserName}` : ""}`;
+    case "USER_UPDATED":
+      return `${actor} updated a user`;
+    case "USER_DELETED":
+      return `${actor} deleted user${details?.deletedUserName ? ` ${details.deletedUserName}` : ""}`;
+    case "USER_ROLE_CHANGED":
+      return `${actor} changed role${details?.newRole ? ` to ${details.newRole}` : ""}`;
+    case "SETTINGS_UPDATED":
+      return `${actor} updated settings`;
+    case "ORDER_SYNCED":
+      return `Orders synced${details?.added ? ` (${details.added} new)` : ""}`;
+    case "ORDER_STATUS_UPDATED":
+      return `${actor} updated order${details?.newStatus ? ` to ${details.newStatus}` : ""}`;
+    case "ORDER_PACKED":
+      return `${actor} packed an order`;
+    case "ORDER_FULFILLED":
+      return `${actor} fulfilled an order`;
+    case "RECEIPT_SUBMITTED":
+      return `${actor} submitted a receipt`;
+    case "RECEIPT_APPROVED":
+      return `${actor} approved a receipt`;
+    case "RECEIPT_REJECTED":
+      return `${actor} rejected a receipt`;
+    case "RECEIPT_FULFILLED":
+      return `${actor} fulfilled a receipt`;
+    case "MEMBER_SYNCED":
+      return details?.memberName ? `New member: ${details.memberName}` : "Members synced";
+    case "LOGIN":
+      return `${actor} logged in`;
+    case "LOGOUT":
+      return `${actor} logged out`;
+    default:
+      return `${actor} performed an action`;
   }
 }
 
