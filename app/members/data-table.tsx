@@ -18,6 +18,7 @@ import {
 import {
   ArrowUpDown,
   ChevronDown,
+  Download,
   MoreHorizontal,
   Search,
   ChevronRight,
@@ -48,6 +49,7 @@ import {
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -55,7 +57,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { syncMembers } from "./actions";
+import { syncMembers, exportMembersToCSV, getAusaExportHistory } from "./actions";
 import { toAustralianDateTime } from "@/app/utils/dateFormatter";
 import { useMembersStore } from "@/app/store/membersStore";
 import { toast } from "sonner";
@@ -72,6 +74,13 @@ export type Member = {
   isValid: boolean | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+};
+
+type ExportRecord = {
+  id: number;
+  exportedAt: Date | null;
+  memberCount: number;
+  exportedByUserName: string | null;
 };
 
 function MemberCard({ member, onViewDetails }: { member: Member; onViewDetails: () => void }) {
@@ -421,9 +430,20 @@ export function DataTable({ data }: DataTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [isSyncing, setIsSyncing] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [showExportConfirm, setShowExportConfirm] = React.useState(false);
+  const [exportHistory, setExportHistory] = React.useState<ExportRecord[]>([]);
   const [mobileDetailsMember, setMobileDetailsMember] = React.useState<Member | null>(null);
 
   const fetchMembers = useMembersStore((state) => state.fetchMembers);
+
+  React.useEffect(() => {
+    getAusaExportHistory()
+      .then(setExportHistory)
+      .catch(() => {
+        // Silently degrade — history is informational and should not block the page
+      });
+  }, []);
 
   const table = useReactTable({
     data,
@@ -510,6 +530,40 @@ export function DataTable({ data }: DataTableProps) {
     }
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportMembersToCSV();
+      if (!result.success) {
+        toast.error(result.error || "Failed to export members");
+        return;
+      }
+
+      const blob = new Blob([result.csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const date = new Date().toISOString().split("T")[0];
+      link.href = url;
+      link.download = `ausa-members-${date}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Exported ${result.memberCount} members`);
+      setShowExportConfirm(false);
+
+      // Refresh history so the new export appears next time the dialog is opened
+      getAusaExportHistory()
+        .then(setExportHistory)
+        .catch(() => {});
+    } catch (error) {
+      toast.error("Failed to export members");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <motion.div
@@ -561,6 +615,16 @@ export function DataTable({ data }: DataTableProps) {
                 Sync
               </>
             )}
+          </Button>
+          <Button
+            onClick={() => setShowExportConfirm(true)}
+            disabled={isExporting}
+            variant="outline"
+            size="sm"
+            className="h-9 shrink-0"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export for AUSA
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -705,6 +769,71 @@ export function DataTable({ data }: DataTableProps) {
           </Button>
         </div>
       </motion.div>
+
+      {/* AUSA export confirmation dialog */}
+      <AlertDialog
+        open={showExportConfirm}
+        onOpenChange={(open) => {
+          if (!isExporting) setShowExportConfirm(open);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Export for AUSA?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will download a CSV of all {data.length} member
+              {data.length !== 1 ? "s" : ""} formatted for AUSA. This export will be logged.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {data.length === 0 && (
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              There are no members to export.
+            </p>
+          )}
+
+          {exportHistory.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Recent exports
+              </p>
+              <div className="divide-y divide-border rounded-md border">
+                {exportHistory.map((record) => (
+                  <div
+                    key={record.id}
+                    className="flex items-center justify-between gap-4 px-3 py-2 text-sm"
+                  >
+                    <span className="text-muted-foreground">
+                      {record.exportedAt ? toAustralianDateTime(record.exportedAt) : "Unknown date"}
+                    </span>
+                    <span className="font-medium">{record.memberCount} members</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {record.exportedByUserName ?? "Unknown"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isExporting}>Cancel</AlertDialogCancel>
+            <Button onClick={handleExport} disabled={isExporting || data.length === 0}>
+              {isExporting ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download CSV
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Mobile details dialog */}
       <MemberDetailsDialog

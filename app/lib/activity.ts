@@ -199,6 +199,18 @@ export const ActivityLogger = {
       details: stats,
     }),
 
+  membersExported: (
+    performedBy: { id: string; name: string },
+    stats: { memberCount: number },
+  ) =>
+    logActivity({
+      userId: performedBy.id,
+      userName: performedBy.name,
+      action: "MEMBER_EXPORTED",
+      entityType: "member",
+      details: stats,
+    }),
+
   login: (user: { id: string; name: string }) =>
     logActivity({
       userId: user.id,
