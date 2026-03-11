@@ -344,7 +344,9 @@ export const ausaExports = pgTable("ausa_exports", {
   id: serial("id").primaryKey(),
   exportedAt: timestamp("exported_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
   memberCount: integer("member_count").notNull(),
-  exportedByUserId: uuid("exported_by_user_id").references(() => users.id, { onDelete: "set null" }),
+  exportedByUserId: uuid("exported_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
   exportedByUserName: text("exported_by_user_name"), // stored in case user is deleted, mirrors activityLog pattern
 });
 

@@ -6,7 +6,7 @@ description: Brainstorm, explore, and design features collaboratively before any
 # Feature Assist Skill
 
 This skill helps users think through a feature deeply before a single line of code is written.
-The goal is to arrive at the *best* design for the codebase — not just a design that works.
+The goal is to arrive at the _best_ design for the codebase — not just a design that works.
 Never implement. Never write production code. Explore, challenge, and refine.
 
 ---
@@ -30,6 +30,7 @@ Before discussing the feature, get oriented in the codebase.
 Ask clarifying questions to fully understand what the user wants. Don't assume.
 
 Questions to explore (pick the most relevant, don't fire all at once):
+
 - What problem does this feature solve for the user?
 - Who is the end user of this feature?
 - What does success look like — what should be possible after this is built?
@@ -47,6 +48,7 @@ Generate **2–4 distinct implementation approaches** for the feature. These sho
 meaningfully different — not just variations on the same idea.
 
 For each approach, cover:
+
 - **Summary**: one-paragraph description of the approach
 - **How it fits the codebase**: what existing code it builds on or changes
 - **Pros**: what makes this approach good
@@ -82,6 +84,7 @@ Use this template:
 
 ```markdown
 # Feature Idea: <Feature Name>
+
 **Date:** YYYY-MM-DD
 **Status:** Idea / Ready to Implement
 **Requested by:** (if known)
@@ -89,16 +92,19 @@ Use this template:
 ---
 
 ## Problem Statement
+
 What problem does this feature solve?
 
 ---
 
 ## Feature Description
+
 Clear description of what the feature does from a user perspective.
 
 ---
 
 ## Codebase Context
+
 - **Architecture fit:** how this fits the existing structure
 - **Key existing files:** files this will touch or build on
 - **Relevant patterns:** conventions to follow
@@ -106,39 +112,49 @@ Clear description of what the feature does from a user perspective.
 ---
 
 ## Chosen Approach
+
 Full description of the agreed-upon implementation approach.
 
 ### Why this approach
+
 Reasoning for choosing this over alternatives.
 
 ### Files to change
+
 - `path/to/file.js` — what changes and why
 - `path/to/newfile.js` — new file, what it contains
 
 ### New files to create
+
 - `path/to/new/module.js` — purpose
 
 ### Edge cases to handle
+
 - Edge case 1
 - Edge case 2
 
 ---
 
 ## Alternatives Considered
+
 ### Option A — Name
+
 Brief description. Rejected because: ...
 
 ### Option B — Name
+
 Brief description. Rejected because: ...
 
 ---
 
 ## Open Questions
+
 - [ ] Any unresolved design decisions
 
 ---
 
 ## Notes
+
 Any other context, links, references, or discussion.
 ```
 

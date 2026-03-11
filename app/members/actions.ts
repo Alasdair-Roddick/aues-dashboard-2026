@@ -58,7 +58,10 @@ export async function exportMembersToCSV() {
     return { success: true as const, csv, memberCount: allMembers.length };
   } catch (error) {
     console.error("Error exporting members:", error);
-    return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 

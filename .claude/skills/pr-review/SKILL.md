@@ -8,7 +8,7 @@ user-invokable: true
 
 A structured pull request review that explains changes in plain language, assesses quality,
 and gives actionable feedback. The goal is to make the reviewer (or the author) fully
-understand every change — not just that the code changed, but *why* it changed and whether
+understand every change — not just that the code changed, but _why_ it changed and whether
 it's the right change.
 
 ---
@@ -25,6 +25,7 @@ Obtain the diff through one of these methods (in priority order):
 5. **Ask the user** — if none of the above work, ask them to paste the diff or provide branch names
 
 Also collect context:
+
 - `git log --oneline -5` to see recent commit messages
 - Any PR description, ticket, or context the user can share
 
@@ -54,12 +55,14 @@ Structure the review as follows:
 ---
 
 ### PR Review: `<branch name or description>`
+
 **Date:** YYYY-MM-DD
 **Scale:** X files changed, +Y insertions, −Z deletions
 
 ---
 
 #### 📋 Overview
+
 2–4 sentence plain-English summary of what this PR does overall and why it exists
 (infer from the changes if no description is provided).
 
@@ -91,18 +94,22 @@ Repeat for each logical group.
 ---
 
 #### ✅ What's Good
+
 Specific callouts of well-done things — good abstractions, clean naming, solid test coverage,
 thoughtful error handling, etc. Be specific, not generic.
 
 ---
 
 #### ⚠️ Concerns / Questions
+
 Issues that need to be discussed or addressed. Categorise each as:
+
 - `[BLOCKING]` — must be resolved before merge
 - `[SUGGESTION]` — recommended improvement but not required
 - `[QUESTION]` — needs clarification, may or may not be an issue
 
 For each concern:
+
 ```
 **[BLOCKING/SUGGESTION/QUESTION]** Brief title
 - Location: `file.js:42`
@@ -113,6 +120,7 @@ For each concern:
 ---
 
 #### 🧪 Testing Assessment
+
 - Are the changes adequately tested?
 - Are there obvious cases not covered by tests?
 - Do existing tests still make sense given the changes?
@@ -122,6 +130,7 @@ For each concern:
 #### 📊 Overall Assessment
 
 One of:
+
 - ✅ **Approve** — looks good, ready to merge
 - 🔄 **Approve with suggestions** — minor things to consider but not blocking
 - 🔁 **Request changes** — blocking issues that must be resolved first

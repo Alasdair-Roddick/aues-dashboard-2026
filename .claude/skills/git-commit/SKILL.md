@@ -24,9 +24,11 @@ git diff --cached
 Read the full staged diff. Understand every change before forming a commit message.
 
 Also check:
+
 ```bash
 git log --oneline -3
 ```
+
 To understand the recent commit style and scope used in this repo.
 
 ---
@@ -36,20 +38,20 @@ To understand the recent commit style and scope used in this repo.
 Pick **one** type based on what the diff actually contains. When in doubt, use the most
 significant change as the primary type.
 
-| Type | When to use |
-|------|-------------|
-| `feat` | A new feature or capability is added |
-| `fix` | A bug, crash, or incorrect behaviour is corrected |
-| `refactor` | Code restructured with no behaviour change |
-| `chore` | Build process, tooling, config, dependencies, scripts |
-| `docs` | Documentation, comments, READMEs only |
-| `style` | Formatting, whitespace, semicolons — no logic change |
-| `test` | Adding or updating tests only |
-| `perf` | Performance improvements |
-| `revert` | Reverting a previous commit |
-| `ci` | CI/CD pipeline changes |
+| Type       | When to use                                           |
+| ---------- | ----------------------------------------------------- |
+| `feat`     | A new feature or capability is added                  |
+| `fix`      | A bug, crash, or incorrect behaviour is corrected     |
+| `refactor` | Code restructured with no behaviour change            |
+| `chore`    | Build process, tooling, config, dependencies, scripts |
+| `docs`     | Documentation, comments, READMEs only                 |
+| `style`    | Formatting, whitespace, semicolons — no logic change  |
+| `test`     | Adding or updating tests only                         |
+| `perf`     | Performance improvements                              |
+| `revert`   | Reverting a previous commit                           |
+| `ci`       | CI/CD pipeline changes                                |
 
-**When there are mixed changes:** pick the type of the *most impactful* change. Mention the
+**When there are mixed changes:** pick the type of the _most impactful_ change. Mention the
 secondary changes in the body.
 
 ---
@@ -67,6 +69,7 @@ Follow this format:
 ```
 
 **Rules for the summary line:**
+
 - Imperative mood: "add X" not "added X" or "adds X"
 - No capital letter after the colon
 - No period at the end
@@ -74,11 +77,13 @@ Follow this format:
 - `scope` is optional — use it if the change is clearly scoped to one module/area (e.g. `feat(auth):`, `fix(api):`)
 
 **Rules for the body (include if the change isn't obvious):**
-- Explain *what* changed and *why*, not *how*
+
+- Explain _what_ changed and _why_, not _how_
 - Wrap at 72 characters
 - Separate from subject with a blank line
 
 **Examples:**
+
 ```
 feat(auth): add JWT refresh token rotation
 
@@ -134,11 +139,13 @@ git commit -m "<subject>" -m "<body>"
 ```
 
 Or for simple single-line commits:
+
 ```bash
 git commit -m "<subject>"
 ```
 
 Then confirm success:
+
 ```
 ## ✅ Committed
 

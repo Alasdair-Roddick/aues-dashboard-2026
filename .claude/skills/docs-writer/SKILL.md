@@ -15,15 +15,15 @@ Every doc is grounded in reading the real code first.
 
 Determine what kind of documentation is needed. Ask if unclear.
 
-| Type | When to use |
-|------|-------------|
-| **Inline comments** | Code logic that isn't self-evident from naming alone |
+| Type                   | When to use                                                    |
+| ---------------------- | -------------------------------------------------------------- |
+| **Inline comments**    | Code logic that isn't self-evident from naming alone           |
 | **JSDoc / docstrings** | Functions, classes, methods — parameters, return values, types |
-| **API docs** | Endpoints, request/response shapes, auth, error codes |
-| **Architecture doc** | How the system is structured, why decisions were made |
-| **Module / file doc** | What a file or module does and how to use it |
-| **Setup / guide** | How to do a specific thing (deploy, configure, extend) |
-| **Changelog** | What changed between versions |
+| **API docs**           | Endpoints, request/response shapes, auth, error codes          |
+| **Architecture doc**   | How the system is structured, why decisions were made          |
+| **Module / file doc**  | What a file or module does and how to use it                   |
+| **Setup / guide**      | How to do a specific thing (deploy, configure, extend)         |
+| **Changelog**          | What changed between versions                                  |
 
 Multiple types may be needed. Confirm with the user before proceeding.
 
@@ -40,6 +40,7 @@ Read every file relevant to the documentation task:
 - For **guides**: read the code path that implements the thing being guided
 
 While reading, note:
+
 - What each function/class/module **actually** does (not what its name implies)
 - Parameters and their types, including optional ones and defaults
 - Return values and their shapes
@@ -71,7 +72,7 @@ Ask the user if they want to fix stale/misleading docs in addition to adding new
 
 ### Inline Comments
 
-Only comment what isn't obvious from the code itself. Explain *why*, not *what*.
+Only comment what isn't obvious from the code itself. Explain _why_, not _what_.
 
 ```js
 // Bad: increment counter
@@ -82,6 +83,7 @@ count++;
 ```
 
 Place comments:
+
 - Above complex logic blocks
 - Above non-obvious conditionals
 - Beside magic numbers or strings (or better — extract them to named constants)
@@ -108,6 +110,7 @@ Place comments:
 ```
 
 Rules:
+
 - Always document params, return type, and thrown errors
 - Include `@example` for any function with non-obvious usage
 - For TypeScript, types in JSDoc are optional if already typed — focus on descriptions
@@ -143,10 +146,11 @@ def fetch_users(page: int, limit: int = 20, role: str = None):
 
 Save to `./docs/API.md`. Template:
 
-```markdown
+````markdown
 # API Reference
 
 ## Authentication
+
 How to authenticate (bearer token, API key, session, etc.)
 
 ---
@@ -154,6 +158,7 @@ How to authenticate (bearer token, API key, session, etc.)
 ## Endpoints
 
 ### GET /users
+
 Returns a paginated list of users.
 
 **Query Parameters**
@@ -164,19 +169,22 @@ Returns a paginated list of users.
 | role | string | No | Filter by role |
 
 **Response 200**
+
 ```json
 {
   "users": [{ "id": "abc123", "name": "Jane", "role": "admin" }],
   "total": 142
 }
 ```
+````
 
 **Errors**
 | Status | Code | Description |
 |--------|------|-------------|
 | 401 | UNAUTHORIZED | Missing or invalid token |
 | 422 | VALIDATION_ERROR | Invalid query parameters |
-```
+
+````
 
 ---
 
@@ -210,7 +218,7 @@ Context, options considered, and reasoning.
 
 ## Infrastructure
 How the system is deployed and hosted.
-```
+````
 
 ---
 
@@ -236,6 +244,7 @@ Add a file header comment:
 ## Phase 5 — Present and Confirm
 
 For **inline/docstring docs** — show a diff-style preview of additions:
+
 ```
 ## 📝 Documentation Preview
 
@@ -266,6 +275,7 @@ For **standalone doc files** — show the full content in the conversation first
 Create the `./docs/` directory if it doesn't exist.
 
 Confirm what was saved:
+
 ```
 ## ✅ Documentation Complete
 
