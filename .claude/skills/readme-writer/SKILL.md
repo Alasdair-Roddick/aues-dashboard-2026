@@ -22,6 +22,7 @@ git log --oneline -10   # recent commit history for project context
 ```
 
 Read:
+
 - Entry point files (main, index, app, server, etc.)
 - Config files (`.env.example`, `docker-compose.yml`, config dirs)
 - Existing README if one exists
@@ -29,6 +30,7 @@ Read:
 - Key source files to understand what the project actually does
 
 Identify:
+
 - **What the project does** — its purpose in one sentence
 - **Tech stack** — languages, frameworks, key dependencies
 - **How it's run** — install steps, start commands, environment setup
@@ -41,9 +43,11 @@ Identify:
 ## Phase 2 — Check for Existing README
 
 **If a README exists:**
+
 - Read it fully
 - Note what's accurate, what's outdated, what's missing
 - Present a gap analysis to the user:
+
 ```
 ## 📋 Existing README Analysis
 
@@ -53,9 +57,11 @@ Identify:
 
 Shall I update it in place, or rewrite from scratch?
 ```
+
 Wait for the user's preference before proceeding.
 
 **If no README exists:**
+
 - Confirm the project name and any context the user wants to add
 - Proceed to write from scratch
 
@@ -64,6 +70,7 @@ Wait for the user's preference before proceeding.
 ## Phase 3 — Confirm Scope
 
 Ask the user (keep it brief — one message):
+
 - Any sections they specifically want included or excluded?
 - Target audience — developers, end users, both?
 - Should it include badges (build status, version, license)?
@@ -80,30 +87,34 @@ don't add empty or placeholder sections just to fill space.
 
 ### README Template
 
-```markdown
+````markdown
 # Project Name
 
 > One-sentence description of what this project does and who it's for.
 
 <!-- Optional: badges -->
+
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
 ## What It Does
+
 2–4 sentences. What problem does it solve? What does it produce or enable?
 Only include if not obvious from the name/tagline.
 
 ---
 
 ## Features
+
 - Concrete feature 1
 - Concrete feature 2
-(only include if there are multiple distinct capabilities worth highlighting)
+  (only include if there are multiple distinct capabilities worth highlighting)
 
 ---
 
 ## Tech Stack
+
 - **Language:** X
 - **Framework:** Y
 - **Key dependencies:** Z
@@ -113,21 +124,26 @@ Only include if not obvious from the name/tagline.
 ## Getting Started
 
 ### Prerequisites
+
 What needs to be installed first and at what version.
 
 ### Installation
+
 ```bash
 git clone ...
 cd project
 npm install        # or pip install -r requirements.txt, etc.
 cp .env.example .env
 ```
+````
 
 ### Configuration
+
 Any environment variables that need to be set, with explanations.
 Reference `.env.example` if it exists.
 
 ### Running
+
 ```bash
 npm run dev        # development
 npm start          # production
@@ -136,6 +152,7 @@ npm start          # production
 ---
 
 ## Usage
+
 How to actually use the project once it's running. Include examples.
 For CLIs: show command examples.
 For APIs: show a request/response example.
@@ -144,6 +161,7 @@ For libraries: show a code snippet.
 ---
 
 ## Project Structure
+
 ```
 src/
 ├── controllers/   # request handlers
@@ -151,17 +169,20 @@ src/
 ├── models/        # data layer
 └── routes/        # API route definitions
 ```
+
 Only include if the structure isn't obvious or needs explanation.
 
 ---
 
 ## API Reference
+
 If the project exposes an API, document the key endpoints.
 (Or link to separate API docs if they exist.)
 
 ---
 
 ## Running Tests
+
 ```bash
 npm test
 npm run test:coverage
@@ -170,18 +191,22 @@ npm run test:coverage
 ---
 
 ## Deployment
+
 Key steps or gotchas for deploying to production, if relevant.
 
 ---
 
 ## Contributing
+
 How to contribute — branch naming, PR process, code style.
 Keep brief or link to CONTRIBUTING.md if it exists.
 
 ---
 
 ## License
+
 State the license. Check package.json or LICENSE file.
+
 ```
 
 ---
@@ -191,6 +216,7 @@ State the license. Check package.json or LICENSE file.
 Present the full README in the conversation first. Ask:
 
 ```
+
 ## 📄 Draft README
 
 <full content>
@@ -199,6 +225,7 @@ Present the full README in the conversation first. Ask:
 
 Happy with this? I'll save it to `README.md`.
 Any sections to add, remove, or change?
+
 ```
 
 ---
@@ -209,7 +236,9 @@ Once approved, write to `./README.md` (overwriting if updating).
 
 Confirm:
 ```
+
 ## ✅ README saved to ./README.md
+
 ```
 
 ---
@@ -222,3 +251,4 @@ Confirm:
 - **Match the project's tone.** A serious enterprise tool gets professional prose. A weekend project can be casual.
 - **Keep it scannable.** Developers skim READMEs. Lead with the most useful info.
 - **If updating**, preserve any content that's still accurate — don't rewrite for the sake of rewriting.
+```

@@ -1,4 +1,5 @@
 # Feature Idea: AUSA Member CSV Export
+
 **Date:** 2026-02-25
 **Status:** Implemented
 **Requested by:** AUSA (via committee)
@@ -6,14 +7,17 @@
 ---
 
 ## Problem Statement
+
 AUSA requires a monthly CSV of current AUES members to process club membership transfers. We need a way to export this data reliably, avoid accidentally handing the same data twice, and prevent accidental button presses from producing inaccurate counts.
 
 ---
 
 ## Feature Description
+
 A button on the members page that exports all current members to a CSV file formatted to AUSA's requirements. Each export is logged to the database, and the export history is visible before confirming the download — so you can see at a glance whether you've already sent this month's data.
 
 **CSV format:**
+
 ```
 Full Name,Student ID,Do you agree to abide by the Clubs Code of Conduct?,Do you consent to the transfer of your membership to the AUSA page?
 John Smith,MBR-00123,TRUE,TRUE
@@ -27,6 +31,7 @@ Jane Doe,MBR-00456,TRUE,TRUE
 ---
 
 ## Codebase Context
+
 - **Architecture fit:** Next.js App Router, server actions pattern. No new API routes needed. Follows existing patterns in `app/members/actions.ts` and `app/admin/actions.ts`.
 - **Key existing files:**
   - `app/db/schema.ts` — DB schema (Drizzle ORM, Neon PostgreSQL)
@@ -44,11 +49,13 @@ Jane Doe,MBR-00456,TRUE,TRUE
 ---
 
 ## Chosen Approach
+
 **Server action + DB export log table (Approach B)**
 
 The server action fetches all members, logs the export to a new `ausaExports` DB table, and returns the CSV content as a string. The client builds a downloadable blob and triggers the browser download. Before the download begins, a confirmation dialog shows the member count and recent export history, so users can verify they're not sending duplicate data.
 
 ### Why this approach
+
 - Fits the server action pattern used throughout the app
 - Export history is persisted in the DB and visible to all dashboard users (not tied to a single browser)
 - The confirmation dialog + visible history directly addresses the "accidental press / inaccurate numbers" concern
@@ -73,7 +80,9 @@ export const ausaExports = pgTable("ausa_exports", {
   id: serial("id").primaryKey(),
   exportedAt: timestamp("exported_at", { withTimezone: true, mode: "date" }).defaultNow().notNull(),
   memberCount: integer("member_count").notNull(),
-  exportedByUserId: uuid("exported_by_user_id").references(() => users.id, { onDelete: "set null" }),
+  exportedByUserId: uuid("exported_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
   exportedByUserName: text("exported_by_user_name"), // stored in case user is deleted, same pattern as activityLog
 });
 ```
@@ -134,9 +143,11 @@ handleExport():
 ```
 
 ### CSV escaping note
+
 For the simple `fullname` and `membershipId` fields, wrap any value containing a comma or double-quote in double-quotes, and escape internal double-quotes by doubling them (`"` → `""`). No library needed for this.
 
 ### Edge cases to handle
+
 - Member with `null` membershipId — export as empty string in the Student ID column
 - Member with a comma or quote in their `fullname` — apply CSV escaping
 - Zero members in the DB — the action should still succeed but export only the header row; show a warning in the confirmation dialog ("No members to export")
@@ -148,11 +159,13 @@ For the simple `fullname` and `membershipId` fields, wrap any value containing a
 ## Alternatives Considered
 
 ### Option A — Client-side export, localStorage history
+
 CSV generation and download entirely on the client. Export history stored in Zustand and persisted to `localStorage`.
 
 Rejected because: history is per-browser and per-user. Two committee members can't see each other's exports. History is lost if localStorage is cleared.
 
 ### Option C — Streaming API route
+
 `GET /api/members/export` endpoint returning `Content-Disposition: attachment` with streamed CSV.
 
 Rejected because: diverges from the server action pattern used everywhere else in the app. Auth handling is more complex on API routes. No meaningful UX benefit over Approach B for this use case.
@@ -160,12 +173,14 @@ Rejected because: diverges from the server action pattern used everywhere else i
 ---
 
 ## Open Questions
+
 - [ ] Should the export be restricted to Admin-only, or is the current member auth check (exclude Temporary) sufficient?
 - [ ] Should we add a "label" or "note" field to each export (e.g., "February handoff") for clearer history? Could be added to the `ausaExports` table without much extra work.
 
 ---
 
 ## Notes
+
 - `membershipId` is being treated as the "Student ID" for AUSA's purposes, as confirmed with the team.
 - The two consent columns (`Clubs Code of Conduct` and `transfer to AUSA`) are not stored in the database — they are always `TRUE` per AUSA's form requirements and are injected at export time only.
 - No new npm packages are required. CSV generation can be done with plain string manipulation for the small set of fields involved.
@@ -174,8 +189,10 @@ Rejected because: diverges from the server action pattern used everywhere else i
 ---
 
 ## Implementation Notes
+
 **Implemented:** 2026-02-25
 **Files changed:**
+
 - `app/db/schema.ts` — Added `ausaExports` table; added `"MEMBER_EXPORTED"` to `ActivityActionType`
 - `app/lib/activity.ts` — Added `membersExported` convenience method to `ActivityLogger`
 - `app/members/actions.ts` — Added `exportMembersToCSV()` and `getAusaExportHistory()` server actions; added `escapeCsvField` helper
@@ -183,10 +200,12 @@ Rejected because: diverges from the server action pattern used everywhere else i
 - `drizzle/0017_tranquil_silvermane.sql` — Migration: creates `ausa_exports` table with FK to users
 
 **Deviations from plan:**
+
 - Used a plain `Button` (not `AlertDialogAction`) for the Download CSV button in the footer. This is intentional: `AlertDialogAction` auto-closes the dialog on click, but we want to keep it open while the export is in progress and close it only on success.
 - Migration also captured some pre-existing untracked schema entries (`site_settings` columns, `activity_log` indexes) — these were already in `schema.ts` and are safe.
 
 **Suggested next steps:**
+
 - Run `npx drizzle-kit migrate` (or `drizzle-kit push` for dev) to apply the migration to your database
 - Test the export flow end-to-end: click Export for AUSA → confirm dialog shows member count → download triggers → history updates
 - Decide on the two open questions: Admin-only vs. exclude-Temporary access; optional export label field

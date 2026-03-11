@@ -19,6 +19,7 @@ anything, flag stale assumptions, then implement cleanly.
 3. Confirm with the user which feature to implement if there's any ambiguity.
 
 Show a brief summary of what you've loaded:
+
 ```
 ## 📋 Loaded Feature Plan: <Feature Name>
 - Approach: one sentence summary
@@ -43,6 +44,7 @@ Plans go stale. Before implementing, verify the plan still matches reality.
 3. Note any **drift** between the plan and the current state.
 
 If drift is found, flag it:
+
 ```
 ## ⚠️ Plan Drift Detected
 - `path/to/file.js` — function `handleX` was renamed to `processX`
@@ -79,6 +81,7 @@ Ask the user: "Does this look right? Any adjustments before I start?"
 Work through the checklist one step at a time.
 
 **For each step:**
+
 1. State what you're about to do
 2. Write the code
 3. Check off the step
@@ -86,6 +89,7 @@ Work through the checklist one step at a time.
    match the existing Y convention in the codebase")
 
 **Code quality rules:**
+
 - Match the existing codebase's style, naming, and patterns exactly
 - Don't refactor unrelated code — stay focused on the feature
 - If you notice a bug or issue in existing code while implementing, note it but don't fix it
@@ -94,6 +98,7 @@ Work through the checklist one step at a time.
 - Follow the error handling pattern already used in the codebase
 
 **If a step reveals an unexpected problem:**
+
 - Stop
 - Explain what was found
 - Propose an adjusted approach
@@ -112,19 +117,24 @@ After all steps are complete:
 ---
 
 ## Implementation Notes
+
 **Implemented:** YYYY-MM-DD
 **Files changed:**
+
 - `path/to/file.js` — description of changes
 - `path/to/newfile.js` — created, purpose
 
 **Deviations from plan:**
+
 - Any places where implementation differed from the design and why
 
 **Suggested next steps:**
+
 - Any follow-up work, cleanup, or testing recommended
 ```
 
 2. **Present a summary to the user:**
+
 ```
 ## ✅ Feature Implemented: <Feature Name>
 

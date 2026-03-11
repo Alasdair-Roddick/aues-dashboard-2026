@@ -199,10 +199,7 @@ export const ActivityLogger = {
       details: stats,
     }),
 
-  membersExported: (
-    performedBy: { id: string; name: string },
-    stats: { memberCount: number },
-  ) =>
+  membersExported: (performedBy: { id: string; name: string }, stats: { memberCount: number }) =>
     logActivity({
       userId: performedBy.id,
       userName: performedBy.name,
