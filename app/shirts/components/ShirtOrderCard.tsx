@@ -193,28 +193,36 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
 
   return (
     <>
-      <Card className="flex flex-col overflow-hidden border-slate-200/80 bg-linear-to-b from-white to-slate-50/50 py-0 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:from-slate-950 dark:to-slate-950/70">
-        {/* Header: name, code, menu */}
-        <CardHeader className="px-4 pb-0 pt-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <CardTitle className="truncate text-sm font-semibold">
-                  {order.customerName}
-                </CardTitle>
+      <Card className="flex flex-col overflow-hidden rounded-xl border-slate-200/80 bg-white py-0 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+        <CardHeader className="space-y-4 border-b border-slate-200/70 bg-slate-50/75 px-4 py-4 dark:border-slate-800 dark:bg-slate-900/45">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge
                   variant="outline"
-                  className="shrink-0 rounded-md px-1.5 font-mono text-[10px] text-muted-foreground"
+                  className="rounded-md border-slate-200/80 px-2 py-0.5 font-mono text-xs font-medium text-slate-600 dark:border-slate-800 dark:text-slate-400"
                 >
                   #{customerOrderCode}
                 </Badge>
+                <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  Shirt order
+                </span>
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">{order.customerEmail}</p>
+              <CardTitle className="break-words text-base font-semibold leading-5">
+                {order.customerName}
+              </CardTitle>
+              <p className="break-all text-sm leading-5 text-muted-foreground">
+                {order.customerEmail}
+              </p>
             </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" className="-mr-1 -mt-1 shrink-0 rounded-md">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="-mr-1 shrink-0 rounded-lg text-muted-foreground"
+                >
                   <MoreHorizontal className="h-4 w-4" />
                   <span className="sr-only">Order actions</span>
                 </Button>
@@ -240,45 +248,70 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
             </DropdownMenu>
           </div>
 
-          {/* Status badges row */}
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <Badge
-              variant="outline"
-              className={`text-[10px] font-semibold ${getFulfillmentBadgeClasses(order.fulfillmentStatus)}`}
-            >
-              {order.fulfillmentStatus}
-            </Badge>
-            {order.shippingStatus === "SHIPPED" ? (
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+            <div className="flex flex-wrap items-center gap-1.5">
               <Badge
                 variant="outline"
-                className="border-emerald-200 bg-emerald-50 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                className={`text-xs font-semibold ${getFulfillmentBadgeClasses(order.fulfillmentStatus)}`}
               >
-                <Truck className="mr-1 h-3 w-3" />
-                Shipped
+                {order.fulfillmentStatus}
               </Badge>
-            ) : (
-              <Badge variant="secondary" className="text-[10px]">
-                Not shipped
-              </Badge>
-            )}
+              {order.shippingStatus === "SHIPPED" ? (
+                <Badge
+                  variant="outline"
+                  className="border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                >
+                  <Truck className="mr-1.5 h-3 w-3" />
+                  Shipped
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-xs">
+                  Not shipped
+                </Badge>
+              )}
+            </div>
             {order.shippingTrackingNumber && (
-              <Badge variant="outline" className="max-w-30 truncate font-mono text-[10px]">
-                {order.shippingTrackingNumber}
-              </Badge>
+              <div className="rounded-lg border border-slate-200/80 bg-white px-2.5 py-2 text-right dark:border-slate-800 dark:bg-slate-950/70">
+                <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Tracking
+                </p>
+                <p className="mt-1 break-all font-mono text-xs text-foreground">
+                  {order.shippingTrackingNumber}
+                </p>
+              </div>
             )}
           </div>
         </CardHeader>
 
-        {/* Items */}
-        <CardContent className="flex-1 px-4 pb-0 pt-3">
+        <CardContent className="flex-1 space-y-3 px-4 py-4">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200/70 bg-slate-50/80 px-3 py-2.5 dark:border-slate-800 dark:bg-slate-900/45">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                Items
+              </p>
+              <p className="text-sm font-semibold text-foreground">
+                {totalQuantity} item{totalQuantity !== 1 ? "s" : ""}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShippingModalOpen(true)}
+              className="shrink-0 rounded-lg"
+            >
+              <Truck className="mr-2 h-4 w-4" />
+              {order.shippingStatus === "SHIPPED" ? "Edit shipping" : "Add shipping"}
+            </Button>
+          </div>
+
           <div className="space-y-2">
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-2.5 dark:border-slate-800/60 dark:bg-slate-900/40"
+                className="grid grid-cols-[44px_minmax(0,1fr)] gap-3 rounded-lg border border-slate-100 bg-slate-50/70 p-2.5 dark:border-slate-800/60 dark:bg-slate-900/50"
               >
                 {item.imageUrl ? (
-                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                  <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
                     <img
                       src={item.imageUrl}
                       alt={item.productName}
@@ -286,18 +319,18 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
-                    <Package2 className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                    <Package2 className="h-5 w-5 text-muted-foreground" />
                   </div>
                 )}
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium leading-snug">{item.productName}</p>
-                  <div className="mt-1.5 flex items-center gap-1.5">
-                    <span className="inline-flex items-center rounded-md bg-blue-100/80 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-medium leading-snug">{item.productName}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-md bg-blue-100/70 px-2 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
                       {item.size || "No size"}
                     </span>
-                    <span className="text-[11px] font-medium text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Qty {item.quantity}
                     </span>
                   </div>
@@ -305,21 +338,23 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
               </div>
             ))}
           </div>
+        </CardContent>
 
-          {/* Footer metadata */}
-          <div className="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-3 pb-1 text-[11px] text-muted-foreground dark:border-slate-800/60">
+        {/* Footer */}
+        <CardFooter className="flex-col items-start gap-3 border-t border-slate-200/70 px-4 py-4 dark:border-slate-800">
+          <div className="flex w-full flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {lastActivity ? (
               <>
-                <Avatar className="h-4 w-4">
+                <Avatar className="h-5 w-5">
                   {lastActivity.userName ? (
                     <>
                       <AvatarImage src={lastActivity.userImage || undefined} />
-                      <AvatarFallback className="text-[8px]">
+                      <AvatarFallback className="text-[9px]">
                         {lastActivity.userName.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </>
                   ) : (
-                    <AvatarFallback className="text-[8px]">S</AvatarFallback>
+                    <AvatarFallback className="text-[9px]">S</AvatarFallback>
                   )}
                 </Avatar>
                 <span className="truncate">
@@ -328,18 +363,15 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
               </>
             ) : (
               <>
-                <CalendarDays className="h-3 w-3 shrink-0" />
-                <span>{new Date(order.createdOn).toLocaleDateString()}</span>
+                <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">
+                  Ordered on {new Date(order.createdOn).toLocaleDateString()}
+                </span>
               </>
             )}
-            <span className="ml-auto shrink-0 font-mono text-[10px]">
-              {totalQuantity} item{totalQuantity !== 1 ? "s" : ""}
-            </span>
           </div>
-        </CardContent>
-
-        {/* Actions */}
-        <CardFooter className="px-4 pb-4 pt-3">{renderActions()}</CardFooter>
+          {renderActions()}
+        </CardFooter>
       </Card>
 
       <ShippingModal
