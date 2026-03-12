@@ -5,6 +5,7 @@ import {
   OrderPacked,
   OrderFulfilled,
   OrderShipped,
+  CustomEmail,
   type OrderItem,
 } from "@/components/email-template";
 
@@ -121,4 +122,38 @@ export function sendOrderShippedEmail(
     "order-shipped",
     resolveRecipient(args.to),
   );
+}
+
+export async function sendCustomerEmail(args: {
+  to: string;
+  customerName: string;
+  subject: string;
+  message: string;
+  senderName: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const recipient = resolveRecipient(args.to);
+  console.log(`[email] Sending custom email → ${recipient}`);
+  try {
+    const { error } = await getResend().emails.send({
+      from: FROM,
+      to: [recipient],
+      replyTo: "club@aues.com.au",
+      subject: args.subject,
+      react: React.createElement(CustomEmail, {
+        customerName: args.customerName,
+        subject: args.subject,
+        message: args.message,
+        senderName: args.senderName,
+      }),
+    });
+    if (error) {
+      console.error("[email] ✗ custom email API error:", error);
+      return { success: false, error: "Failed to send email" };
+    }
+    console.log(`[email] ✓ custom email sent to ${recipient}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[email] ✗ custom email failed:", err);
+    return { success: false, error: "Failed to send email" };
+  }
 }
