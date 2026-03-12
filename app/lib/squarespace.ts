@@ -3,6 +3,7 @@ import { db } from "../db/index";
 import { siteSettings, squarespaceOrders, squarespaceOrderItems } from "../db/schema";
 import { decrypt } from "./encryption";
 import { eq, inArray, isNull } from "drizzle-orm";
+import { sendOrderReceivedEmail } from "./email";
 
 // Types for Squarespace API responses
 interface SquarespaceLineItem {
@@ -373,6 +374,18 @@ export async function syncShirtOrdersToDatabase(
       await db.insert(squarespaceOrders).values(orderData);
       existingOrderMap.set(order.id, orderData.fulfillmentStatus);
       added++;
+
+      // Send order received email
+      sendOrderReceivedEmail({
+        to: order.customerEmail,
+        customerName: orderData.customerName,
+        orderNumber: orderData.orderNumber ?? order.id,
+        items: order.lineItems.map((item: SquarespaceLineItem) => ({
+          productName: item.productName,
+          size: getSizeFromLineItem(item),
+          quantity: item.quantity,
+        })),
+      });
     }
 
     syncedOrderIds.push(order.id);
