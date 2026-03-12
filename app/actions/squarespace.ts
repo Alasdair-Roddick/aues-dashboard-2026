@@ -13,6 +13,11 @@ import {
 import { ActivityLogger } from "@/app/lib/activity";
 import { getOrdersActivityWithUsers, type ActivityLogEntry } from "@/app/actions/activity";
 import { getSessionRole } from "@/lib/session";
+import {
+  sendOrderPackedEmail,
+  sendOrderFulfilledEmail,
+  sendOrderShippedEmail,
+} from "@/app/lib/email";
 
 export type OrderStatus = "PENDING" | "PACKED" | "FULFILLED";
 
@@ -419,6 +424,28 @@ export async function updateOrderStatus(
       currentOrder[0].customerName,
     );
 
+    // Send email notification on status change
+    if (newStatus === "PACKED" || newStatus === "FULFILLED") {
+      const items = await db
+        .select()
+        .from(squarespaceOrderItems)
+        .where(eq(squarespaceOrderItems.orderId, orderId));
+
+      const emailArgs = {
+        to: currentOrder[0].customerEmail,
+        customerName: currentOrder[0].customerName,
+        orderNumber: currentOrder[0].orderNumber ?? orderId,
+        items: items.map((i) => ({
+          productName: i.productName,
+          size: i.size,
+          quantity: i.quantity,
+        })),
+      };
+
+      if (newStatus === "PACKED") sendOrderPackedEmail(emailArgs);
+      if (newStatus === "FULFILLED") sendOrderFulfilledEmail(emailArgs);
+    }
+
     return { success: true };
   } catch (error: unknown) {
     console.error("Error updating order status:", error);
@@ -506,6 +533,25 @@ export async function updateShipping(
       "SHIPPED",
       currentOrder[0].customerName,
     );
+
+    // Send shipping notification email
+    const items = await db
+      .select()
+      .from(squarespaceOrderItems)
+      .where(eq(squarespaceOrderItems.orderId, orderId));
+
+    sendOrderShippedEmail({
+      to: currentOrder[0].customerEmail,
+      customerName: currentOrder[0].customerName,
+      orderNumber: currentOrder[0].orderNumber ?? orderId,
+      items: items.map((i) => ({
+        productName: i.productName,
+        size: i.size,
+        quantity: i.quantity,
+      })),
+      trackingNumber,
+      carrier,
+    });
 
     return { success: true };
   } catch (error: unknown) {
