@@ -24,9 +24,11 @@ import {
 import { useShirtOrderStore } from "@/app/store/shirtOrderStore";
 import { type ShirtOrder, type OrderStatus } from "@/app/actions/squarespace";
 import { ShippingModal } from "./ShippingModal";
+import { EmailCustomerModal } from "./EmailCustomerModal";
 import { toast } from "sonner";
 import {
   CalendarDays,
+  Mail,
   MoreHorizontal,
   Package2,
   PackageCheck,
@@ -85,6 +87,7 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
   const setShipping = useShirtOrderStore((state) => state.setShipping);
 
   const [shippingModalOpen, setShippingModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [savingShipping, setSavingShipping] = useState(false);
@@ -239,6 +242,10 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
                   <Truck className="mr-2 h-4 w-4" />
                   {order.shippingStatus === "SHIPPED" ? "Edit shipping" : "Add shipping"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEmailModalOpen(true)}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Email customer
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} variant="destructive">
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -373,6 +380,12 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
           {renderActions()}
         </CardFooter>
       </Card>
+
+      <EmailCustomerModal
+        order={order}
+        open={emailModalOpen}
+        onOpenChange={setEmailModalOpen}
+      />
 
       <ShippingModal
         key={`${order.id}-${order.shippingTrackingNumber || "none"}-${shippingModalOpen ? "open" : "closed"}`}
