@@ -30,10 +30,20 @@ function resolveRecipient(to: string): string {
   return to;
 }
 
-function safeEmailSend(fn: () => Promise<unknown>, label: string, to: string) {
+function safeEmailSend(
+  fn: () => Promise<{ data: unknown; error: unknown }>,
+  label: string,
+  to: string,
+) {
   console.log(`[email] Sending ${label} → ${to}`);
   fn()
-    .then(() => console.log(`[email] ✓ ${label} sent to ${to}`))
+    .then(({ error }) => {
+      if (error) {
+        console.error(`[email] ✗ ${label} API error:`, error);
+      } else {
+        console.log(`[email] ✓ ${label} sent to ${to}`);
+      }
+    })
     .catch((err) => console.error(`[email] ✗ ${label} failed:`, err));
 }
 
