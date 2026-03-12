@@ -381,11 +381,7 @@ export function ShirtOrderCard({ order }: ShirtOrderCardProps) {
         </CardFooter>
       </Card>
 
-      <EmailCustomerModal
-        order={order}
-        open={emailModalOpen}
-        onOpenChange={setEmailModalOpen}
-      />
+      <EmailCustomerModal order={order} open={emailModalOpen} onOpenChange={setEmailModalOpen} />
 
       <ShippingModal
         key={`${order.id}-${order.shippingTrackingNumber || "none"}-${shippingModalOpen ? "open" : "closed"}`}

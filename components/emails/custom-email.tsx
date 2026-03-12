@@ -37,7 +37,12 @@ function randomSignOff(): string {
   return SIGN_OFFS[Math.floor(Math.random() * SIGN_OFFS.length)];
 }
 
-export const CustomEmail: React.FC<CustomEmailProps> = ({ customerName, subject, message, senderName }) => {
+export const CustomEmail: React.FC<CustomEmailProps> = ({
+  customerName,
+  subject,
+  message,
+  senderName,
+}) => {
   const signOff = randomSignOff();
   // Render newlines as <br /> in the message
   const messageLines = message.split("\n");
@@ -74,7 +79,14 @@ export const CustomEmail: React.FC<CustomEmailProps> = ({ customerName, subject,
 
       {/* Signature */}
       <div style={{ marginBottom: "24px" }}>
-        <p style={{ margin: "0 0 2px 0", fontSize: "14px", color: colors.textMuted, lineHeight: 1.6 }}>
+        <p
+          style={{
+            margin: "0 0 2px 0",
+            fontSize: "14px",
+            color: colors.textMuted,
+            lineHeight: 1.6,
+          }}
+        >
           {signOff}
         </p>
         <p style={{ margin: "0 0 2px 0", fontSize: "14px", fontWeight: 600, color: colors.text }}>
