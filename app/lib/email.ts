@@ -8,7 +8,11 @@ import {
   type OrderItem,
 } from "@/components/email-template";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 const FROM = "AUES <noreply@support.aues.com.au>";
 
@@ -36,7 +40,7 @@ function safeEmailSend(fn: () => Promise<unknown>, label: string, to: string) {
 export function sendOrderReceivedEmail(args: OrderEmailBase) {
   safeEmailSend(
     () =>
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM,
         to: [resolveRecipient(args.to)],
         subject: `Order #${args.orderNumber} received — we're getting it ready!`,
@@ -54,7 +58,7 @@ export function sendOrderReceivedEmail(args: OrderEmailBase) {
 export function sendOrderPackedEmail(args: OrderEmailBase) {
   safeEmailSend(
     () =>
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM,
         to: [resolveRecipient(args.to)],
         subject: `Order #${args.orderNumber} is packed and ready to collect!`,
@@ -72,7 +76,7 @@ export function sendOrderPackedEmail(args: OrderEmailBase) {
 export function sendOrderFulfilledEmail(args: OrderEmailBase) {
   safeEmailSend(
     () =>
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM,
         to: [resolveRecipient(args.to)],
         subject: `Order #${args.orderNumber} — all done, enjoy!`,
@@ -92,7 +96,7 @@ export function sendOrderShippedEmail(
 ) {
   safeEmailSend(
     () =>
-      resend.emails.send({
+      getResend().emails.send({
         from: FROM,
         to: [resolveRecipient(args.to)],
         subject: `Order #${args.orderNumber} is on its way — tracking: ${args.trackingNumber}`,
